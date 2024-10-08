@@ -44,7 +44,7 @@ After the installation, we are ready to start a *project* in Julia. In a termina
 With the command `Pluto.run()`, a Pluto notebook opens in your default browser. 
 
 > [!NOTE] 
-> Click on `Save notebook ...` and call it `exercise1`. (Do this before entring any code!) <br>
+> Click on `Save notebook ...` and call it `exercise1,jl`. (Do this before entring any code!) <br>
 > In the cell, enter
 > ```
 > begin
@@ -102,6 +102,8 @@ As a researcher, it is important to collaborate and make your code publically av
 >         new file:   notebooks/exercise1.jl
 >         new file:   src/DataAnalysisWS2425.jl
 > ```
+> We also recommend to add a README.md file that describes the repository and which can be used to remind you how to run the code.
+> 
 > You can do the first *commit* now (adding a descriptive message with `-m`)
 > ```
 > git commit -m 'setup for data analysis exercises'
