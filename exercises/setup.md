@@ -21,7 +21,7 @@ After the installation, we are ready to start a *project* in Julia. In a termina
 ## Setup julia
 
 > [!NOTE] 
-> ```
+> ```julia
 > $ julia
 > julia> # this is a comment. Type ] to get to the package mode
 > (@v1.10) pkg> generate DataAnalysisWS2425
@@ -46,7 +46,7 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 > [!NOTE] 
 > Click on `Save notebook ...` and call it `exercise1,jl`. (Do this before entring any code!) <br>
 > In the cell, enter
-> ```
+> ```julia
 > begin
 >     import Pkg
 >     # activate the shared project environment
@@ -58,8 +58,41 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 >     using DataAnalysisWS2425, Random, Plots
 > end
 > ```
+>
 > and execute it with <Shift+Enter>.
-
+>
+> There are few more ways to set reproducible environments: <br>
+>
+> <details>
+> <summary> 1. With temporary folder </summary>
+>
+> Guess what the following code does,
+> ```julia
+> begin
+>     import Pkg
+>     Pkg.activate(mktempdir())
+>     Pkg.add([
+>         Pkg.PackageSpec("Plots"),
+>         Pkg.PackageSpec("Random"),
+>         Pkg.PackageSpec(url="https://github.com/mmikhasenko/FourVectors.jl")])
+>     #
+>     using Plots, Random, FourVectors
+> end
+> ```
+> Put to an empty cell and evaluate.
+> </details>
+>
+> <details> <summary> 2. Using Pluto package manager </summary>
+>
+> If your project only requires registered packages, simply add them to the first cell of your notebook:
+> ```julia
+> begin
+>     using Plots
+>     using Random
+>     using FourVectors
+> end
+> ```
+> </details>
 You are now ready to start coding on your local device with Julia, but an important step is still missing...
 
 ## Setup git
@@ -79,18 +112,23 @@ As a researcher, it is important to collaborate and make your code publically av
 > In the terminal, navigate to the `DataAnalysisWS2425` directory that Julia created.<br>
 > Call `git init`.<br>
 > If you get a hint message from git, you can follow it:
-> ```
+>
+> ```bash
 > git config --global init.defaultBranch main
 > git branch -m main
 > ```
+>
 > While at it, configure user mail and name:
-> ```
+>
+> ```bash
 > git config --global user.email "you@example.com"
 > git config --global user.name "Your Name"
 > ```
+>
 > You can now add the project to the new repository with `git add *`.<br>
 > If you type `git status`, you should see
-> ```
+>
+> ```bash
 > On branch main
 > 
 > No commits yet
@@ -105,7 +143,7 @@ As a researcher, it is important to collaborate and make your code publically av
 > We also recommend to add a README.md file that describes the repository and which can be used to remind you how to run the code.
 > 
 > You can do the first *commit* now (adding a descriptive message with `-m`)
-> ```
+> ```bash
 > git commit -m 'setup for data analysis exercises'
 > ```
 >  
@@ -116,7 +154,8 @@ As a researcher, it is important to collaborate and make your code publically av
 > [add your key to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account).
 > 
 > It's time to make the code public:
-> ```
+>
+> ```bash
 > git remote add origin git@github.com:<your_github_user_name>/DataAnalysisWS2425.git
 > git push -u origin main
 > ```
@@ -129,7 +168,8 @@ As a researcher, it is important to collaborate and make your code publically av
 ## Back to julia, running tests
 
 To get back working on your notebook, open julia in the main directory (`DataAnalysisWS2425`) of your project, revive the project, and start Pluto:
-```
+
+```julia
 (@v1.10) pkg> activate .
 julia> cd("notebooks")
 julia> import Pluto; Pluto.run()
@@ -140,7 +180,7 @@ In the upcoming tutorial sessions, you will be implementing *tests* to check if 
 Here is how you can run a dummy test:
 > [!NOTE]
 > Create the file `test/runtests.jl` in your main directory (`DataAnalysisWS2425`) with content
-> ```
+> ```julia
 > using DataAnalysisWS2425
 > using Test
 > @testset "Fake test" begin
@@ -148,12 +188,12 @@ Here is how you can run a dummy test:
 > end
 > ```
 > Run tests for the project from a julia REPL (assuming your current directory is `DataAnalysisWS2425`)
-> ```
+> ```julia
 > (@v1.10) pkg> activate .
 > (DataAnalysisWS2425) pkg> test
 > ```
 > In the end, you should see
-> ```
+> ```julia
 >      Testing Running tests...
 > Test Summary: | Pass  Total  Time
 > Fake test     |    1      1  0.0s
