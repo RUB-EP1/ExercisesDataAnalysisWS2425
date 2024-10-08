@@ -22,19 +22,19 @@ Make a plot for each of the distributions with parameters
 
 a) $\mu=1.0, \sigma=0.4$<br>
 b) $\lambda=0.05$<br>
-c) $a=0.01, b=-0.04, c=0.25$<br>
+c) $a=0.01, b=-0.04, c=0.25, d=15$<br>
 d) $M=1530, \Gamma=9$<br>
 e) $M=1530, \Gamma=9, \sigma=16$
 
 > [!NOTE]
-> For the polynomial distribution, you need to choose a suitable range for normalizing/plotting.
+> For the polynomial distribution, you need to choose a suitable range for normalizing/plotting. 
 
 > [!TIP]
 > Read about [Plots](https://docs.juliaplots.org/latest/) in the julia `Plots` package manual.
 
 ## Exercise 2
 
-Use the [`rand`](https://docs.julialang.org/en/v1/stdlib/Random/#Base.rand) function to generate a sample of Gaussian-distributed values. 
+Use the [`rand`](https://docs.julialang.org/en/v1/stdlib/Random/#Base.rand) function and rejection sampling to generate a sample of Gaussian-distributed values. 
 
 Plot a histogram of the resulting sample together with a Gaussian distribution that is normalized to the histogram.
 
