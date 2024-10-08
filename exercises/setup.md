@@ -18,6 +18,8 @@ While tips look like this:
 
 After the installation, we are ready to start a *project* in Julia. In a terminal, navigate to the directory you would like to store your work, and open the Julia command line interface (called [REPL](https://docs.julialang.org/en/v1/manual/getting-started/)). To understand the syntax, read the hint that follows the instructions.
 
+## Setup julia
+
 > [!NOTE] 
 > ```
 > $ julia
@@ -59,6 +61,8 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 > and execute it with <Shift+Enter>.
 
 You are now ready to start coding on your local device with Julia, but an important step is still missing...
+
+## Setup git
 
 As a researcher, it is important to collaborate and make your code publically available. To do that, we will use github as platform to store and share code; this includes handing in your exercises. 
     
@@ -104,7 +108,11 @@ As a researcher, it is important to collaborate and make your code publically av
 > ```
 >  
 > Before you can release the code in the open, you need to be able to authentificate yourself in github. <br>
-> To do that, follow the steps to [generate a ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key), [add the key to the local ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent), and [add your key to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account).<br>
+> To do that, follow the steps to <br>
+> [generate a ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key), <br>
+> [add the key to the local ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent), and <br>
+> [add your key to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account).
+> 
 > It's time to make the code public:
 > ```
 > git remote add origin git@github.com:<your_user_name>/DataAnalysisWS2425.git
@@ -115,11 +123,37 @@ As a researcher, it is important to collaborate and make your code publically av
 > Commits are snapshots of your code with a unique identifier (hash). You can always go back to these snapshots that you have created.
 >     
 > Adding your ssh key to the local ssh agent needs to be repeated every time you restart your computer, so it makes sense to add these lines to `~/.bashrc` or equivalents. You can also create a shell function in your `bashrc` to setup the environment for these exercises.
- 
-> [!TIP]
-> To get back working on your notebook, open julia in the top directory of your project, revive the project, and start Pluto:
+
+## Back to julia, running tests
+
+To get back working on your notebook, open julia in the main directory (`DataAnalysisWS2425`) of your project, revive the project, and start Pluto:
+```
+(@v1.10) pkg> activate .
+julia> cd("notebooks")
+julia> import Pluto; Pluto.run()
+```
+
+In the upcoming tutorial sessions, you will be implementing *tests* to check if the your code works as expected.
+
+Here is how you can run a dummy test:
+> [!NOTE]
+> Create the file `test/runtests.jl` in your main directory (`DataAnalysisWS2425`) with content
+> ```
+> using DataAnalysisWS2425
+> using Test
+> @testset "Fake test" begin
+>    @test 1 == 1
+> end
+> ```
+> Run tests for the project from a julia REPL (assuming your current directory is `DataAnalysisWS2425`)
 > ```
 > (@v1.10) pkg> activate .
-> julia> cd("notebooks")
-> julia> import Pluto; Pluto.run()
+> (DataAnalysisWS2425) pkg> test
+> ```
+> In the end, you should see
+> ```
+>      Testing Running tests...
+> Test Summary: | Pass  Total  Time
+> Fake test     |    1      1  0.0s
+>     Testing DataAnalysisWS2425 tests passed
 > ```
