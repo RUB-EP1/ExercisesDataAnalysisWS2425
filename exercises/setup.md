@@ -4,23 +4,30 @@ Part of the first exercise is to setup the *environment* for running an analysis
 
 Instructions are highlighted as follows
 
-> [!NOTE] 
+> [!NOTE]
 > To install Julia on your system, follow [these instructions](https://julialang.org/downloads/).
-> For git, go to https://git-scm.com/downloads.
+> For git, go to <https://git-scm.com/downloads>.
 
 While tips look like this:
 
 > [!TIP]
 > In a terminal use the commands `which julia` or `which git` (linux, macOS) `where.exe ...` (Windows) to check if your system knows the software and where it is installed. Note that a restart after installation might be needed.
 
+Also,
+
 > [!TIP]
-> While you will be going through the setup together in the first tutorial, you might still get stuck with the software or the exercises. If that happens, do not hesitate to contact `marian.stahl@cern.ch`.
+> While you will be going through the setup together in the first tutorial,
+> you might still get stuck with the software or the exercises.
+> If that happens, do not hesitate to contact `marian.stahl@cern.ch`.
 
 After the installation, we are ready to start a *project* in Julia. In a terminal, navigate to the directory you would like to store your work, and open the Julia command line interface (called [REPL](https://docs.julialang.org/en/v1/manual/getting-started/)). To understand the syntax, read the hint that follows the instructions.
 
 ## Setup julia
 
-> [!NOTE] 
+Start in a terminal,
+
+> [!NOTE]
+>
 > ```julia
 > $ julia
 > julia> # this is a comment. Type ] to get to the package mode
@@ -34,6 +41,8 @@ After the installation, we are ready to start a *project* in Julia. In a termina
 > julia> Pluto.run()
 > ```
 
+And reflect on every symbol you see in the command line.
+
 > [!TIP]
 > `$` signals that the command is executed in the terminal <br>
 > `julia>` is the julia command line interface (REPL). If you are in a different *mode*, type <backspace> to get back to this main mode. <br>
@@ -41,11 +50,12 @@ After the installation, we are ready to start a *project* in Julia. In a termina
 > `shell>` is the shell mode (type `;`). We did not use it in the instructions, but you can also `mkdir` and `cd` in shell mode, instead of calling the julia commands. <br>
 > `help>` is the help mode (type `?`).
 
-With the command `Pluto.run()`, a Pluto notebook opens in your default browser. 
+With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 
-> [!NOTE] 
-> Click on `Save notebook ...` and call it `exercise1,jl`. (Do this before entring any code!) <br>
+> [!NOTE]
+> Click on `Save notebook ...` and call it `exercise1,jl`. (Do this before entering any code!) <br>
 > In the cell, enter
+>
 > ```julia
 > begin
 >     import Pkg
@@ -54,7 +64,7 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 >     # instantiate, i.e. make sure that all packages are downloaded
 >     Pkg.instantiate()
 >     # You do not need all packages that you have added to your project earlier
-> 	  # You can however add more as we move along. Just re-execute this cell and they will be there.
+>    # You can however add more as we move along. Just re-execute this cell and they will be there.
 >     using DataAnalysisWS2425, Random, Plots
 > end
 > ```
@@ -67,6 +77,7 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 > <summary> 1. With temporary folder </summary>
 >
 > Guess what the following code does,
+>
 > ```julia
 > begin
 >     import Pkg
@@ -79,12 +90,14 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 >     using Plots, Random, FourVectors
 > end
 > ```
+>
 > Put to an empty cell and evaluate.
 > </details>
 >
 > <details> <summary> 2. Using Pluto package manager </summary>
 >
 > If your project only requires registered packages, simply add them to the first cell of your notebook:
+>
 > ```julia
 > begin
 >     using Plots
@@ -92,23 +105,26 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 >     using FourVectors
 > end
 > ```
+>
 > </details>
 You are now ready to start coding on your local device with Julia, but an important step is still missing...
 
 ## Setup git
 
-As a researcher, it is important to collaborate and make your code publically available. To do that, we will use github as platform to store and share code; this includes handing in your exercises. 
-    
+As a researcher, it is important to collaborate and make your code publicly available.
+To do that, we will use github as platform to store and share code; this includes handing in your exercises.
+
 > [!TIP]
-> You can find tutorials on git [here](https://git-scm.com/docs/gittutorial), on github [here](https://docs.github.com/en), or by searching for `git tutorial` with your favourite search engine.
+> You can find tutorials on git [here](https://git-scm.com/docs/gittutorial), on github [here](https://docs.github.com/en), or by searching for `git tutorial` with your favorite search engine.
 
+We proceed with the terminal.
 
-> [!NOTE] 
+> [!NOTE]
 > Exit Pluto by pressing <Ctrl+C>, then exit julia by pressing <Ctrl+D>.
->     
+>
 > Go to github.com and create an account if you don't already have one. <br>
 > Create a new repository called `DataAnalysisWS2425`.
->     
+>
 > In the terminal, navigate to the `DataAnalysisWS2425` directory that Julia created.<br>
 > Call `git init`.<br>
 > If you get a hint message from git, you can follow it:
@@ -130,9 +146,9 @@ As a researcher, it is important to collaborate and make your code publically av
 >
 > ```bash
 > On branch main
-> 
+>
 > No commits yet
-> 
+>
 > Changes to be committed:
 >   (use "git rm --cached <file>..." to unstage)
 >         new file:   Manifest.toml
@@ -140,19 +156,21 @@ As a researcher, it is important to collaborate and make your code publically av
 >         new file:   notebooks/exercise1.jl
 >         new file:   src/DataAnalysisWS2425.jl
 > ```
+>
 > We also recommend to add a README.md file that describes the repository and which can be used to remind you how to run the code.
-> 
+>
 > You can do the first *commit* now (adding a descriptive message with `-m`)
+>
 > ```bash
 > git commit -m 'setup for data analysis exercises'
 > ```
->  
-> Before you can release the code in the open, you need to be able to authentificate yourself in github. <br>
+>
+> Before you can release the code in the open, you need to be able to authenticate yourself in github. <br>
 > To do that, follow the steps to <br>
 > [generate a ssh key](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key), <br>
 > [add the key to the local ssh-agent](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#adding-your-ssh-key-to-the-ssh-agent), and <br>
 > [add your key to github](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account).
-> 
+>
 > It's time to make the code public:
 >
 > ```bash
@@ -160,9 +178,11 @@ As a researcher, it is important to collaborate and make your code publically av
 > git push -u origin main
 > ```
 
+It's might look like a lot of steps, but you will get used to it quickly.
+
 > [!TIP]
 > Commits are snapshots of your code with a unique identifier (hash). You can always go back to these snapshots that you have created.
->     
+>
 > Adding your ssh key to the local ssh agent needs to be repeated every time you restart your computer, so it makes sense to add these lines to `~/.bashrc` or equivalents. You can also create a shell function in your `bashrc` to setup the environment for these exercises.
 
 ## Back to julia, running tests
@@ -180,6 +200,7 @@ In the upcoming tutorial sessions, you will be implementing *tests* to check if 
 Here is how you can run a dummy test:
 > [!NOTE]
 > Create the file `test/runtests.jl` in your main directory (`DataAnalysisWS2425`) with content
+>
 > ```julia
 > using DataAnalysisWS2425
 > using Test
@@ -187,12 +208,16 @@ Here is how you can run a dummy test:
 >    @test 1 == 1
 > end
 > ```
+>
 > Run tests for the project from a julia REPL (assuming your current directory is `DataAnalysisWS2425`)
+>
 > ```julia
 > (@v1.10) pkg> activate .
 > (DataAnalysisWS2425) pkg> test
 > ```
+>
 > In the end, you should see
+>
 > ```julia
 >      Testing Running tests...
 > Test Summary: | Pass  Total  Time

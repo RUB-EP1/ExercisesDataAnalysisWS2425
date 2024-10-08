@@ -7,7 +7,14 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local iv = try
+            Base.loaded_modules[Base.PkgId(
+                Base.UUID("6e696c72-6542-2067-7265-42206c756150"),
+                "AbstractPlutoDingetjes",
+            )].Bonds.initial_value
+        catch
+            b -> missing
+        end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
@@ -16,11 +23,11 @@ end
 
 # ╔═╡ dc90e9a2-254b-45f8-a3aa-0ee36a4b1502
 begin
-	using QuadGK
-	using Plots
-	using Cuba
-	using FFTW
-	using PlutoUI
+    using QuadGK
+    using Plots
+    using Cuba
+    using FFTW
+    using PlutoUI
 end
 
 # ╔═╡ d46f1ad0-8415-11ef-3195-73133ef34802
@@ -29,31 +36,37 @@ md"""
 """
 
 # ╔═╡ 29a04384-4d29-4002-9db5-9e25339b4dcc
-theme(:wong2, frame=:box, lab="", grid=false,
-	xlim=(:auto, :auto), ylim=(:auto, :auto))
+theme(
+    :wong2,
+    frame = :box,
+    lab = "",
+    grid = false,
+    xlim = (:auto, :auto),
+    ylim = (:auto, :auto),
+)
 
 # ╔═╡ f31d8987-29c4-4670-9edf-a2c74dd2895b
-const support = (1.0,3.0);
+const support = (1.0, 3.0);
 
 # ╔═╡ dc099c01-6d4e-4401-8247-a784f8512928
 function _f(x)
-	a,b = support
-	density = -(x-a)*(x-b)*x
-	return a<x<b ? density : zero(x)
+    a, b = support
+    density = -(x - a) * (x - b) * x
+    return a < x < b ? density : zero(x)
 end
 
 # ╔═╡ 932a4a75-a141-4ed0-8b92-0f40f291a0c3
 const _n = quadgk(_f, support...)[1]
 
 # ╔═╡ 89c78cd6-8c22-45ba-a6db-1786b7378ed6
-f(x) = _f(x)/_n
+f(x) = _f(x) / _n
 
 # ╔═╡ 31076f41-3ff3-4358-8e27-704706576cfa
-@bind xc Slider(range(support..., 100); default=1.5)
+@bind xc Slider(range(support..., 100); default = 1.5)
 
 # ╔═╡ 4e37447f-7362-4e12-97bf-7e439d2cca22
 md"""
-## Commulative function
+## Commutative function
 """
 
 # ╔═╡ c0d4e35a-8f5b-414b-a0d0-b894e3840450
@@ -61,13 +74,13 @@ F(x) = quadgk(f, support[1], x)[1]
 
 # ╔═╡ 6be742cb-f729-4ae4-a9f0-031583aaec11
 begin
-	plot(lab="probability distribution function")
-	plot!(f, support..., fill=0, c=2, α=0.3)
-	# 
-	plot!(f, support[1], xc, c=3, fill=0)
-	annotate!(((xc+support[1])/2, 0.1, text(round(F(xc); digits=2), :center)))
-	# 
-	plot!(f, support..., c=1, lw=2)
+    plot(lab = "probability distribution function")
+    plot!(f, support..., fill = 0, c = 2, α = 0.3)
+    #
+    plot!(f, support[1], xc, c = 3, fill = 0)
+    annotate!(((xc + support[1]) / 2, 0.1, text(round(F(xc); digits = 2), :center)))
+    #
+    plot!(f, support..., c = 1, lw = 2)
 end
 
 # ╔═╡ 22a7c5f7-0a06-4bdc-9daf-98639e9e98a5
@@ -79,12 +92,12 @@ md"""
 """
 
 # ╔═╡ 5ab09448-e231-4e37-a52a-835002649014
-moment(n::Int) = quadgk(x->x^n*f(x), support...)[1]
+moment(n::Int) = quadgk(x -> x^n * f(x), support...)[1]
 
 # ╔═╡ bc2d13fb-bc3d-46cd-9e7f-b8aedc8926ad
-function centralmoment(n::Int)
-	μ = moment(1)
-	quadgk(x->(x-μ)^n*f(x), support...)[1]
+function central_moment(n::Int)
+    μ = moment(1)
+    quadgk(x -> (x - μ)^n * f(x), support...)[1]
 end
 
 # ╔═╡ 29992e6b-1ce4-4f0c-98dc-fbd98b003109
@@ -116,10 +129,10 @@ The standard deviation $\sigma$ is defined as a $\sqrt{V[x]}$.
 """
 
 # ╔═╡ 7aac984c-e153-48e7-991f-35fbccb38b51
-σ = sqrt(moment(2)-moment(1)^2)
+σ = sqrt(moment(2) - moment(1)^2)
 
 # ╔═╡ a74dad20-3d64-4e9b-bb44-d7786be5d12c
-@assert σ ≈ sqrt(centralmoment(2)) "Something is fishy with sigma"
+@assert σ ≈ sqrt(central_moment(2)) "Something is fishy with sigma"
 
 # ╔═╡ 244dba26-d116-41d4-a812-b095379f0c90
 md"""
@@ -127,7 +140,7 @@ Third moment is related to [skewness](https://en.wikipedia.org/wiki/Skewness): t
 """
 
 # ╔═╡ 9c308bdc-e4ea-44fb-945e-1a02a2c3ecfd
-centralmoment(3) / centralmoment(2)^(3/2)
+central_moment(3) / central_moment(2)^(3 / 2)
 
 # ╔═╡ e33c7b99-b8a2-4dc7-8c0c-8bc12acc7765
 md"""
@@ -135,7 +148,7 @@ The the fourth moment is related to [kurtosis](https://en.wikipedia.org/wiki/Kur
 """
 
 # ╔═╡ a5ec0990-de52-4a62-a70a-7b725f67c9b5
-centralmoment(4) / centralmoment(2)^2-3
+central_moment(4) / central_moment(2)^2 - 3
 
 # ╔═╡ 583b871d-bc24-4813-80b9-b15d37a4aaad
 md"""
@@ -143,7 +156,7 @@ md"""
 
 $S_n = X_1 + X_2 + \dots X_n$
 
-where $X_i$ are independent varibles of the same distribution.
+where $X_i$ are independent variables of the same distribution.
 
 CLT: The standardized sum defined by
 
@@ -165,20 +178,22 @@ end
 
 # ╔═╡ 4d6df0f0-9b78-4e43-9bb6-db5689515e0d
 let xv = range(0, 15, 500)
-	plot()
-	μ = moment(1)
-	σ = centralmoment(2)
-	# 
-	for n in 1:4
-		_xv = xv
-		_density = sn_density(f, xv, n)
-		plot!(xv, _density, ylim=(0, :auto), fill=0, c=n, alpha=0.3, lab="n=$n")
-	end
-	plot!()
+    plot()
+    μ = moment(1)
+    σ = central_moment(2)
+    #
+    for n ∈ 1:4
+        _xv = xv
+        _density = sn_density(f, xv, n)
+        plot!(xv, _density, ylim = (0, :auto), fill = 0, c = n, alpha = 0.3, lab = "n=$n")
+    end
+    plot!()
 end
 
 # ╔═╡ 0ff3172e-6626-4e2c-b790-2efa3d4a66e3
-gauss(x,μ,σ) = 1/sqrt(2π)/σ * exp(-(x-μ)^2/(2σ^2))
+gauss(x, μ, σ) = 1 / sqrt(2π) / σ * exp(-(x - μ)^2 / (2σ^2))
+
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

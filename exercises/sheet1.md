@@ -26,21 +26,20 @@ c) $a=0.01, b=-0.04, c=0.25, d=15$ in the range [-10,10]<br>
 d) $M=1530, \Gamma=9$<br>
 e) $M=1530, \Gamma=9, \sigma=16$
 
-> [!NOTE]
-> Make sure that the distributions are probability density functions (in the given range)
+Make sure that the distributions are probability density functions (in the given range)
 
 > [!TIP]
 > Read about [Plots](https://docs.juliaplots.org/latest/) in the julia `Plots` package manual.
 
 ## Exercise 2
 
-Use the [`rand`](https://docs.julialang.org/en/v1/stdlib/Random/#Base.rand) function and rejection sampling to generate a sample of Gaussian-distributed values. 
+Use the [`rand`](https://docs.julialang.org/en/v1/stdlib/Random/#Base.rand) function and rejection sampling to generate a sample of Gaussian-distributed values.
 
 Plot a histogram of the resulting sample together with a Gaussian distribution that is normalized to the histogram.
 
 ## Exercise 3
 
-Numerically show that the variance of a uniform distribution in the interval $[a,b]$ is $|b-a|^2/12$ using a sampling method of your choice. 
+Numerically show that the variance of a uniform distribution in the interval $[a,b]$ is $|b-a|^2/12$ using a sampling method of your choice.
 
 ## Exercise 4
 
