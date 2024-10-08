@@ -4,4 +4,4 @@ In these exercises you will work through the statistical aspects of a typical da
 
 During the course, you will develop a code base for this analysis in [Julia](https://julialang.org/) starting from scratch.
 
-Before getting started with the exercises, you will need to prepare the software environment on your machine (see [setup.md](setup.md) in this repository).
+Before getting started with the exercises, you will need to follow the [setup](exercises/setup.md) steps to prepare the software environment on your machine.
