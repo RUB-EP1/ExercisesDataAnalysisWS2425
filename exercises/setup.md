@@ -115,7 +115,7 @@ As a researcher, it is important to collaborate and make your code publically av
 > 
 > It's time to make the code public:
 > ```
-> git remote add origin git@github.com:<your_user_name>/DataAnalysisWS2425.git
+> git remote add origin git@github.com:<your_github_user_name>/DataAnalysisWS2425.git
 > git push -u origin main
 > ```
 
