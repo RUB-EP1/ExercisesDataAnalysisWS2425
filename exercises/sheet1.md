@@ -21,13 +21,13 @@ Define them such that you can set parameters like mean and width later on.
 Make a plot for each of the distributions with parameters
 
 a) $\mu=1.0, \sigma=0.4$<br>
-b) $\tau=-0.05$<br>
+b) $\lambda=0.05$<br>
 c) $a=0.01, b=-0.04, c=0.25$<br>
 d) $M=1530, \Gamma=9$<br>
 e) $M=1530, \Gamma=9, \sigma=16$
 
 > [!NOTE]
-> You will need to choose a reasonable range for plotting.
+> For the polynomial distribution, you need to choose a suitable range for normalizing/plotting.
 
 > [!TIP]
 > Read about [Plots](https://docs.juliaplots.org/latest/) in the julia `Plots` package manual.
