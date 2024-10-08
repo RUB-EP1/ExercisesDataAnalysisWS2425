@@ -22,12 +22,12 @@ Make a plot for each of the distributions with parameters
 
 a) $\mu=1.0, \sigma=0.4$<br>
 b) $\lambda=0.05$<br>
-c) $a=0.01, b=-0.04, c=0.25, d=15$<br>
+c) $a=0.01, b=-0.04, c=0.25, d=15$ in the range [-10,10]<br>
 d) $M=1530, \Gamma=9$<br>
 e) $M=1530, \Gamma=9, \sigma=16$
 
 > [!NOTE]
-> For the polynomial distribution, you need to choose a suitable range for normalizing/plotting. 
+> Make sure that the distributions are probability density functions (in the given range)
 
 > [!TIP]
 > Read about [Plots](https://docs.juliaplots.org/latest/) in the julia `Plots` package manual.
