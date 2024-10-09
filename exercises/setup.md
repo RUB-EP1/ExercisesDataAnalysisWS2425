@@ -87,7 +87,7 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 >         Pkg.PackageSpec("Random"),
 >         Pkg.PackageSpec(url="https://github.com/JuliaHEP/LorentzVectorBase.jl")])
 >     #
->     using Plots, Random, FourVectors
+>     using Plots, Random, LorentzVectorBase
 > end
 > ```
 >
@@ -102,7 +102,6 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 > begin
 >     using Plots
 >     using Random
->     using FourVectors
 > end
 > ```
 >
