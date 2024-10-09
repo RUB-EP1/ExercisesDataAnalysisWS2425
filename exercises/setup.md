@@ -85,7 +85,7 @@ With the command `Pluto.run()`, a Pluto notebook opens in your default browser.
 >     Pkg.add([
 >         Pkg.PackageSpec("Plots"),
 >         Pkg.PackageSpec("Random"),
->         Pkg.PackageSpec(url="https://github.com/mmikhasenko/FourVectors.jl")])
+>         Pkg.PackageSpec(url="https://github.com/JuliaHEP/LorentzVectorBase.jl")])
 >     #
 >     using Plots, Random, FourVectors
 > end
