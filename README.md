@@ -6,13 +6,13 @@ During the course, you will develop a code base for this analysis in [Julia](htt
 
 Before getting started with the exercises, you will need to follow the [setup](exercises/setup.md) steps to prepare the software environment on your machine.
 
-
 ## Technical notes
 
 ### Pre-commit
 
 This repository uses [pre-commit](https://pre-commit.com/) to check the code and text.
 To run the checks locally,
+
 ```bash
 pre-commit run -a
 ```
