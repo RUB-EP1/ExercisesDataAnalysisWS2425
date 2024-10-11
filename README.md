@@ -8,7 +8,7 @@ Before getting started with the exercises, you will need to follow the [setup](e
 
 ## Lecture Material
 
-Code for the notebooks showcased at the lectures can be found in the [lecture/] folder.
+Code for the notebooks showcased at the lectures can be found in the [lectures/](lectures/) folder.
 The github link can be used for the path link in Pluto starting page.
 
 ## Exercises
