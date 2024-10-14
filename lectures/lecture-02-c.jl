@@ -88,7 +88,7 @@ end;
 begin
 	xv_centered = xv .- μx
 	yv_centered = yv .- μy
-	M = hcat(xv_centered, 0.6 .* yv_centered)
+	M = hcat(xv_centered, 0.5 .* yv_centered)
 	#
 	M .= mapslices(M,dims=2) do (x,y)
 		x, y = R * [x, y]
@@ -106,7 +106,7 @@ let
 	X = cov(M)
 	# 
 	plot(aspect_ratio=1)
-	# covellipse!(mean.([A, B]), X, n_std=2, label="cov ellipse")
+	covellipse!(mean.([A, B]), X, n_std=2, label="cov ellipse")
 	scatter!(A, B, ms=1, xlim=(-3,3), ylim=(-3,3), leg=:topright, lab="data")
 end
 
@@ -114,8 +114,6 @@ end
 E = eigen(cov(M))
 
 # ╔═╡ 4f294082-1278-4dcc-96f8-ddc414b087b9
-# ╠═╡ disabled = true
-#=╠═╡
 let
 	A, B = xv_c, yv_c
 	X = cov(hcat(A, B))
@@ -131,7 +129,6 @@ let
 	plot!([0, 2*λ[2] * complex(V[:,2]...)], lw=3, lc=3, lab="")
 	plot!(xlab="x", ylab="y")
 end
-  ╠═╡ =#
 
 # ╔═╡ df5fb107-f33c-4653-b04f-36ba72aebbab
 begin
@@ -1632,9 +1629,9 @@ version = "1.4.1+1"
 # ╠═fa589447-1e23-4308-bdc0-efc693720d11
 # ╠═23e08f03-ca90-4598-82c6-4cec956650e2
 # ╠═6da331ad-0309-491f-ba65-1a8f5cab9268
-# ╠═ee7855a6-d580-4441-9ef2-627989bdfdf2
 # ╠═98f1c7f7-53d3-4c67-b13e-16ac75e5d990
 # ╠═4f2dad68-3888-4849-8da6-bb8e4fcc50d2
+# ╠═ee7855a6-d580-4441-9ef2-627989bdfdf2
 # ╠═4f294082-1278-4dcc-96f8-ddc414b087b9
 # ╠═df5fb107-f33c-4653-b04f-36ba72aebbab
 # ╟─00000000-0000-0000-0000-000000000001
