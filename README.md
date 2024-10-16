@@ -16,7 +16,7 @@ The github link can be used for the path link in Pluto starting page.
 The exercise sheets are distributed on Wednesday of the tutorial, and due on Sunday 1.5 weeks later.
 Solution of the problems and the code should be send to <Dhruvanshu.Parmar@ruhr-uni-bochum.de> (link to a code, pdf of a notebook).
 
-- [Sheet-01](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-01.md), published on **9/10/2024**, due on **19/10/2024**
+- [Sheet-01](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-01.md), published on **9/10/2024**, due on **20/10/2024**
 - Sheet-02
 - Sheet-03
 - Sheet-04
