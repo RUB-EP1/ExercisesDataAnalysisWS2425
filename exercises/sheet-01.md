@@ -124,3 +124,24 @@ yv = randn(3)
 @test correlation(xv,2*yv) = correlation(xv,yv)
 @test correlation(xv,xv+yv) = 0.44
 ```
+
+<details> <summary> To copy to `test/runtests.jl`</summary>
+Here is the code you copy over to your test-primitives.jl
+
+```julia
+using Test
+using WS...2024
+using WS...2024.QuadGK
+using WS...2024.Random
+
+# test g
+@testset "gaussian" begin
+    Random.seed!(1234)
+    @test gaussian_unnorm(1.1; ...) = 2.2
+    @test gaussian_unnorm(1.1; other_pars = 2.3
+end
+
+# test pol
+
+```
+</details>
