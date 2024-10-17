@@ -111,3 +111,16 @@ Random.seed!(4321)
 @test sample_inverse(f; ...) = [3.3, 2.3, 3.2]
 @test sample_inverse(f; ...) = [3.3, 3.2]
 ```
+
+7. Correlation
+
+signature: `correlation(x_array, y_array)`
+
+```julia
+Random.seed!(4321)
+xv = rand(3)
+yv = randn(3)
+@test correlation(xv,yv) = 0.23
+@test correlation(xv,2*yv) = correlation(xv,yv)
+@test correlation(xv,xv+yv) = 0.44
+```
