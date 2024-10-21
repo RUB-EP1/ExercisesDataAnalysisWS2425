@@ -71,6 +71,9 @@ weights = mypdf.(data0);
 # ╔═╡ c60e99ab-00d8-4cd9-a98a-d8b90eef739f
 max_weight = maximum(weights)
 
+# ╔═╡ cee6c06e-2922-459b-ace0-e3ecf36e288e
+weights .> rand(n0) .* max_weight
+
 # ╔═╡ 76538880-47ba-4b69-9358-09a5f2526f1e
 data = data0[weights .> rand(n0) .* max_weight];
 
@@ -1417,6 +1420,7 @@ version = "1.4.1+1"
 # ╠═7b31f66e-6409-4341-9f0c-cadc2069772d
 # ╠═6af50447-0f6d-4d14-ac26-2a26c35c4202
 # ╠═c60e99ab-00d8-4cd9-a98a-d8b90eef739f
+# ╠═cee6c06e-2922-459b-ace0-e3ecf36e288e
 # ╠═76538880-47ba-4b69-9358-09a5f2526f1e
 # ╠═e00a1b19-72fe-4d0e-8ff5-16ecdb6a42c3
 # ╠═1c9eb818-972f-4e1d-9bba-b04bc8518b32

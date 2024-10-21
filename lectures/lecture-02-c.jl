@@ -97,9 +97,6 @@ begin
 	xv_c, yv_c = M[:,1], M[:,2];
 end;
 
-# ╔═╡ 6da331ad-0309-491f-ba65-1a8f5cab9268
-ρ = cov(xv_c,yv_c) / sqrt(cov(xv_c,xv_c) * cov(yv_c,yv_c))
-
 # ╔═╡ 98f1c7f7-53d3-4c67-b13e-16ac75e5d990
 let
 	A, B = M[:,1], M[:,2]
@@ -112,6 +109,12 @@ end
 
 # ╔═╡ 4f2dad68-3888-4849-8da6-bb8e4fcc50d2
 E = eigen(cov(M))
+
+# ╔═╡ 6da331ad-0309-491f-ba65-1a8f5cab9268
+ρ = cov(xv_c,yv_c) / sqrt(cov(xv_c,xv_c) * cov(yv_c,yv_c))
+
+# ╔═╡ 2fb86087-36be-4d67-bf08-66e8be6ed051
+cov(xv_c, 2 .* yv_c) / sqrt(cov(xv_c,xv_c) * cov(2 .*yv_c,2 .*yv_c))
 
 # ╔═╡ 4f294082-1278-4dcc-96f8-ddc414b087b9
 let
@@ -1628,9 +1631,10 @@ version = "1.4.1+1"
 # ╠═f9496790-0c15-4bd7-b1a9-c938f8c5bd1c
 # ╠═fa589447-1e23-4308-bdc0-efc693720d11
 # ╠═23e08f03-ca90-4598-82c6-4cec956650e2
-# ╠═6da331ad-0309-491f-ba65-1a8f5cab9268
 # ╠═98f1c7f7-53d3-4c67-b13e-16ac75e5d990
 # ╠═4f2dad68-3888-4849-8da6-bb8e4fcc50d2
+# ╠═6da331ad-0309-491f-ba65-1a8f5cab9268
+# ╠═2fb86087-36be-4d67-bf08-66e8be6ed051
 # ╠═ee7855a6-d580-4441-9ef2-627989bdfdf2
 # ╠═4f294082-1278-4dcc-96f8-ddc414b087b9
 # ╠═df5fb107-f33c-4653-b04f-36ba72aebbab
