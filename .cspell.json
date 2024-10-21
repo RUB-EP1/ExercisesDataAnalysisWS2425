@@ -1,8 +1,5 @@
 {
-    "dictionaries": [
-        "julia",
-        "project"
-    ],
+    "dictionaries": ["julia", "project"],
     "dictionaryDefinitions": [
         {
             "addWords": true,
@@ -15,10 +12,7 @@
             "path": "./.cspell/project.txt"
         }
     ],
-    "enableFiletypes": [
-        "julia",
-        "quarto"
-    ],
+    "enableFiletypes": ["julia", "quarto"],
     "ignorePaths": [
         ".cspell.json",
         ".cspell/*.txt",
@@ -33,14 +27,8 @@
     "language": "en-US",
     "languageSettings": [
         {
-            "dictionaries": [
-                "julia",
-                "project"
-            ],
-            "languageId": [
-                "julia",
-                "text"
-            ]
+            "dictionaries": ["julia", "project"],
+            "languageId": ["julia", "text"]
         }
     ],
     "version": "0.2",

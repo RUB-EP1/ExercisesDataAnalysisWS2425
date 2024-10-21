@@ -24,8 +24,6 @@ Solution of the problems and the code should be send to <Dhruvanshu.Parmar@ruhr-
 - Sheet-06
 - Sheet-07
 
-
-
 ## Technical notes
 
 ### Pre-commit
