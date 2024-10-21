@@ -4,6 +4,9 @@ For the following exercises and tutorials, you will be building up a codebase in
 
 During this tutorial, you will copy over some functions from Exercise sheet 1, and modify them to pass the tests that you can find on the bottom of this sheet.
 
+> [!TIP]
+> Reminder on how to run tests in [the setup instructions](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/setup.md#back-to-julia-running-tests).
+
 We will need some of the p.d.f.s in un-normalized form (such that the optimizations during fitting can work faster)
 1. Gaussian
 2. Polynomial
@@ -11,8 +14,8 @@ We will need some of the p.d.f.s in un-normalized form (such that the optimizati
 4. Voigt profile
 
 To pass the tests, their signatures should look like this:
-1. `gauss(x;μ,σ,a)`, where `a` is an arbitrary normalization factor
-2. `poly(x;coeffs)`, where `coeffs` is a tuple of coefficients. Hint: implement the polynomials in a loop.
+1. `gauss(x; μ, σ, a)`, where `a` is an arbitrary normalization factor
+2. `poly(x; coeffs)`, where `coeffs` is a tuple of coefficients. Hint: implement the polynomials in a loop.
 3. `rbw(x; M, Γ, a)`
 4. `voigt(x; M, Γ, σ, a)`
 
