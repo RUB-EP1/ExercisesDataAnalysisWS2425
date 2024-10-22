@@ -20,6 +20,7 @@ permutedims
 postprocess
 println
 quadgk
+randn
 reim
 runtests
 safetestset
