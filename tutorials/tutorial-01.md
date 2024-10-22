@@ -18,7 +18,7 @@ We will need some p.d.f.s in a form with arbitrary normalization (such that the 
 To pass the tests, their signatures should look like this:
 
 1. `gaussian_parametrized(x; μ, σ, a)`, where `a` is an arbitrary normalization factor
-2. `poly(x; coeffs)`, where `coeffs` is a tuple of coefficients. Hint: implement the polynomials in a loop.
+2. `poly(x; coeffs)`, where `coeffs` is a tuple of coefficients. Note: We will be using this form $\displaystyle\sum_{i=0}^n c_i x^i$. Hint: Implement in a loop
 3. `relativistic_breit_wigner(x; M, Γ, a)`
 4. `voigt(x; M, Γ, σ, a)`
 
