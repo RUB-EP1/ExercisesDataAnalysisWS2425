@@ -173,7 +173,7 @@ using DataAnalysisWS2425.Random
     @test gaussian_scaled(2268.1; μ = 2286.4, σ = 7.0, a = 1.0) ≈ 0.03280268530267093
 end
 
-# test the implementation of poly
+# test the implementation of polynomial_scaled
 @testset "polynomials" begin
     @test polynomial_scaled(1.3; coeffs = (1.1, 0.5)) ≈ 1.75
     @test polynomial_scaled(1.3; coeffs = (0.0, -0.5, 0.3, 1.7)) ≈ 3.5919
@@ -185,7 +185,7 @@ end
     @test breit_wigner_scaled(11.3; M = 12.0, Γ = 0.3, a = 144.0) ≈ 0.5161732492496677
 end
 
-# test the implementation of voigt
+# test the implementation of voigt_scaled
 @testset "Voigt profile" begin
     @test voigt_scaled(1530.0; M = 1532.0, Γ = 9.0, σ = 6.0, a = 1532.0) ≈ 0.10160430090139255
     @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 1.0) ≈ 0.1952796435889611
