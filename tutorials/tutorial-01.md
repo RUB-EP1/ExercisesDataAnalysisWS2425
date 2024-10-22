@@ -40,7 +40,7 @@ The form of the Gaussian is:
 
 # Example
 ```julia
-y = gaussian_scaled(2.0; μ=0.0, σ=1.0, a=3.0)
+julia> y = gaussian_scaled(2.0; μ=0.0, σ=1.0, a=3.0)
 ```
 """
 ````
@@ -64,7 +64,7 @@ where `n-1` is the degree of the polynomial, determined by the length of `coeffs
 
 # Example
 ```julia
-y = polynomial_scaled(2.0; coeffs=[1.0, -3.0, 2.0])
+julia> y = polynomial_scaled(2.0; coeffs=[1.0, -3.0, 2.0])
 ```
 """
 ````
@@ -85,7 +85,7 @@ The form of the Breit-Wigner is:
 
 # Example
 ```julia
-y = breit_wigner_scaled(2.0; m=1.0, Γ=0.5, a=2.0)
+julia> y = breit_wigner_scaled(2.0; m=1.0, Γ=0.5, a=2.0)
 ```
 """
 ````
@@ -104,7 +104,7 @@ The Voigt profile is a convolution of a non-relativistic Breit-Wigner function a
 
 # Example
 ```julia
-y = voigt_scaled(2.0; m=1.3, Γ=0.15, σ=0.3, a=3.0)
+julia> y = voigt_scaled(2.0; m=1.3, Γ=0.15, σ=0.3, a=3.0)
 ```
 """
 ````
@@ -131,7 +131,7 @@ Generates `n` samples using the rejection sampling method for a given function `
 
 # Example
 ```julia
-data = sample_rejection(exp, 10, (0, 4))
+julia> data = sample_rejection(exp, 10, (0, 4))
 ```
 """
 ````
@@ -153,7 +153,7 @@ Generates `n` samples using the inversion sampling method for a given function `
 
 # Example
 ```julia
-data = sample_inversion(exp, 10, (0, 4))
+julia> data = sample_inversion(exp, 10, (0, 4))
 ```
 """
 ````
