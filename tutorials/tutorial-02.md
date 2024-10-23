@@ -187,15 +187,24 @@ end
 
 # test the implementation of voigt_scaled
 @testset "Voigt profile" begin
-    @test voigt_scaled(1530.0; M = 1532.0, Γ = 9.0, σ = 6.0, a = 1532.0) ≈ 0.10160430090139255
-    @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 1.0) ≈ 0.1952796435889611
+    @test voigt_scaled(1.53; M = 1.532, Γ = 9.0, σ = 6.0, a = 1) ≈ 0.015850734389980234
+    @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 3.0) ≈ 0.23371591898807742
 end
 
-# # code for visual inspection of sampling methods
+# # code for visual instpection of convolution method
+# using Plots
+# let
+#     plot()
+#     pars = (; M = 1.532, Γ = 0.03, a = 2)
+#     plot!(x->voigt_scaled(x; pars..., σ = 0.05), 1.1, 2.5)
+#     plot!(x->breit_wigner_scaled(x; pars...), 1.1, 2.5)
+# end
+
+# code for visual instpection of simpling methods
 # using Plots
 # let
 #     f(x) = exp(-x^4)
-#     data = sample_rejection(f, 100_000, (-2.0, 2.0), 3)
+#     data = sample_inversion(f, 100_000, (-2.0, 2.0); nbins=20)
 #     bins = range(-2, 2, 400)
 #     stephist(data; bins)
 # end
