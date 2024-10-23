@@ -11,12 +11,12 @@ Before getting started with the exercises, you will need to follow the [setup](e
 Code for the notebooks showcased at the lectures can be found in the [lectures/](lectures/) folder.
 The github link can be used for the path link in Pluto starting page.
 
-## Exercises
+## Exercises and Tutorials
 
 The exercise sheets are distributed on Wednesday of the tutorial, and due on Sunday 1.5 weeks later.
 Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-uni-bochum.de> (link to a code, pdf of a notebook).
 
-- [Sheet-01](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-01.md), published on **9/10/2024**, due on **20/10/2024**
+- [Sheet-01](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-01.md), published on **9/10/2024**, due on **20/10/2024**, discussed at the [Tutorial-02](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-02.md)
 - [Sheet-02](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-02.md), published on **23/10/2024**, due on **10/11/2024**
 - Sheet-03
 - Sheet-04

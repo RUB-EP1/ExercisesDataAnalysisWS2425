@@ -31,5 +31,6 @@
             "languageId": ["julia", "text"]
         }
     ],
-    "version": "0.2"
+    "version": "0.2",
+    "enabled": true
 }

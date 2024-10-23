@@ -1,5 +1,10 @@
 Breit
+coeffs
+Dhruvanshu
+docstrings
 histogramming
+nbins
+Parmar
 Voigt
 julia
 dataframes
