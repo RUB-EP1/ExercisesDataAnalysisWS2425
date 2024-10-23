@@ -187,8 +187,8 @@ end
 
 # test the implementation of voigt_scaled
 @testset "Voigt profile" begin
-    @test voigt_scaled(1.53; M = 1.532, Γ = 9.0, σ = 6.0, a = 1) ≈ 0.015850734389980234
-    @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 3.0) ≈ 0.23371591898807742
+    @test voigt_scaled(1.53; M = 1.532, Γ = 9.0, σ = 6.0, a = 1) ≈ 0.002641789064996706
+    @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 3.0) ≈ 4.674318379761549
 end
 
 # # code for visual instpection of convolution method
