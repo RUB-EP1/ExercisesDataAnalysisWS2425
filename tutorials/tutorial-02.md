@@ -191,7 +191,7 @@ end
     @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 1.0) ≈ 0.1952796435889611
 end
 
-# # code for visual instpection of simpling methods
+# # code for visual inspection of sampling methods
 # using Plots
 # let
 #     f(x) = exp(-x^4)
