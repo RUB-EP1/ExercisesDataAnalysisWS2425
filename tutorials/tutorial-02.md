@@ -25,7 +25,6 @@ The docstrings below should be copied before the function definition in the `src
 > The docstring fixes the function signature and provides a description of the function, its arguments, and return values.
 > Also, that is what our testset expects from the function.
 
-
 ### Gaussian function
 
 ````julia
@@ -108,7 +107,6 @@ julia> y = voigt_scaled(2.0; m=1.3, Γ=0.15, σ=0.3, a=3.0)
 ```
 """
 ````
-
 
 ## Sampling methods
 

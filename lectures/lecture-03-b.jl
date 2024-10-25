@@ -7,14 +7,14 @@ using InteractiveUtils
 # ╔═╡ 2d141b9d-09bb-4074-bf01-4c4b6099585d
 # ╠═╡ show_logs = false
 begin
-	using Plots
-	using Statistics
-	using Parameters
-	using QuadGK
-	using Random
-	using FHist
-	using Optim
-	Random.seed!(1234)
+    using Plots
+    using Statistics
+    using Parameters
+    using QuadGK
+    using Random
+    using FHist
+    using Optim
+    Random.seed!(1234)
 end
 
 # ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
@@ -25,8 +25,15 @@ In this lecture we discuss methods to estimate parameters of distributions.
 """
 
 # ╔═╡ 39ee4bcd-8d01-443f-9714-103ab6d7f7d6
-theme(:wong2, xlims=(:auto,:auto), ylims=(:auto,:auto),
-	frame=:box, grid=false, lab="", lw=1.5)
+theme(
+    :wong2,
+    xlims = (:auto, :auto),
+    ylims = (:auto, :auto),
+    frame = :box,
+    grid = false,
+    lab = "",
+    lw = 1.5,
+)
 
 # ╔═╡ 20b68451-a639-44f0-97dd-28a89cf517cd
 md"""
@@ -38,25 +45,25 @@ const support = (-1, 1)
 
 # ╔═╡ cf5883ba-8b18-11ef-183a-b33feb7b6dd8
 data = let
-	n_signal = 2_000
-	n_backgr = 4_000
-	# 
-	σ = 0.2
-	μ = 0.11
-	# 
-	signal = randn(n_signal) .* σ .+ μ
-	background = support[1] .+ rand(n_backgr) .* (support[2]-support[1])
-	full = vcat(signal, background)
-	filter!(full) do x
-		support[1] < x < support[2]
-	end
-	full
+    n_signal = 2_000
+    n_backgr = 4_000
+    #
+    σ = 0.2
+    μ = 0.11
+    #
+    signal = randn(n_signal) .* σ .+ μ
+    background = support[1] .+ rand(n_backgr) .* (support[2] - support[1])
+    full = vcat(signal, background)
+    filter!(full) do x
+        support[1] < x < support[2]
+    end
+    full
 end;
 
 # ╔═╡ 255e5019-f8e0-49ed-8efa-ba21004008aa
 let
-	bins = range(support..., 100)
-	stephist(data; bins)
+    bins = range(support..., 100)
+    stephist(data; bins)
 end
 
 # ╔═╡ 9cbf63f6-efda-4801-bfa2-80a0a2c1532e
@@ -65,40 +72,38 @@ md"""
 """
 
 # ╔═╡ 14ca7758-75d2-436b-a96a-31b1acc73957
-g(x; μ, σ, a) = a * exp(-(x-μ)^2/(2σ^2))
+g(x; μ, σ, a) = a * exp(-(x - μ)^2 / (2σ^2))
 
 # ╔═╡ 242d2f6a-eb71-41c3-b8fc-e77a1d96ebf0
 begin #tests
-	@assert g(1; μ=1, σ=1, a=1) == 1
-	@assert g(2.2; μ=1, σ=1.2, a=1) ≈ exp(-1/2)
+    @assert g(1; μ = 1, σ = 1, a = 1) == 1
+    @assert g(2.2; μ = 1, σ = 1.2, a = 1) ≈ exp(-1 / 2)
 end
 
 # ╔═╡ 6e50a452-4d8c-404d-ad85-50f552b9b9ae
-pol1(x; x0, x1) = x0 + x*x1
+pol1(x; x0, x1) = x0 + x * x1
 
 # ╔═╡ 5ab27409-5fbf-4151-b815-3a8f61759956
 begin #tests
-	@assert pol1(3.3; x0=1, x1=0)  == 1
-	@assert pol1(3.3; x0=0, x1=2)  == 6.6
+    @assert pol1(3.3; x0 = 1, x1 = 0) == 1
+    @assert pol1(3.3; x0 = 0, x1 = 2) == 6.6
 end
 
 # ╔═╡ 52c836c3-1881-46dd-b860-9a8b0e1698ff
 begin
-	function signal_func(x, pars)
-		@unpack μ, σ, a = pars
-		g(x; μ, σ, a)
-	end
-	function background_func(x, pars)
-		@unpack x0, x1 = pars
-		pol1(x; x0, x1)
-	end
-	model_func(x, pars) = 
-		signal_func(x, pars) + 
-		background_func(x, pars)
+    function signal_func(x, pars)
+        @unpack μ, σ, a = pars
+        g(x; μ, σ, a)
+    end
+    function background_func(x, pars)
+        @unpack x0, x1 = pars
+        pol1(x; x0, x1)
+    end
+    model_func(x, pars) = signal_func(x, pars) + background_func(x, pars)
 end
 
 # ╔═╡ 54629edc-12ed-402d-bfc4-33cbb0b71848
-default = (; μ=0.1, σ=0.18, x0=5.0, x1=0.1, a=50.0)
+default = (; μ = 0.1, σ = 0.18, x0 = 5.0, x1 = 0.1, a = 50.0)
 
 # ╔═╡ d6f72296-7250-4498-8585-9d9a8ebecc02
 @assert model_func(2.2, default) isa Number
@@ -123,12 +128,12 @@ md"""
 """
 
 # ╔═╡ c1c86931-aebf-4f8a-8158-cba188328eef
-const h = Hist1D(data; binedges=range(support..., 200));
+const h = Hist1D(data; binedges = range(support..., 200));
 
 # ╔═╡ 374726fc-6fb7-4c90-9a3e-968c42229960
 let
-	plot(h; seriestype=:stepbins)
-	plot!(x->model_func(x, default), support...)
+    plot(h; seriestype = :stepbins)
+    plot!(x -> model_func(x, default), support...)
 end
 
 # ╔═╡ a8da273d-710c-4d11-b7de-f3969f82a1de
@@ -137,17 +142,17 @@ md"""
 """
 
 # ╔═╡ 1a941961-9104-437b-8f5a-3367c1544430
-bincenters(h) = (h.binedges[1][1:end-1] .+ h.binedges[1][2:end])/2;
+bincenters(h) = (h.binedges[1][1:end-1] .+ h.binedges[1][2:end]) / 2;
 
 # ╔═╡ 4449d1ae-ec66-4c0f-aee0-80e2fc889d9c
 function chi2(pars, xv, yv)
-	# 
-	δy = sqrt.(yv)
-	model_y = model_func.(xv, Ref(pars))
-	Δ = yv .- model_y
-	χ² = sum(Δ .^ 2 ./ δy .^ 2)
-	# 
-	return χ² / 1000
+    #
+    δy = sqrt.(yv)
+    model_y = model_func.(xv, Ref(pars))
+    Δ = yv .- model_y
+    χ² = sum(Δ .^ 2 ./ δy .^ 2)
+    #
+    return χ² / 1000
 end
 
 # ╔═╡ 5f23fd6a-5950-45df-8136-3aa4a2bb1cf7
@@ -165,9 +170,9 @@ chi2(default, bincenters(h), h.bincounts)
 
 # ╔═╡ 50e449c5-35ad-404b-bca8-ea5bd85aba17
 binned_fit = let
-	xv, yv = bincenters(h), h.bincounts
-	objective(p) = chi2(ModelPars(p), xv, yv)
-	optimize(objective, collect(default), BFGS())
+    xv, yv = bincenters(h), h.bincounts
+    objective(p) = chi2(ModelPars(p), xv, yv)
+    optimize(objective, collect(default), BFGS())
 end
 
 # ╔═╡ f1ebe372-ce37-4fde-8c03-6ad0fd0f6a95
@@ -175,9 +180,9 @@ best_pars_chi2 = ModelPars(binned_fit.minimizer)
 
 # ╔═╡ e8dea3b0-81c5-45f0-b10d-2dabced5bf29
 begin
-	plot(h; seriestype=:stepbins)
-	plot!(x->model_func(x, best_pars_chi2), support...)
-	plot!(x->signal_func(x, best_pars_chi2), support..., fill=0, alpha=0.4)
+    plot(h; seriestype = :stepbins)
+    plot!(x -> model_func(x, best_pars_chi2), support...)
+    plot!(x -> signal_func(x, best_pars_chi2), support..., fill = 0, alpha = 0.4)
 end
 
 # ╔═╡ 98da4e9b-633a-42f2-a86a-c749b59a0594
@@ -203,7 +208,7 @@ The negative log likelihood (NLL) enables simplification
 """
 
 # ╔═╡ bfa2bc7c-8af1-4bc7-8930-03befe0c3036
-const fixed_par = (; a=5.0)
+const fixed_par = (; a = 5.0)
 
 # ╔═╡ dfaa21e1-9743-47e3-91a9-bdd439e9ef8f
 default_reduced = Base.structdiff(default, fixed_par)
@@ -213,27 +218,27 @@ const ReducedModelPars = typeof(default_reduced)
 
 # ╔═╡ 0d3836c2-c0c1-4603-921f-1a38e8497c79
 function nll(pars, data)
-	# 
-	full_par_list = merge(pars, fixed_par)
-	norm_fixed_model_pdf(x) = model_func(x, full_par_list)
-	# 
-	minus_sum_log = -sum(data) do x
-		value = norm_fixed_model_pdf(x)
-		value > 0 ? log(value) : -1e10
-	end
-	# 
-	n = length(data)
-	normalization = quadgk(support...) do x
-		norm_fixed_model_pdf(x)
-	end[1]
-	nll = minus_sum_log + n * log(normalization)
-	return nll
+    #
+    full_par_list = merge(pars, fixed_par)
+    norm_fixed_model_pdf(x) = model_func(x, full_par_list)
+    #
+    minus_sum_log = -sum(data) do x
+        value = norm_fixed_model_pdf(x)
+        value > 0 ? log(value) : -1e10
+    end
+    #
+    n = length(data)
+    normalization = quadgk(support...) do x
+        norm_fixed_model_pdf(x)
+    end[1]
+    nll = minus_sum_log + n * log(normalization)
+    return nll
 end
 
 # ╔═╡ cbae73e3-c2a9-4181-943b-856d65d4aa02
 unbinned_fit = let
-	objective(p) = nll(ReducedModelPars(p), data)
-	optimize(objective, collect((; μ=0.1, σ=0.21, x0=0.72, x1=-0.01)), BFGS())
+    objective(p) = nll(ReducedModelPars(p), data)
+    optimize(objective, collect((; μ = 0.1, σ = 0.21, x0 = 0.72, x1 = -0.01)), BFGS())
 end
 
 # ╔═╡ d6d0eb84-f676-42f6-9d5a-40700d45b0fd
@@ -241,17 +246,17 @@ best_pars_nll = merge(ReducedModelPars(unbinned_fit.minimizer), fixed_par)
 
 # ╔═╡ aef9b863-fbf2-4057-b4ab-432a4f3d73c1
 let
-	bins = range(support..., 150)
-	stephist(data; bins)
-	# 
-	normalization = quadgk(support...) do x 
-		model_func(x, best_pars_nll)
-	end[1]
-	dx = bins[2]-bins[1]
-	n = length(data)
-	scale = dx * n / normalization
-	plot!(x->scale*model_func(x, best_pars_nll), support...)
-	plot!(x->scale*signal_func(x, best_pars_nll), support..., fill=0, alpha=0.4)
+    bins = range(support..., 150)
+    stephist(data; bins)
+    #
+    normalization = quadgk(support...) do x
+        model_func(x, best_pars_nll)
+    end[1]
+    dx = bins[2] - bins[1]
+    n = length(data)
+    scale = dx * n / normalization
+    plot!(x -> scale * model_func(x, best_pars_nll), support...)
+    plot!(x -> scale * signal_func(x, best_pars_nll), support..., fill = 0, alpha = 0.4)
 end
 
 # ╔═╡ ee73daf7-a8cd-42dc-a928-bd8f8bcf25a5
@@ -275,24 +280,28 @@ The exteded negative log likelihood (NLL) is similar to nll before, but without 
 
 # ╔═╡ 22442c7f-f5b7-4b65-afcf-78a15585bdc3
 function extnll(pars, data)
-	# 
-	minus_sum_log = -sum(data) do x
-		value = model_func(x, pars)
-		value > 0 ? log(value) : -1e10
-	end
-	# 
-	n = length(data)
-	normalization = quadgk(support...) do x
-		model_func(x, pars)
-	end[1]
-	nll = minus_sum_log + normalization
-	return nll
+    #
+    minus_sum_log = -sum(data) do x
+        value = model_func(x, pars)
+        value > 0 ? log(value) : -1e10
+    end
+    #
+    n = length(data)
+    normalization = quadgk(support...) do x
+        model_func(x, pars)
+    end[1]
+    nll = minus_sum_log + normalization
+    return nll
 end
 
 # ╔═╡ b42b7e2e-df09-4273-8282-c294b30f095a
 ext_unbinned_fit = let
-	objective(p) = extnll(ModelPars(p), data)
-	optimize(objective, collect((; μ=0.1, σ=0.1, x0=1000.72, x1=0.0, a=4000.0)), BFGS())
+    objective(p) = extnll(ModelPars(p), data)
+    optimize(
+        objective,
+        collect((; μ = 0.1, σ = 0.1, x0 = 1000.72, x1 = 0.0, a = 4000.0)),
+        BFGS(),
+    )
 end
 
 # ╔═╡ 1089442c-cfa3-4666-9270-999fc084ffe5
@@ -300,17 +309,17 @@ best_pars_extnll = ModelPars(ext_unbinned_fit.minimizer)
 
 # ╔═╡ 2465c8bd-4f47-4f93-b48c-42bd04bc23b9
 let
-	bins = range(support..., 150)
-	stephist(data; bins)
-	# 
-	normalization = quadgk(support...) do x 
-		model_func(x, best_pars_extnll)
-	end[1]
-	dx = bins[2]-bins[1]
-	n = length(data)
-	scale = dx * n / normalization
-	plot!(x->scale*model_func(x, best_pars_extnll), support...)
-	plot!(x->scale*signal_func(x, best_pars_extnll), support..., fill=0, alpha=0.4)
+    bins = range(support..., 150)
+    stephist(data; bins)
+    #
+    normalization = quadgk(support...) do x
+        model_func(x, best_pars_extnll)
+    end[1]
+    dx = bins[2] - bins[1]
+    n = length(data)
+    scale = dx * n / normalization
+    plot!(x -> scale * model_func(x, best_pars_extnll), support...)
+    plot!(x -> scale * signal_func(x, best_pars_extnll), support..., fill = 0, alpha = 0.4)
 end
 
 # ╔═╡ f22353f4-ba2c-4808-b00e-028dfdd8a0c4
@@ -342,24 +351,24 @@ the parameters related to the normzalition are treated differently between the s
 # ╔═╡ c756812b-f88f-47b9-972c-3d367eef5729
 # least chi2
 let # curve is normalized to bins, => integral/bin_width
-	bin_width = (h.binedges[1][2]-h.binedges[1][1])
-	N_signal = quadgk(x->signal_func(x, best_pars_chi2), support...)[1] / bin_width
+    bin_width = (h.binedges[1][2] - h.binedges[1][1])
+    N_signal = quadgk(x -> signal_func(x, best_pars_chi2), support...)[1] / bin_width
 end
 
 # ╔═╡ a05ea1e6-9667-4f73-b4ca-fc5ffccbb84b
 # extended nll
 let # model integral is fixed to N_data
-	N_signal = quadgk(x->signal_func(x, best_pars_extnll), support...)[1]
+    N_signal = quadgk(x -> signal_func(x, best_pars_extnll), support...)[1]
 end
 
 # ╔═╡ db57d4e4-2c5e-4c61-a2cb-695953ccc761
-# nll with one fixed normalization parameter, `a` 
+# nll with one fixed normalization parameter, `a`
 let
-	f_signal = 
-		quadgk(x->signal_func(x, best_pars_extnll), support...)[1] /
-		quadgk(x->model_func(x, best_pars_extnll), support...)[1];
-	# 
-	N_signal = f_signal * length(data)
+    f_signal =
+        quadgk(x -> signal_func(x, best_pars_extnll), support...)[1] /
+        quadgk(x -> model_func(x, best_pars_extnll), support...)[1]
+    #
+    N_signal = f_signal * length(data)
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
