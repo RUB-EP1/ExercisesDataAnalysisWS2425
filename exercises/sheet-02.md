@@ -4,6 +4,9 @@ In this sheet you will explore fitting continuous distributions to a data sample
 
 You will be studying a sample that resembles the decay process $\Lambda_c^+ \rightarrow \Xi^- K^+ \pi^+$ in the currently running LHCb experiment at CERN.
 
+> [!NOTE] Obtaining the data
+> The data samples are personalized. An URL to download the sample should be requested from Marian Stahl <marian.stahl@cern.ch> by email.
+
 <details> <summary> Details about the data </summary>
 
 The sample contains three variables: `Lc_M`, `Xi_M` and `L_M`.
