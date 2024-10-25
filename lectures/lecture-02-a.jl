@@ -35,7 +35,7 @@ md"""
 
 In this notebook we explore sampling techniques.
 
-For a given continious distribution,
+For a given continuous distribution,
 we need to obtained a dataset distributed accordingly.
 """
 
@@ -146,7 +146,7 @@ end
 md"""
 ### Prototyping the function
 
-1. get randon y
+1. get random y
 2. identify the grid interval
 3. randomize inside the interval
 4. compute x
@@ -158,8 +158,8 @@ let
     #
     y = rand()
     #
-    binind = findfirst(cdf_values .> y) - 1
-    x_left, x_right = grid[binind], grid[binind+1]
+    bin_ind = findfirst(cdf_values .> y) - 1
+    x_left, x_right = grid[bin_ind], grid[bin_ind+1]
     #
     position_inside_bin = rand()
     x = x_left + position_inside_bin * (x_right - x_left)
@@ -171,7 +171,7 @@ md"""
 
 ```
 input:
- - precomputations (grid, y values)
+ - pre-computations (grid, y values)
  - two_rand_values
 output: x
 ```
@@ -183,8 +183,8 @@ function generate_with_inv_cdf(two_rand, precomputed_cdf)
     #
     r1, r2 = two_rand
     #
-    binind = findfirst(cdf_values .> r1) - 1
-    x_left, x_right = grid[binind], grid[binind+1]
+    bin_ind = findfirst(cdf_values .> r1) - 1
+    x_left, x_right = grid[bin_ind], grid[bin_ind+1]
     #
     x = x_left + r2 * (x_right - x_left)
 end
@@ -218,14 +218,14 @@ When I transform $x$ to $z = f(x)$, distribution of $z$, is given by,
 \frac{dN}{dz} = \frac{dN}{dx} \frac{dx}{dz} = f(x(z))\,x'(z)
 ```
 
-If we start from uniform distribution, $f(x) = 1$, hense, $dN/dz = x'(z)$
+If we start from uniform distribution, $f(x) = 1$, hence, $dN/dz = x'(z)$
 
 Q:
 1) what if I square, `rand(1000).^2`
 2) what if I take a square root, `sqrt(.rand(1000))`
 3) log?
-4) exponentiat?
-5) how to make gaus out of uniform
+4) exponential?
+5) how to make gauss out of uniform
 """
 
 # ╔═╡ 5e1e1225-ffd0-453b-91a7-5bcd77b7861d
@@ -248,7 +248,7 @@ end
 md"""
 ### Note on Normalizing flow
 
-A transfomation can be found numerically using technique called [NormalizingFlow](https://lilianweng.github.io/posts/2018-10-13-flow-models/),
+A transformation can be found numerically using technique called [NormalizingFlow](https://lilianweng.github.io/posts/2018-10-13-flow-models/),
 see example [here](https://turinglang.org/NormalizingFlows.jl/dev/example/)
 """
 
