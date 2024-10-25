@@ -41,6 +41,8 @@ let
     h.bincounts[1]
 end
 
+# cspell:disable
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]

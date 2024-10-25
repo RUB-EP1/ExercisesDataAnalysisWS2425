@@ -27,8 +27,10 @@ safetestset
 seriestype
 setdocmeta
 splitext
+stephist
 struct
 testset
+vline
 warntype
 xlim
 xlims

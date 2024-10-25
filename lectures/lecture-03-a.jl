@@ -16,7 +16,7 @@ end;
 md"""
 # Notebook 3a: properties of estimators
 
-In this notebook we perform pseudoexperiments to evaluate a **bias** and **efficiency** of the extimators.
+In this notebook we perform pseudo experiments to evaluate a **bias** and **efficiency** of the estimators.
 
 The data points are sampled from a gaussian distribution function.
 """
@@ -93,6 +93,8 @@ let
     #
     vline!([μ], lab = "truth", l = (:gray, :dash))
 end
+
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

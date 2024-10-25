@@ -154,6 +154,9 @@ begin
     2 * λ[1] .* V[:, 1], 2 * λ[2] .* V[:, 2]
 end
 
+# cspell:disable
+
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
