@@ -7,7 +7,14 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local iv = try
+            Base.loaded_modules[Base.PkgId(
+                Base.UUID("6e696c72-6542-2067-7265-42206c756150"),
+                "AbstractPlutoDingetjes",
+            )].Bonds.initial_value
+        catch
+            b -> missing
+        end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
@@ -16,24 +23,30 @@ end
 
 # ╔═╡ a5e88e00-899f-11ef-2ddd-0ffb988fb478
 begin
-	using Random
-	using Statistics
-	using LinearAlgebra
-	using Plots
-	using PlutoUI
-	using StatsPlots
-	Random.seed!(1234)
+    using Random
+    using Statistics
+    using LinearAlgebra
+    using Plots
+    using PlutoUI
+    using StatsPlots
+    Random.seed!(1234)
 end
 
 # ╔═╡ 643d8169-02db-44ed-b370-f7c075c862b8
-theme(:wong, grid=false, frame=:box, lab="",
-	xlims=(:auto,:auto), ylims=(:auto,:auto))
+theme(
+    :wong,
+    grid = false,
+    frame = :box,
+    lab = "",
+    xlims = (:auto, :auto),
+    ylims = (:auto, :auto),
+)
 
 # ╔═╡ 994e8bf5-9750-4467-b51d-59a55453ef66
 md"""
 ## Correlations
 
-We start with uncorrlated data sets
+We start with uncorrelated data sets
 """
 
 # ╔═╡ af1a5a79-f605-4c14-bacd-794fcd8e434e
@@ -46,18 +59,18 @@ yv = randn(1000);
 M0 = hcat(xv, yv)
 
 # ╔═╡ c3c8c01f-2a23-47ef-ab57-4ce4f403468d
-scatter(xv, yv, m=(2, stroke(false)), mc=:black, frame=:origin)
+scatter(xv, yv, m = (2, stroke(false)), mc = :black, frame = :origin)
 
 # ╔═╡ 1a55785b-15d5-46a8-a818-84352528d1d2
 begin
-	plot(layout=grid(2,2), link=:xy, size=(600,600))
-	stephist!(yv, fill=0, α=0.4, sp=1, permute=(:x,:y), lc=:black)
-	scatter!(xv, yv, m=(2, stroke(false)), mc=:black, sp=2)
-	stephist!(xv, fill=0, α=0.4, lc=:black, sp=4)
+    plot(layout = grid(2, 2), link = :xy, size = (600, 600))
+    stephist!(yv, fill = 0, α = 0.4, sp = 1, permute = (:x, :y), lc = :black)
+    scatter!(xv, yv, m = (2, stroke(false)), mc = :black, sp = 2)
+    stephist!(xv, fill = 0, α = 0.4, lc = :black, sp = 4)
 end
 
 # ╔═╡ a9ca0803-3dc4-4184-b14d-422904fc2155
-correlation(A, B) = cov(A,B) / sqrt(cov(A,A) * cov(B,B))
+correlation(A, B) = cov(A, B) / sqrt(cov(A, A) * cov(B, B))
 
 # ╔═╡ 34e26f4b-b3e2-4faa-b135-501cdff5ce79
 ρ0 = correlation(xv, yv)
@@ -74,72 +87,71 @@ md"""
 μx, μy = mean(xv), mean(yv)
 
 # ╔═╡ ee7855a6-d580-4441-9ef2-627989bdfdf2
-@bind ϕ_deg Slider(-180:180, default=0, show_value=true)
+@bind ϕ_deg Slider(-180:180, default = 0, show_value = true)
 
 # ╔═╡ fa589447-1e23-4308-bdc0-efc693720d11
 # rotation matrix
 R = let
-	ϕ = ϕ_deg/180*π
-	s,c = sincos(ϕ)
-	[c -s; s c]
+    ϕ = ϕ_deg / 180 * π
+    s, c = sincos(ϕ)
+    [c -s; s c]
 end;
 
 # ╔═╡ 23e08f03-ca90-4598-82c6-4cec956650e2
 begin
-	xv_centered = xv .- μx
-	yv_centered = yv .- μy
-	M = hcat(xv_centered, 0.5 .* yv_centered)
-	#
-	M .= mapslices(M,dims=2) do (x,y)
-		x, y = R * [x, y]
-	end
-	# 
-	xv_c, yv_c = M[:,1], M[:,2];
+    xv_centered = xv .- μx
+    yv_centered = yv .- μy
+    M = hcat(xv_centered, 0.5 .* yv_centered)
+    #
+    M .= mapslices(M, dims = 2) do (x, y)
+        x, y = R * [x, y]
+    end
+    #
+    xv_c, yv_c = M[:, 1], M[:, 2]
 end;
 
 # ╔═╡ 98f1c7f7-53d3-4c67-b13e-16ac75e5d990
 let
-	A, B = M[:,1], M[:,2]
-	X = cov(M)
-	# 
-	plot(aspect_ratio=1)
-	covellipse!(mean.([A, B]), X, n_std=2, label="cov ellipse")
-	scatter!(A, B, ms=1, xlim=(-3,3), ylim=(-3,3), leg=:topright, lab="data")
+    A, B = M[:, 1], M[:, 2]
+    X = cov(M)
+    #
+    plot(aspect_ratio = 1)
+    covellipse!(mean.([A, B]), X, n_std = 2, label = "cov ellipse")
+    scatter!(A, B, ms = 1, xlim = (-3, 3), ylim = (-3, 3), leg = :topright, lab = "data")
 end
 
 # ╔═╡ 4f2dad68-3888-4849-8da6-bb8e4fcc50d2
 E = eigen(cov(M))
 
 # ╔═╡ 6da331ad-0309-491f-ba65-1a8f5cab9268
-ρ = cov(xv_c,yv_c) / sqrt(cov(xv_c,xv_c) * cov(yv_c,yv_c))
+ρ = cov(xv_c, yv_c) / sqrt(cov(xv_c, xv_c) * cov(yv_c, yv_c))
 
 # ╔═╡ 2fb86087-36be-4d67-bf08-66e8be6ed051
-cov(xv_c, 2 .* yv_c) / sqrt(cov(xv_c,xv_c) * cov(2 .*yv_c,2 .*yv_c))
+cov(xv_c, 2 .* yv_c) / sqrt(cov(xv_c, xv_c) * cov(2 .* yv_c, 2 .* yv_c))
 
 # ╔═╡ 4f294082-1278-4dcc-96f8-ddc414b087b9
 let
-	A, B = xv_c, yv_c
-	X = cov(hcat(A, B))
-	# 
-	plot()
-	covellipse!(mean.([A, B]), X, n_std=2, aspect_ratio=1, label="cov ellipse")
-	scatter!(A, B, ms=1, xlim=(-3,3), ylim=(-3,3), leg=:topright, lab="data")
-	# 
-	λ = sqrt.(E.values)
-	V = E.vectors
-	# 
-	plot!([0, 2*λ[1] * complex(V[:,1]...)], lw=3, lc=3, lab="")
-	plot!([0, 2*λ[2] * complex(V[:,2]...)], lw=3, lc=3, lab="")
-	plot!(xlab="x", ylab="y")
+    A, B = xv_c, yv_c
+    X = cov(hcat(A, B))
+    #
+    plot()
+    covellipse!(mean.([A, B]), X, n_std = 2, aspect_ratio = 1, label = "cov ellipse")
+    scatter!(A, B, ms = 1, xlim = (-3, 3), ylim = (-3, 3), leg = :topright, lab = "data")
+    #
+    λ = sqrt.(E.values)
+    V = E.vectors
+    #
+    plot!([0, 2 * λ[1] * complex(V[:, 1]...)], lw = 3, lc = 3, lab = "")
+    plot!([0, 2 * λ[2] * complex(V[:, 2]...)], lw = 3, lc = 3, lab = "")
+    plot!(xlab = "x", ylab = "y")
 end
 
 # ╔═╡ df5fb107-f33c-4653-b04f-36ba72aebbab
 begin
-		λ = sqrt.(E.values)
-		V = E.vectors
-	
-		2*λ[1] .* V[:,1],
-		2*λ[2] .* V[:,2]
+    λ = sqrt.(E.values)
+    V = E.vectors
+
+    2 * λ[1] .* V[:, 1], 2 * λ[2] .* V[:, 2]
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

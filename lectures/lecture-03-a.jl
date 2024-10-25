@@ -6,10 +6,10 @@ using InteractiveUtils
 
 # ╔═╡ 97b6f344-f02e-4e23-b51d-101c531c2f6e
 begin
-	using Random
-	using DataFrames
-	using Plots
-	Random.seed!(123)
+    using Random
+    using DataFrames
+    using Plots
+    Random.seed!(123)
 end;
 
 # ╔═╡ f595bb8c-8f83-11ef-1ae9-bdb0a013e5e5
@@ -22,17 +22,17 @@ The data points are sampled from a gaussian distribution function.
 """
 
 # ╔═╡ fdd0f6c2-73ce-490d-aeab-6d4e40152591
-theme(:wong2, grid=false, frame=:box, lw=2)
+theme(:wong2, grid = false, frame = :box, lw = 2)
 
 # ╔═╡ 2deb326f-c5e4-4e6f-99d2-d66b5c190c3b
 begin # true values
-	const μ = 1.1
-	const σ = 0.3
+    const μ = 1.1
+    const σ = 0.3
 end
 
 # ╔═╡ cff2a7d3-289e-4533-9386-d84dbb552157
-function generate(; N=5)
-	randn(N) .* σ .+ μ
+function generate(; N = 5)
+    randn(N) .* σ .+ μ
 end
 
 # ╔═╡ 342ee537-d246-4300-88a5-ce7db0f74947
@@ -56,42 +56,42 @@ T_4 &= \frac{1}{n-1}\sum_{i=1}^n t_i\,.
 estimator1(data) = sum(data) / length(data);
 
 # ╔═╡ ef736a67-a90d-4ec7-90dd-1ad2345c5933
-estimator2(data) = sum(data[1:2:end])-sum(data[2:2:end]);
+estimator2(data) = sum(data[1:2:end]) - sum(data[2:2:end]);
 
 # ╔═╡ 099bf415-6568-4558-9c47-8ee30cccb1d0
 estimator3(data) = data[1];
 
 # ╔═╡ f971bdf6-9a49-4ef6-ab00-4fe6631b925d
-estimator4(data) = sum(data) / (length(data)-1);
+estimator4(data) = sum(data) / (length(data) - 1);
 
 # ╔═╡ 7fce17a9-3645-4724-bf9d-f8811486fbbf
 begin # test if estimators return a number
-	@assert estimator1(generate()) isa Number
-	@assert estimator2(generate()) isa Number
-	@assert estimator3(generate()) isa Number
-	@assert estimator4(generate()) isa Number
+    @assert estimator1(generate()) isa Number
+    @assert estimator2(generate()) isa Number
+    @assert estimator3(generate()) isa Number
+    @assert estimator4(generate()) isa Number
 end
 
 # ╔═╡ 2f76f80b-e416-455d-a7b2-6170dfb0cc30
 toys = map(1:10_000) do _
-	_data = generate()
-	e1 = estimator1(_data)
-	e2 = estimator2(_data)
-	e3 = estimator3(_data)
-	e4 = estimator4(_data)
-	(; e1, e2, e3, e4)
+    _data = generate()
+    e1 = estimator1(_data)
+    e2 = estimator2(_data)
+    e3 = estimator3(_data)
+    e4 = estimator4(_data)
+    (; e1, e2, e3, e4)
 end |> DataFrame
 
 # ╔═╡ f9dc2d34-3ca4-4956-b5ea-908b29ab2767
 let
-	bins = range(μ - 5σ, μ + 5σ, 100)
-	plot(title="estimator values over ensemble", xlab="estimator values")
-	stephist!(toys.e1; bins, lab="e1")
-	stephist!(toys.e2; bins, lab="e2")
-	stephist!(toys.e3; bins, lab="e3")
-	stephist!(toys.e4; bins, lab="e4")
-	# 
-	vline!([μ], lab="truth", l=(:gray,:dash))
+    bins = range(μ - 5σ, μ + 5σ, 100)
+    plot(title = "estimator values over ensemble", xlab = "estimator values")
+    stephist!(toys.e1; bins, lab = "e1")
+    stephist!(toys.e2; bins, lab = "e2")
+    stephist!(toys.e3; bins, lab = "e3")
+    stephist!(toys.e4; bins, lab = "e4")
+    #
+    vline!([μ], lab = "truth", l = (:gray, :dash))
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001

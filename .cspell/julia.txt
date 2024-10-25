@@ -31,4 +31,6 @@ struct
 testset
 warntype
 xlim
+xlims
 ylim
+ylims

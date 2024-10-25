@@ -7,7 +7,14 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local iv = try
+            Base.loaded_modules[Base.PkgId(
+                Base.UUID("6e696c72-6542-2067-7265-42206c756150"),
+                "AbstractPlutoDingetjes",
+            )].Bonds.initial_value
+        catch
+            b -> missing
+        end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
@@ -16,10 +23,10 @@ end
 
 # ╔═╡ 05b805e0-f332-4716-ab03-99c3ec70e21d
 begin
-	using QuadGK
-	using Plots
-	using PlutoUI
-	using Parameters
+    using QuadGK
+    using Plots
+    using PlutoUI
+    using Parameters
 end
 
 # ╔═╡ a818da71-6985-4518-9699-a86d3bda6352
@@ -33,11 +40,15 @@ we need to obtained a dataset distributed accordingly.
 """
 
 # ╔═╡ 70e74787-471d-4fb0-9f64-b084b3e2cbb9
-theme(:wong2, grid=false,
-	xlim=(:auto,:auto),
-	ylim=(:auto,:auto),
-	frame=:box, lab="",
-	lw=2)
+theme(
+    :wong2,
+    grid = false,
+    xlim = (:auto, :auto),
+    ylim = (:auto, :auto),
+    frame = :box,
+    lab = "",
+    lw = 2,
+)
 
 # ╔═╡ d2db76f3-bca6-451b-beed-b6a32b69de98
 _mypdf(x) = exp(-x^4)
@@ -49,10 +60,10 @@ support = (-1, 3)
 const _n = quadgk(_mypdf, support...)[1];
 
 # ╔═╡ a7c72b80-a364-4935-89bb-84010b0b85eb
-mypdf(x) = _mypdf(x)/_n
+mypdf(x) = _mypdf(x) / _n
 
 # ╔═╡ 7eb9880c-19a4-45a6-979e-4d490433cde2
-plot(mypdf, support..., fill=0, alpha=0.6, lc=:black, c=2)
+plot(mypdf, support..., fill = 0, alpha = 0.6, lc = :black, c = 2)
 
 # ╔═╡ 6a44e2d1-3883-4fba-9d44-051cf531bbf7
 md"""
@@ -75,30 +86,30 @@ max_weight = maximum(weights)
 weights .> rand(n0) .* max_weight
 
 # ╔═╡ 76538880-47ba-4b69-9358-09a5f2526f1e
-data = data0[weights .> rand(n0) .* max_weight];
+data = data0[weights.>rand(n0).*max_weight];
 
 # ╔═╡ e00a1b19-72fe-4d0e-8ff5-16ecdb6a42c3
 let
-	nbins = 20
-	bins = range(support..., nbins+1)
-	
-	scatter(sort(data), permute=(:x,:y), ylim=support)
-	vline!(bins)
+    nbins = 20
+    bins = range(support..., nbins + 1)
+
+    scatter(sort(data), permute = (:x, :y), ylim = support)
+    vline!(bins)
 end
 
 # ╔═╡ 1c9eb818-972f-4e1d-9bba-b04bc8518b32
 let
-	nbins = 100
-	bins = range(support..., nbins+1)
-	plot()
-	stephist!(data; bins, fill=0, alpha=0.6, lc=:black, c=2)
-	# 
-	# integral of data: sum(bins)*dx = n*dx
-	# integral of curve: 1*scale
-	n = length(data)
-	dx = (support[2]-support[1]) / nbins
-	scale = n*dx
-	plot!(x->mypdf(x) * scale, support..., lc=:black, lw=2)
+    nbins = 100
+    bins = range(support..., nbins + 1)
+    plot()
+    stephist!(data; bins, fill = 0, alpha = 0.6, lc = :black, c = 2)
+    #
+    # integral of data: sum(bins)*dx = n*dx
+    # integral of curve: 1*scale
+    n = length(data)
+    dx = (support[2] - support[1]) / nbins
+    scale = n * dx
+    plot!(x -> mypdf(x) * scale, support..., lc = :black, lw = 2)
 end
 
 # ╔═╡ b806caac-0208-4116-a613-b43c380ad216
@@ -110,25 +121,25 @@ md"""
 mycdf(x) = quadgk(mypdf, support[1], x)[1]
 
 # ╔═╡ 1259c2bf-f857-419b-aa8f-6a970e8ac292
-@bind x Slider(range(support..., 100), default=0.4)
+@bind x Slider(range(support..., 100), default = 0.4)
 
 # ╔═╡ a09d25c4-0af5-4136-877a-8628e4ff1022
 let
-	nbins = 10
-	bins = range(support..., nbins+1)
-	#
-	plot(mycdf, support...)
-	scatter!(bins, mycdf.(bins))
-	#
-	plot!([x,x],[mycdf(x),0], arrow=true, c=3)
-	plot!([support[1],x],[mycdf(x),mycdf(x)], arrow=true, c=3)
+    nbins = 10
+    bins = range(support..., nbins + 1)
+    #
+    plot(mycdf, support...)
+    scatter!(bins, mycdf.(bins))
+    #
+    plot!([x, x], [mycdf(x), 0], arrow = true, c = 3)
+    plot!([support[1], x], [mycdf(x), mycdf(x)], arrow = true, c = 3)
 end
 
 # ╔═╡ 725df7e7-7fe8-485f-bd5c-c7c2c26a6569
 precomputed_cdf = let
-	grid = range(support..., 201)
-	cdf_values = mycdf.(grid)
-	(; grid, cdf_values)
+    grid = range(support..., 201)
+    cdf_values = mycdf.(grid)
+    (; grid, cdf_values)
 end
 
 # ╔═╡ 5bffc3d3-a527-4a42-ae97-f9474d940d5d
@@ -142,15 +153,15 @@ md"""
 """
 
 # ╔═╡ dfe0b22a-2d22-48cd-8c71-780faa03825c
-let 
-	@unpack grid, cdf_values = precomputed_cdf
-	# 
-	y = rand()
-	# 
-	binind = findfirst(cdf_values .> y) - 1
+let
+    @unpack grid, cdf_values = precomputed_cdf
+    #
+    y = rand()
+    #
+    binind = findfirst(cdf_values .> y) - 1
     x_left, x_right = grid[binind], grid[binind+1]
-	# 
-	position_inside_bin = rand()
+    #
+    position_inside_bin = rand()
     x = x_left + position_inside_bin * (x_right - x_left)
 end
 
@@ -167,34 +178,34 @@ output: x
 """
 
 # ╔═╡ db3f503c-e4f8-4dad-a79d-e821890f78f0
-function generate_with_inv_cdf(two_rand, precomputed_cdf) 
-	@unpack grid, cdf_values = precomputed_cdf
-	# 
-	r1,r2 = two_rand
-	# 
-	binind = findfirst(cdf_values .> r1) - 1
+function generate_with_inv_cdf(two_rand, precomputed_cdf)
+    @unpack grid, cdf_values = precomputed_cdf
+    #
+    r1, r2 = two_rand
+    #
+    binind = findfirst(cdf_values .> r1) - 1
     x_left, x_right = grid[binind], grid[binind+1]
-	# 
+    #
     x = x_left + r2 * (x_right - x_left)
 end
 
 # ╔═╡ 05ffffef-2657-4c02-9326-db00a123be69
 data_method2 = let
-	random_input = rand(2, 100000)
-	pair_or_numbers = eachslice(random_input, dims=2)
-	generate_with_inv_cdf.(pair_or_numbers, precomputed_cdf |> Ref)
+    random_input = rand(2, 100000)
+    pair_or_numbers = eachslice(random_input, dims = 2)
+    generate_with_inv_cdf.(pair_or_numbers, precomputed_cdf |> Ref)
 end;
 
 # ╔═╡ 87c3608d-37bc-4ecf-83c6-fa3cf9b9e6c2
 let
-	nbins = 100
-	bins = range(support..., nbins+1)
-	plot()
-	stephist!(data_method2; bins, fill=0, alpha=0.6, lc=:black, c=2)
-	# 
-	dx = (support[2]-support[1]) / nbins
-	scale = length(data_method2)*dx
-	plot!(x->mypdf(x) * scale, support..., lc=:black, lw=2)
+    nbins = 100
+    bins = range(support..., nbins + 1)
+    plot()
+    stephist!(data_method2; bins, fill = 0, alpha = 0.6, lc = :black, c = 2)
+    #
+    dx = (support[2] - support[1]) / nbins
+    scale = length(data_method2) * dx
+    plot!(x -> mypdf(x) * scale, support..., lc = :black, lw = 2)
 end
 
 # ╔═╡ dec425a3-d32e-496d-b5ef-9d223293eb59
@@ -204,7 +215,7 @@ md"""
 When I transform $x$ to $z = f(x)$, distribution of $z$, is given by,
 
 ```math
-\frac{dN}{dz} = \frac{dN}{dx} \frac{dx}{dz} = f(x(z))\,x'(z) 
+\frac{dN}{dz} = \frac{dN}{dx} \frac{dx}{dz} = f(x(z))\,x'(z)
 ```
 
 If we start from uniform distribution, $f(x) = 1$, hense, $dN/dz = x'(z)$
@@ -219,18 +230,18 @@ Q:
 
 # ╔═╡ 5e1e1225-ffd0-453b-91a7-5bcd77b7861d
 let
-	transformation(x) = tan((x-0.5)*2.4)
-	# 
-	uniform_data = rand(10000)
-	transformed_data = transformation.(uniform_data)
-	# 
-	bins = 200
-	# bins = range(support..., nbins+1)
-	stephist(transformed_data; bins, fill=0, alpha=0.6, lc=:black, c=2)
-	# # 
-	dx = (support[2]-support[1]) / bins
-	scale = length(transformed_data)*dx
-	plot!(x->mypdf(x) * scale, support..., lc=:black, lw=2)
+    transformation(x) = tan((x - 0.5) * 2.4)
+    #
+    uniform_data = rand(10000)
+    transformed_data = transformation.(uniform_data)
+    #
+    bins = 200
+    # bins = range(support..., nbins+1)
+    stephist(transformed_data; bins, fill = 0, alpha = 0.6, lc = :black, c = 2)
+    # #
+    dx = (support[2] - support[1]) / bins
+    scale = length(transformed_data) * dx
+    plot!(x -> mypdf(x) * scale, support..., lc = :black, lw = 2)
 end
 
 # ╔═╡ 0183aa1a-9828-4235-960e-e22234daffbf

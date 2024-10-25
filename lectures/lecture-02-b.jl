@@ -6,33 +6,39 @@ using InteractiveUtils
 
 # ╔═╡ d4df1646-8a00-11ef-0308-577237ab4ba5
 begin
-	using Plots
-	using FHist
-	using Random
-	Random.seed!(1234)
-	using Statistics
+    using Plots
+    using FHist
+    using Random
+    Random.seed!(1234)
+    using Statistics
 end
 
 # ╔═╡ a3c404b7-5643-4736-b23c-f30f58e7d3ac
-theme(:wong, grid=false, frame=:box, lab="",
-	xlims=(:auto,:auto), ylims=(:auto,:auto))
+theme(
+    :wong,
+    grid = false,
+    frame = :box,
+    lab = "",
+    xlims = (:auto, :auto),
+    ylims = (:auto, :auto),
+)
 
 # ╔═╡ 13d41100-f0df-4a85-bf62-64091f3093ee
 data = randn(10000);
 
 # ╔═╡ 4326e9e9-5e78-44b3-83db-3d77519aaae8
-h1 = Hist1D(binedges=range(-2,2,40));
+h1 = Hist1D(binedges = range(-2, 2, 40));
 
 # ╔═╡ 9acf6fb4-fcb2-42fa-8a27-634fc4b4250c
 push!.(h1, data);
 
 # ╔═╡ 2174bc55-0dc4-4ce6-ba84-2b981342ebf0
-plot(h1, seriestype=:stepbins, fill=0, alpha=0.4, lw=2, lc=:black)
+plot(h1, seriestype = :stepbins, fill = 0, alpha = 0.4, lw = 2, lc = :black)
 
 # ╔═╡ 71d130e4-a8a6-4c02-bba1-388eb12ae617
 let
-	h = Hist1D(randn(1000), binedges=range(-2,2,40));
-	h.bincounts[1]
+    h = Hist1D(randn(1000), binedges = range(-2, 2, 40))
+    h.bincounts[1]
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
