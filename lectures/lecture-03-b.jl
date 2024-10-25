@@ -204,7 +204,7 @@ The negative log likelihood (NLL) enables simplification
 ```
 
 !!! note "Note on normalization"
-	the fit does not care about normalization of the $f$. The NLL is insensitive to the normlization of $f$ since we took care of it explicitly
+	the fit does not care about normalization of the $f$. The NLL is insensitive to the normalization of $f$ since we took care of it explicitly
 """
 
 # ╔═╡ bfa2bc7c-8af1-4bc7-8930-03befe0c3036
@@ -271,7 +271,7 @@ The extended likelihood is defined with a poisson constrained for pdf integral,
 
 where $\mu = \int f(x|p) dx$.
 
-The exteded negative log likelihood (NLL) is similar to nll before, but without `log` for normalization
+The extended negative log likelihood (NLL) is similar to nll before, but without `log` for normalization
 ```math
 \text{NNL}(p) = -\log \mathcal{L}(p) = - \sum_{i=1}^n \log f(x_i|p) + \int f(x|p) dx
 ```
@@ -341,7 +341,7 @@ md"""
 ### Integral of the signal
 
 While the shape parameters can be directly compared,
-the parameters related to the normzalition are treated differently between the samples. We look at them one by one:
+the parameters related to the normalization are treated differently between the samples. We look at them one by one:
 
 1. Binned
 2. Likelihood with fixed parameter `a`
