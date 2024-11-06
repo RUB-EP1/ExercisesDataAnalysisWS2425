@@ -118,30 +118,6 @@ let
     stephist(data; bins)
 end
 
-# ╔═╡ b26dae47-0eb7-4de3-aacd-844d866889ab
-md"""
-## Fitting
-"""
-
-# ╔═╡ ee73daf7-a8cd-42dc-a928-bd8f8bcf25a5
-md"""
-### Extended Maximum Likelihood method
-
-
-The extended likelihood is defined with a poisson constrained for pdf integral,
-```math
-\mathcal{L}(p) = \frac{e^{-μ} μ^{n}}{n!} \prod_{i=1}^n P(x_i|p) = \frac{1}{(\int)^n} \prod_{i=1}^n f(x_i|p)
-```
-
-where $\mu = \int f(x|p) dx$.
-
-The extended negative log likelihood (NLL) is similar to nll before, but without `log` for normalization
-```math
-\text{NNL}(p) = -\log \mathcal{L}(p) = - \sum_{i=1}^n \log f(x_i|p) + \int f(x|p) dx
-```
-
-"""
-
 # ╔═╡ 0a0c877a-6d10-4cbb-aa61-baf4a991627d
 const AnyModelPars = NamedTuple{(fieldnames(ModelPars))}
 
@@ -213,10 +189,6 @@ function extended_nll(pars, data; normalization_call = mc_call)
     nll = minus_sum_log + normalization
     return nll
 end
-
-# ╔═╡ 926fb15c-7f10-44af-aafd-c6a9c065502e
-extended_nll(p::Vector) = extended_nll(
-	AnyModelPars(p), data; normalization_call=mc_call)
 
 # ╔═╡ b42b7e2e-df09-4273-8282-c294b30f095a
 function fit_enll(data, initial_estimate; normalization_call=mc_call)
@@ -333,9 +305,6 @@ md"""
 ## Likelihood profile
 """
 
-# ╔═╡ 0ff2a4e1-3479-40e8-bd34-fe8bef53416c
-(1:3)[[false, true,true]]
-
 # ╔═╡ 83e77656-cf22-46de-b0ee-799564a3bed9
 function profile_enll(theta_num, data, initial_estimate)
 	n = length(initial_estimate)
@@ -353,46 +322,39 @@ function profile_enll(theta_num, data, initial_estimate)
 	end
 end
 
-# ╔═╡ 9a588dce-f0bc-4767-aace-5dd66c042c92
-best_pars_extnll_mc
-
-# ╔═╡ 52ea98d9-2166-4544-9916-8bc484c592ea
-plot(μ->profile_enll(1, data, (; best_pars_extnll_mc..., μ)).minimum, 2.3505, 2.3506)
-
 # ╔═╡ 155f671b-449a-4e77-9786-2bdf9cea5c30
 const p0 = collect(best_pars_extnll_mc)
 
 # ╔═╡ 5a056cd7-af1c-43b5-bdfc-783f4a55fede
-const NLL0 = extended_nll(p0)
-
-# ╔═╡ 07fa4e08-995c-4b6a-bae7-6b5ddd4e859f
-Δextended_nll(p::Vector) = extended_nll(p) - NLL0
-
-# ╔═╡ deac4d87-9f9a-4015-be64-68ae3a67e187
-r1 = let theta_num = 5
-	_r = get_interval(
-        zeros(length(p0)),
-        theta_num,
-        x->Δextended_nll(x+p0),
-        :QUADR_EXTRAPOL;
-		scan_tol = 0.0001,
-        loss_crit = 0.5,
-		theta_bounds,
-		scan_bounds = theta_bounds[theta_num] ./ 1.2
-    )
-	update_profile_points!(_r)
-	_r
-end
+const NLL0 = extended_nll(best_pars_extnll_mc, data)
 
 # ╔═╡ 0a5a862f-6e0f-4a3a-b608-303bfc288a8b
-begin 
-	theta_num = r1.input.theta_num
+likelihood_profiling = let theta_num = 2
 	# 
-	denll(δ,i) = Δextended_nll(p0 + Diagonal(I, 5)[i,:] .* δ)
-	plot(δ->denll(δ,theta_num), theta_bounds[theta_num]...)
+	p(δ) = p0 + Diagonal(I, length(p0))[theta_num,:] .* δ
+	# 
+	grid = range(theta_bounds[theta_num]..., 20)
+	projecting = map(grid) do δ
+		extended_nll(AnyModelPars(p(δ)), data) - NLL0
+	end
+	profiling = map(grid) do δ
+		res = profile_enll(theta_num, data, AnyModelPars(p(δ)))
+		res.minimum - NLL0
+	end
+	(; theta_num, grid, projecting, profiling)
+end;
+
+# ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
+let
+	@unpack projecting, profiling, grid, theta_num = likelihood_profiling
+	# 
+	plot(
+		title="profile on parameter $theta_num",
+		xlab="δ$(fieldnames(ModelPars)[theta_num])",
+		ylab="ΔNLL")
+	plot!(grid, projecting, lab="project likelihood")
+	plot!(grid, profiling, lab="profile likelihood")
 	hline!([0.5], leg=:top)
-	# 
-	plot!(r1, xlims=theta_bounds[theta_num] ./ 2, ylims=(0, 0.9))
 end
 
 # ╔═╡ Cell order:
@@ -412,11 +374,8 @@ end
 # ╠═5f23fd6a-5950-45df-8136-3aa4a2bb1cf7
 # ╟─20b68451-a639-44f0-97dd-28a89cf517cd
 # ╠═255e5019-f8e0-49ed-8efa-ba21004008aa
-# ╟─b26dae47-0eb7-4de3-aacd-844d866889ab
-# ╟─ee73daf7-a8cd-42dc-a928-bd8f8bcf25a5
 # ╠═22442c7f-f5b7-4b65-afcf-78a15585bdc3
 # ╠═0a0c877a-6d10-4cbb-aa61-baf4a991627d
-# ╠═926fb15c-7f10-44af-aafd-c6a9c065502e
 # ╟─c72f2357-3d08-49ae-aae6-0f5f157db030
 # ╠═755a09d9-c491-439d-b933-1cd7cc29089e
 # ╠═7f9e7439-59fe-4402-9738-ca8747299f84
@@ -437,12 +396,8 @@ end
 # ╠═758ab556-38c8-4279-8f76-1e02ffce15b5
 # ╠═18d037fa-1a98-4e2f-ade9-0b58d90b3618
 # ╟─1d2c6460-e85c-467b-a8ca-5003f35a0d50
-# ╠═0ff2a4e1-3479-40e8-bd34-fe8bef53416c
 # ╠═83e77656-cf22-46de-b0ee-799564a3bed9
-# ╠═9a588dce-f0bc-4767-aace-5dd66c042c92
-# ╠═52ea98d9-2166-4544-9916-8bc484c592ea
-# ╠═07fa4e08-995c-4b6a-bae7-6b5ddd4e859f
 # ╠═155f671b-449a-4e77-9786-2bdf9cea5c30
 # ╠═5a056cd7-af1c-43b5-bdfc-783f4a55fede
 # ╠═0a5a862f-6e0f-4a3a-b608-303bfc288a8b
-# ╠═deac4d87-9f9a-4015-be64-68ae3a67e187
+# ╠═c17f58db-7790-49c6-b121-cafef370ef5d
