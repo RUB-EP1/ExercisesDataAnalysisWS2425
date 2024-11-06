@@ -26,7 +26,6 @@ begin
     using FHist
     using Optim
 	using DataFrames
-	using LikelihoodProfiler
 end
 
 # ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
@@ -35,6 +34,9 @@ md"""
 
 In this lecture we discuss methods to estimate statistical uncertainty of parameters
 """
+
+# ╔═╡ 847ecdd3-c7ae-4376-9d67-96385f990da2
+
 
 # ╔═╡ 39ee4bcd-8d01-443f-9714-103ab6d7f7d6
 theme(
@@ -360,6 +362,7 @@ end
 # ╔═╡ Cell order:
 # ╟─9da55708-8792-4b26-984f-5795a981bf2c
 # ╠═2d141b9d-09bb-4074-bf01-4c4b6099585d
+# ╠═847ecdd3-c7ae-4376-9d67-96385f990da2
 # ╠═39ee4bcd-8d01-443f-9714-103ab6d7f7d6
 # ╠═9b6b7d99-9f92-4b0a-b617-4111317e8271
 # ╟─ace5e914-f516-438e-ae04-012573ad3586
