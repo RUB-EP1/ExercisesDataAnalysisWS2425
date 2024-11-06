@@ -10,10 +10,7 @@ To work towards that, you will estimate the *yield* (i.e. the integral of the si
 
 ## Exercise 1
 
-Add a second Gaussian to your fit model, fit the data again, and compute the Hessian matrix. <br>
-Use that to compute the uncertainty of the signal yield for the new decay process. <br>
-Make a plot of the correlation matrix of fit parameters using the `heatmap` color-palette.
-
+Add a second Gaussian to your fit model, fit the data again, and compute the Hessian matrix. Use that to compute the uncertainty of the signal yield for the new decay process.
 > [!TIP]
 > Look at the [pdglive](https://pdglive.lbl.gov/Particle.action?init=0&node=S045&home=BXXX040) website of the $\Xi_c^+$ particle to get a good starting parameter for the mean of your second Gaussian.
 
@@ -23,5 +20,4 @@ Compute the profile likelihood ratio in 20 points around the best fit value of t
 
 ## Exercise 3
 
-Use the bootstrapping and jackknife resampling methods (that will be) discussed in the lecture to estimate the variance of the yield.<br>
-How do they compare to the previous methods?
+Use the jackknife bootstrapping method to estimate the variance of the yield. How does it compare to the previous methods?
