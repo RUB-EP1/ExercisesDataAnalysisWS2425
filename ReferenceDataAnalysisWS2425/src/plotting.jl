@@ -23,8 +23,8 @@ Plot a histogram of data with a fit using model overlaid and a pull distribution
 # Example
 ```julia
 data = log.(1 .+ (exp(1) - 1) .* rand(10_000))
-model(x, p) = p[1] * exp(p[2] * x)
 binning = 0:0.1:1.0
+model(x, p) = p[1] * exp(p[2] * x)
 best_fit_pars = [1.0, 1.0]
 plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlbl = "X-axis", ylbl = "Y-axis")
 ```

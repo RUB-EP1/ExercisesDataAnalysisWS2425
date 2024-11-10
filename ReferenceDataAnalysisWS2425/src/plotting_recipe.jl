@@ -15,7 +15,7 @@ julia> model_fun(x) = length(data) * exp(-x^2 / 2) / sqrt(2π);
 julia> #
 julia> let
     plot(h, seriestype=:stepbins)
-    plot!(model_fun, WithData(h.binedges[1]), lw=2)
+    plot!(model_fun, WithData(h.binedges[1]); lw=2, n_points = 150)
 end  # displays the plot
 ```
 """
@@ -34,7 +34,7 @@ end
 
 
 """
-    curvedfitwithpulls(model, h;, data_scale_curve = true)
+    curvedfitwithpulls(model, h;, data_scale_curve = true, n_points=100)
 
 Plots the histogram with Poisson uncertainties, the model by a curve, and a pull distribution.
 
@@ -90,10 +90,14 @@ scatter!(sp = 2, bincenters(hpull), hpull.bincounts, yerror = 1, xerror = dx)
     tickfontfamily := "Times"
     guidefontfamily := "Times"
 
+    value = haskey(plotattributes, :n_points) ? plotattributes[:n_points] : 100
+
     # model curve
     @series begin
         subplot := 1
         linewidth := 1.5
+        @show value
+        n_points := value
         model, WD
     end
     markersize := 1.5
