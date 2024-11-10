@@ -113,14 +113,14 @@ begin
 	# 
 end;
 
-# ╔═╡ 0bb8f104-cbde-4055-acd7-7a0345c0c6bc
-function from_vector(example::Anka{P}, p::Vector) where P
-	NT = NamedTuple{P |> fieldnames}
-	Anka{NT}(p)
-end
-
 # ╔═╡ 54629edc-12ed-402d-bfc4-33cbb0b71848
 const default_model = Anka(; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
+
+# ╔═╡ d12cccba-5afd-43f3-bc99-7b7961f86132
+const AnyModelPars = typeof(default_model)
+
+# ╔═╡ a78de1dc-dc59-4296-a18d-a08a8186fb7d
+const model_fieldnames = fieldnames(typeof(default_model.pars))
 
 # ╔═╡ 8878c8be-21ba-4fc2-aa59-76754ebfbf0b
 md"""
@@ -160,12 +160,12 @@ initial_guess =
 
 # ╔═╡ 2d97dcb6-78fe-4fda-acd9-d1b72f680862
 fit_result = fit_enll(collect(initial_guess.pars), data; support) do x, pars
-	_model = typeof(initial_guess)(pars)
+	_model = AnyModelPars(pars)
 	model_func(_model, x)
 end
 
 # ╔═╡ 8844e5d2-b779-49de-9177-dcec11d73e8d
-best_pars_extnll = fit_result.minimizer |> typeof(default_model)
+best_pars_extnll = fit_result.minimizer |> AnyModelPars
 
 # ╔═╡ 45e8e2df-4287-41d5-8568-7e78898cd587
 let
@@ -201,7 +201,7 @@ the diagonal of the matrix gives the statistical errors.
 
 # ╔═╡ 87711274-3ecc-4887-a470-8b9b1fef07fe
 function local_extended_nll(p_values::Vector)
-	_model = typeof(initial_guess)(p_values)
+	_model = AnyModelPars(p_values)
 	enll = extended_nll(data) do x
 		model_func(_model, x)
 	end
@@ -240,15 +240,13 @@ begin
         ρ = correlations[ij]
         annotate!((i, j, round(ρ; digits = 2)))
     end
-    par_labels = fieldnames(typeof(initial_guess.pars))
-    ticks = (1:length(par_labels), par_labels)
+    ticks = (1:length(model_fieldnames), model_fieldnames)
     plot!(; title = "correlation matrix", aspect_ratio = 1, ticks)
 end
 
 # ╔═╡ 758ab556-38c8-4279-8f76-1e02ffce15b5
 const from_hesse = let
-    names = fieldnames(typeof(initial_guess.pars))
-    delta_names = "δ" .* string.(names)
+    delta_names = "δ" .* string.(model_fieldnames)
     NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
 end
 
@@ -296,18 +294,11 @@ likelihood_profiling = let theta_num = 2
     (; theta_num, grid, projecting, profiling)
 end;
 
-# ╔═╡ 2a70dccf-da9c-4acd-9480-30928f3dea5c
-fit_with_fixed(local_extended_nll, p0; number_to_fix=1)
-
 # ╔═╡ 499edc2f-9273-4bc6-9260-8aebef555f24
 function findzeros_two_sides(xv,yv)
 	yxv = yv .* xv
-	_left = findfirst(yxv) do x
-		x > 0
-	end
-	_right = findlast(yxv) do x
-		x < 0
-	end
+	_left = findfirst(x->x>0, yxv)
+	_right = findlast(x->x<0,yxv)
 	[xv[_left-1], xv[_right+1]]
 end
 
@@ -315,9 +306,9 @@ end
 let
 	@unpack projecting, profiling, grid, theta_num = likelihood_profiling
     #
-	xlab = "δ$(fieldnames(typeof(initial_guess.pars))[theta_num])"
-	plot(title = ["studies of parameter #$theta_num" ""];
-        xlab=[""  xlab],  ylab = "ΔNLL")
+	xlab = "δ$(model_fieldnames[theta_num])"
+	plot(title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
+        xlab, ylab = "ΔNLL")
 	# 
     plot!(grid, profiling, lab = "profile likelihood", c=2)
 	plot!(grid, projecting, lab = "project likelihood", c=3)
@@ -336,10 +327,11 @@ end
 # ╠═39ee4bcd-8d01-443f-9714-103ab6d7f7d6
 # ╠═9b6b7d99-9f92-4b0a-b617-4111317e8271
 # ╟─ace5e914-f516-438e-ae04-012573ad3586
-# ╠═0bb8f104-cbde-4055-acd7-7a0345c0c6bc
 # ╠═30eef5b0-1b1b-4711-9d0d-06679c84b23e
 # ╠═8ff5e326-1e5c-431b-a21c-83171af7d879
 # ╠═54629edc-12ed-402d-bfc4-33cbb0b71848
+# ╠═d12cccba-5afd-43f3-bc99-7b7961f86132
+# ╠═a78de1dc-dc59-4296-a18d-a08a8186fb7d
 # ╟─8878c8be-21ba-4fc2-aa59-76754ebfbf0b
 # ╠═d1b7527c-4375-4773-99b4-d039462b5044
 # ╠═d1fdce14-0768-4838-b244-8b7fb101b137
@@ -357,15 +349,14 @@ end
 # ╠═555ccd0e-a14a-40ab-976f-19e26665312c
 # ╟─f974f215-2a41-4e40-8075-746591fbf859
 # ╠═77c3c4c6-2768-4bab-a3eb-d6e7472b2fc7
-# ╠═b7d7425c-78ae-40c2-9aa6-9e24e7de5290
 # ╠═758ab556-38c8-4279-8f76-1e02ffce15b5
-# ╠═18d037fa-1a98-4e2f-ade9-0b58d90b3618
+# ╠═b7d7425c-78ae-40c2-9aa6-9e24e7de5290
 # ╟─1d2c6460-e85c-467b-a8ca-5003f35a0d50
-# ╠═83e77656-cf22-46de-b0ee-799564a3bed9
 # ╠═85380f97-f586-4f42-ba1b-a88af67f0766
 # ╠═5a056cd7-af1c-43b5-bdfc-783f4a55fede
+# ╠═18d037fa-1a98-4e2f-ade9-0b58d90b3618
+# ╠═83e77656-cf22-46de-b0ee-799564a3bed9
 # ╠═0a5a862f-6e0f-4a3a-b608-303bfc288a8b
-# ╠═2a70dccf-da9c-4acd-9480-30928f3dea5c
 # ╠═c17f58db-7790-49c6-b121-cafef370ef5d
 # ╠═499edc2f-9273-4bc6-9260-8aebef555f24
 # ╠═3b748eaf-446b-42a6-b643-5cb6af823419
