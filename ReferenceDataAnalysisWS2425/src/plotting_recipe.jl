@@ -108,7 +108,7 @@ scatter!(sp = 2, bincenters(hpull), hpull.bincounts, yerror = 1, xerror = dx)
         guidefontvalign := :top
         seriestype := :scatter
         subplot := 1
-        yerror := binerrors(h0)
+        yerror := binerrors(h)
         xerror := dx
         bincenters(h), h.bincounts
     end
