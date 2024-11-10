@@ -6,9 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ 14132512-9db8-11ef-361a-5d00f6083e73
 begin
-	using Zygote
-	using ChainRulesCore
-	using QuadGK
+    using Zygote
+    using ChainRulesCore
+    using QuadGK
 end
 
 # ╔═╡ 7d028454-9bf1-4a93-94de-813d067b1497
@@ -25,7 +25,7 @@ f(x) = (x^2 + 3x + 2) / log(x)
 @code_lowered f(x0)
 
 # ╔═╡ a0826a36-9825-49a1-8be2-383d2d8a95f3
-@code_llvm debuginfo=:none f(x0)
+@code_llvm debuginfo = :none f(x0)
 
 # ╔═╡ 64119294-9727-4704-8f9d-c64cb3ebd1b5
 x0 = 5.0
@@ -62,9 +62,9 @@ z, back_z = Zygote.pullback(g, x0, y0)
 back_z(1.0) # Tuple of two
 
 # ╔═╡ 911f9f08-2265-481b-9db1-9039d9a5ab42
-individual_partials = 
-	Zygote.gradient(x->g(x, y0), x0)[1],
-	Zygote.gradient(y->g(x0, y), y0)[1]
+individual_partials =
+    Zygote.gradient(x -> g(x, y0), x0)[1],
+    Zygote.gradient(y -> g(x0, y), y0)[1]
 
 # ╔═╡ e88b7dcb-b7f8-44bf-8826-c1c6d7712b0f
 md"""
@@ -95,7 +95,7 @@ function ChainRulesCore.rrule(::typeof(quadgk), f, a::Number, b::Number)
     function pullback(Δ) # Δ is a Tuple(δint, δerr)
         grad_a = Δ[1] * f(a)
         return (ZeroTangent(), ZeroTangent(), -grad_a, grad_a)
-    end 
+    end
     return integral_witherr, pullback
 end
 
@@ -110,8 +110,8 @@ a0 = 2.0
 
 # ╔═╡ 1ee6cc1c-b1a4-4cd4-b7ce-9236b5fca36a
 begin
-	u, back_u = Zygote.pullback(funcion_on_upper, a0)
-	gradient_on_upper = back_u((1.0, 0.0)), back_u((0.0, 1.0))
+    u, back_u = Zygote.pullback(funcion_on_upper, a0)
+    gradient_on_upper = back_u((1.0, 0.0)), back_u((0.0, 1.0))
 end
 
 # ╔═╡ 3d3eda1e-169f-4696-953d-4fbbfca76bcc
@@ -119,9 +119,11 @@ myf(a) = (a, 2a)
 
 # ╔═╡ f143e453-84a7-436f-9aaa-e40f79833d88
 begin
-	val_myf, back_myf = Zygote.pullback(myf, a0)
-	back_myf((1.0, 0.0)), back_myf((0.0, 1.0))
+    val_myf, back_myf = Zygote.pullback(myf, a0)
+    back_myf((1.0, 0.0)), back_myf((0.0, 1.0))
 end
+
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

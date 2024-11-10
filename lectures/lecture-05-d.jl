@@ -6,9 +6,9 @@ using InteractiveUtils
 
 # ╔═╡ c4502f7e-9a02-11ef-3e92-9b8af72c2d2f
 begin
-	using RecipesBase
-	using Plots
-	using FHist
+    using RecipesBase
+    using Plots
+    using FHist
 end
 
 # ╔═╡ ad399e0f-d3b3-4560-bee3-11c40985b455
@@ -20,30 +20,32 @@ The notebook introduces a recipe that make plotting curve on top of histogram ea
 
 # ╔═╡ 0481bf5e-99c4-4105-b7d6-e44587e93a28
 begin
-	struct WithData
-	    factor::Float64
-		support::Tuple{Float64,Float64}
-	end
-	WithData(bins, N::Int=1) = WithData(N * diff(bins)[1], (bins[1], bins[end]))
-	WithData(h::Hist1D) = WithData(h.binedges[1], Int(sum(h.bincounts)))
-	# 
-	@recipe function f(model_fun::Function, scale::WithData; n_points=100)
-	    normalized_function(x) = model_fun(x) * scale.factor
-		xv = range(scale.support..., n_points)
-		return (normalized_function, xv)
-	end
+    struct WithData
+        factor::Float64
+        support::Tuple{Float64, Float64}
+    end
+    WithData(bins, N::Int = 1) = WithData(N * diff(bins)[1], (bins[1], bins[end]))
+    WithData(h::Hist1D) = WithData(h.binedges[1], Int(sum(h.bincounts)))
+    #
+    @recipe function f(model_fun::Function, scale::WithData; n_points = 100)
+        normalized_function(x) = model_fun(x) * scale.factor
+        xv = range(scale.support..., n_points)
+        return (normalized_function, xv)
+    end
 end
 
 # ╔═╡ 51dcde4c-236b-456c-913f-eb88d3ccd0f1
 begin
-	data = randn(1000)
-	h = Hist1D(data; binedges=range(-5,5, 100))
-	
-	model_fun(x) = length(data) * exp(-x^2 / 2) / sqrt(2π)
-	# 
-	plot(h, seriestype=:stepbins)
-	plot!(model_fun, WithData(h.binedges[1]), lw=2)
+    data = randn(1000)
+    h = Hist1D(data; binedges = range(-5, 5, 100))
+
+    model_fun(x) = length(data) * exp(-x^2 / 2) / sqrt(2π)
+    #
+    plot(h, seriestype = :stepbins)
+    plot!(model_fun, WithData(h.binedges[1]), lw = 2)
 end
+
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

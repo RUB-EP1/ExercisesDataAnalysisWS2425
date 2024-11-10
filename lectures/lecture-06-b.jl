@@ -6,8 +6,8 @@ using InteractiveUtils
 
 # ╔═╡ a1f98e16-9db3-11ef-3017-d7ffb849f806
 begin
-	using ForwardDiff
-	using QuadGK
+    using ForwardDiff
+    using QuadGK
 end
 
 # ╔═╡ c18fdcf1-ce8e-4b43-9f08-7f5415ec2888
@@ -29,7 +29,7 @@ md"""
 """
 
 # ╔═╡ 1283bbd2-e7e6-4cb1-a35e-955cecaf6793
-x0_dual+5 # summation
+x0_dual + 5 # summation
 
 # ╔═╡ 4526305d-9266-48dd-ad2c-777342467f5d
 x0_dual * 2.2 # multiplication
@@ -46,7 +46,7 @@ md"""
 """
 
 # ╔═╡ b87372c7-b858-4672-b84f-b293d0d02aeb
-f(x) = x^5 + 3x*log(x)
+f(x) = x^5 + 3x * log(x)
 
 # ╔═╡ d7305bf4-b3c4-43d1-a2ab-1563907f4abb
 analytic_f′(x) = 5x^4 + 3 + 3log(x)
@@ -68,7 +68,7 @@ That is the number that gets returned can calling `ForwardDiff.gradient`
 """
 
 # ╔═╡ 5458e12e-a6bd-4a73-a297-3eedab4f60cb
-ForwardDiff.gradient(x->f(x[1]), [x0])[1]
+ForwardDiff.gradient(x -> f(x[1]), [x0])[1]
 
 # ╔═╡ 29b21242-b58f-41cb-888b-d380baa3fd3b
 from_dual_operations - analytic_derivative
@@ -84,10 +84,10 @@ $g(a) = \int_{1}^{2} f(x+a) dx$
 """
 
 # ╔═╡ 6b622bd8-2644-4fb0-b7af-3865ee4f6bcd
-g(a) = quadgk(x->f(x+a), 1, 2)[1]
+g(a) = quadgk(x -> f(x + a), 1, 2)[1]
 
 # ╔═╡ 3c54cd95-119b-4eef-b7a6-afcc3413023a
-g(ForwardDiff.Dual(0,1))
+g(ForwardDiff.Dual(0, 1))
 
 # ╔═╡ 04e118b3-17a7-4a02-b9c9-61ea02817d82
 html"""
@@ -95,7 +95,7 @@ html"""
 """
 
 # ╔═╡ 4460a0e2-4f2e-4827-aa7c-8151110f9dd8
-f(2)-f(1)
+f(2) - f(1)
 
 # ╔═╡ db9592f3-b813-42b5-b38a-9751eeb129ab
 md"""
@@ -103,7 +103,7 @@ md"""
 """
 
 # ╔═╡ f2cca306-93cf-4bd7-ae70-b1484d7fd7e7
-h(a) = quadgk(x->f(x), 1, a)[1]
+h(a) = quadgk(x -> f(x), 1, a)[1]
 
 # ╔═╡ 755c6301-52fa-4aab-b650-0a0e42552f5a
 # h(ForwardDiff.Dual(2,1))
@@ -115,13 +115,13 @@ md"""
 
 # ╔═╡ 883eaea0-e9ff-4355-acee-43a7867d9180
 struct MyModelPars
-	m::Float64
-	b::Float16
+    m::Float64
+    b::Float16
 end
 
 # ╔═╡ 52ddbb24-5bf6-476b-94a5-3c268988311c
 function model(p)
-	p.m^2 + log(p.b)
+    p.m^2 + log(p.b)
 end
 
 # ╔═╡ d7eb7e7a-b976-415f-9e90-75728f0aadba
@@ -135,15 +135,17 @@ How to fix?
 """
 
 # ╔═╡ df889849-a6c2-47de-85b5-d8fac9368d2f
-struct MyModelPars2{M,B}
-	m::M
-	b::B
+struct MyModelPars2{M, B}
+    m::M
+    b::B
 end
 
 # ╔═╡ de2fcc1c-af77-4257-ab6d-f8ea0b7fab9b
 let b = 2
-	ForwardDiff.gradient(x->model(MyModelPars2(x[1],b)), [1.1])
+    ForwardDiff.gradient(x -> model(MyModelPars2(x[1], b)), [1.1])
 end
+
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """

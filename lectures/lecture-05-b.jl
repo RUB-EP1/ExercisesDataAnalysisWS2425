@@ -6,22 +6,22 @@ using InteractiveUtils
 
 # ╔═╡ 39d34e58-7ae9-43d1-b715-06ade1335213
 begin
-	using LikelihoodProfiler
-	using Plots
+    using LikelihoodProfiler
+    using Plots
 end
 
 # ╔═╡ 19bad0e5-b1e8-4552-8d73-0744bcb03eb6
 # Likelihood function
-f(x) = 5.0 + (x[1]-3.0)^2 + (x[1]-x[2]-1.0)^2 + 0.1*(x[3]-0.2)^2
+f(x) = 5.0 + (x[1] - 3.0)^2 + (x[1] - x[2] - 1.0)^2 + 0.1 * (x[3] - 0.2)^2
 
 # ╔═╡ 496a11a4-e6ba-4b13-97e8-d4510e198a46
 res = [
     get_interval(
-        [3., 2., 0.2],
+        [3.0, 2.0, 0.2],
         i,
         f,
         :CICO_ONE_PASS;
-        loss_crit = 9.
+        loss_crit = 9.0,
     ) for i in 1:3]
 
 # ╔═╡ beb1f4b7-5129-47f9-8db5-d9aab5012a34
@@ -32,6 +32,9 @@ update_profile_points!(res[2])
 
 # ╔═╡ 2ffdacaf-c389-4d09-9952-44b941e9a46a
 plot(res[2])
+
+# cspell:disable
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
