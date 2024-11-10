@@ -7,25 +7,25 @@ using InteractiveUtils
 # ╔═╡ 2d141b9d-09bb-4074-bf01-4c4b6099585d
 # ╠═╡ show_logs = false
 begin
-	using Pkg
-	Pkg.activate(joinpath(@__DIR__,"..", "ReferenceDataAnalysisWS2425"))
-	Pkg.instantiate()
-	# 
-	using DataAnalysisWS2425
-	# 
-	using Measurements
+    using Pkg
+    Pkg.activate(joinpath(@__DIR__, "..", "ReferenceDataAnalysisWS2425"))
+    Pkg.instantiate()
+    #
+    using DataAnalysisWS2425
+    #
+    using Measurements
     using Plots
-	using ForwardDiff
-	using Plots.PlotMeasures: mm
+    using ForwardDiff
+    using Plots.PlotMeasures: mm
     using Statistics
-	using LinearAlgebra
+    using LinearAlgebra
     using Parameters
     using QuadGK
     using Random
     Random.seed!(1234)
     using FHist
     using Optim
-	using DataFrames
+    using DataFrames
 end
 
 # ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
@@ -66,14 +66,14 @@ begin
     end
     function background_func(x, pars)
         @unpack flat, log_slope = pars
-		x0 = sum(support) / 2
-		# 
-		# flat is a value of bgd at support/2
-		# make the slope independent of normalization
-		# log_slope = dy/dx  / y = d log(y) / y
-		# 
-		slope = flat*log_slope
-		coeffs = (flat*1-slope*x0, slope)
+        x0 = sum(support) / 2
+        #
+        # flat is a value of bgd at support/2
+        # make the slope independent of normalization
+        # log_slope = dy/dx  / y = d log(y) / y
+        #
+        slope = flat * log_slope
+        coeffs = (flat * 1 - slope * x0, slope)
         polynomial_scaled(x; coeffs)
     end
     model_func(x, pars) = signal_func(x, pars) + background_func(x, pars)
@@ -83,7 +83,7 @@ end
 const default = (; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
 
 # ╔═╡ 5e4a13fa-0929-46bc-a997-a303f5e44122
-plot(x->model_func(x,default), support...)
+plot(x -> model_func(x, default), support...)
 
 # ╔═╡ 8878c8be-21ba-4fc2-aa59-76754ebfbf0b
 md"""
@@ -91,9 +91,10 @@ md"""
 """
 
 # ╔═╡ 02b194bf-661f-44ee-94b8-9f2a21b3d219
-pseudodata(pars, n) = sample_inversion(n, support) do x
-	model_func(x, pars)
-end
+pseudodata(pars, n) =
+    sample_inversion(n, support) do x
+        model_func(x, pars)
+    end
 
 # ╔═╡ d1b7527c-4375-4773-99b4-d039462b5044
 const nData = 1_000
@@ -130,36 +131,36 @@ md"""
 
 # ╔═╡ 755a09d9-c491-439d-b933-1cd7cc29089e
 initial_estimate = let
-	μ = 2.35
-	σ = 0.03
-	# 
-	f_back = 0.7
-	# 
-	I_back = nData*f_back
-	flat = I_back / (support[2]-support[1])
-	log_slope = 2.0
-	# 
-	I_sig = nData*(1-f_back)
-	a = I_sig/sqrt(2π)/σ
-	# 
-	ModelPars((; μ, σ, a, flat, log_slope))
+    μ = 2.35
+    σ = 0.03
+    #
+    f_back = 0.7
+    #
+    I_back = nData * f_back
+    flat = I_back / (support[2] - support[1])
+    log_slope = 2.0
+    #
+    I_sig = nData * (1 - f_back)
+    a = I_sig / sqrt(2π) / σ
+    #
+    ModelPars((; μ, σ, a, flat, log_slope))
 end
 
 # ╔═╡ 7f9e7439-59fe-4402-9738-ca8747299f84
 let
     bins = range(support..., 50)
-    h = Hist1D(data; binedges=bins)
-	# 
-	plot(h, seriestype=:stepbins)
+    h = Hist1D(data; binedges = bins)
+    #
+    plot(h, seriestype = :stepbins)
     #
     normalization = quadgk(support...) do x
         model_func(x, initial_estimate)
     end[1]
     dx = bins[2] - bins[1]
     scale = dx * nData / normalization
-	#
-	scaled_model(x) = scale * model_func(x, initial_estimate)
-	p = plot!(scaled_model, support...)
+    #
+    scaled_model(x) = scale * model_func(x, initial_estimate)
+    p = plot!(scaled_model, support...)
 end
 
 # ╔═╡ 5e997750-3f04-49e1-a083-dc47338be149
@@ -171,10 +172,10 @@ md"""
 const nMC = nData * 10;
 
 # ╔═╡ 334ab41b-fb0e-4a1f-8b30-3bafd281d525
-const data_mc = support[1] .+ rand(nMC) .* (support[2]-support[1]);
+const data_mc = support[1] .+ rand(nMC) .* (support[2] - support[1]);
 
 # ╔═╡ bd1417a4-6101-495b-a47f-b1c045ea8fb8
-mc_call(f) = (support[2]-support[1]) * mean(f, data_mc)
+mc_call(f) = (support[2] - support[1]) * mean(f, data_mc)
 
 # ╔═╡ 22442c7f-f5b7-4b65-afcf-78a15585bdc3
 function extended_nll(pars, data; normalization_call = mc_call)
@@ -193,7 +194,7 @@ function extended_nll(pars, data; normalization_call = mc_call)
 end
 
 # ╔═╡ b42b7e2e-df09-4273-8282-c294b30f095a
-function fit_enll(data, initial_estimate; normalization_call=mc_call)
+function fit_enll(data, initial_estimate; normalization_call = mc_call)
     objective(p) = extended_nll(ModelPars(p), data; normalization_call)
     optimize(
         objective,
@@ -211,8 +212,8 @@ best_pars_extnll_mc = ModelPars(ext_unbinned_fit_mc.minimizer);
 # ╔═╡ 2465c8bd-4f47-4f93-b48c-42bd04bc23b9
 let
     bins = range(support..., 70)
-    h = Hist1D(data; binedges=bins)
-	plot(h, seriestype=:stepbins)
+    h = Hist1D(data; binedges = bins)
+    plot(h, seriestype = :stepbins)
     #
     normalization = quadgk(support...) do x
         model_func(x, best_pars_extnll_mc)
@@ -220,22 +221,22 @@ let
     dx = bins[2] - bins[1]
     n = length(data)
     scale = dx * n / normalization
-	# 
-	scaled_model(x) = scale * model_func(x, best_pars_extnll_mc)
+    #
+    scaled_model(x) = scale * model_func(x, best_pars_extnll_mc)
     plot!(scaled_model, support...)
-	plot!(x -> scale * signal_func(x, best_pars_extnll_mc), support...,
-		fill = 0, alpha = 0.4)
-	#
-	# add pull
-	p = plot!(xaxis=nothing)
-	centers = (bins[1:end-1] + bins[2:end]) ./ 2
-	yv_model = scaled_model.(centers)
-	scatter(centers, h.bincounts .- yv_model, ylims=(:auto,:auto),
-		xerror=(bins[2]-bins[1])/2, yerror=sqrt.(h.bincounts), ms=2)
-	pull = hline!([0], lc=2)
-	plot(p, pull,
-		layout=grid(2,1, heights=(0.8,0.2)),
-		link=:x, bottom_margin=[-4mm 0mm])
+    plot!(x -> scale * signal_func(x, best_pars_extnll_mc), support...,
+        fill = 0, alpha = 0.4)
+    #
+    # add pull
+    p = plot!(xaxis = nothing)
+    centers = (bins[1:end-1] + bins[2:end]) ./ 2
+    yv_model = scaled_model.(centers)
+    scatter(centers, h.bincounts .- yv_model, ylims = (:auto, :auto),
+        xerror = (bins[2] - bins[1]) / 2, yerror = sqrt.(h.bincounts), ms = 2)
+    pull = hline!([0], lc = 2)
+    plot(p, pull,
+        layout = grid(2, 1, heights = (0.8, 0.2)),
+        link = :x, bottom_margin = [-4mm 0mm])
 end
 
 # ╔═╡ 29d39a85-9ea6-4fe8-b71a-ac099e323ef4
@@ -258,13 +259,13 @@ the diagonal of the matrix gives the statistical errors.
 
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
 ▽nll = ForwardDiff.gradient(
-	p->extended_nll(AnyModelPars(p), data),
-	collect(best_pars_extnll_mc))
+    p -> extended_nll(AnyModelPars(p), data),
+    collect(best_pars_extnll_mc))
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
 H_mc = ForwardDiff.hessian(
-	p->extended_nll(AnyModelPars(p), data),
-	collect(best_pars_extnll_mc))
+    p -> extended_nll(AnyModelPars(p), data),
+    collect(best_pars_extnll_mc))
 
 # ╔═╡ f974f215-2a41-4e40-8075-746591fbf859
 md"""
@@ -273,34 +274,34 @@ md"""
 
 # ╔═╡ 77c3c4c6-2768-4bab-a3eb-d6e7472b2fc7
 correlations = let
-	V = inv(H_mc)
-	D = diag(V)
-	matrix_of_σ = diagm(sqrt.(D))
-	inv(matrix_of_σ) * V * inv(matrix_of_σ)
+    V = inv(H_mc)
+    D = diag(V)
+    matrix_of_σ = diagm(sqrt.(D))
+    inv(matrix_of_σ) * V * inv(matrix_of_σ)
 end;
 
 # ╔═╡ b7d7425c-78ae-40c2-9aa6-9e24e7de5290
 begin
-	heatmap(correlations, clim=(-1,1))
-	for ij in CartesianIndices(correlations)
-		i,j = ij[1], ij[2]
-		ρ = correlations[ij]
-		annotate!((i,j, round(ρ; digits=2)))
-	end
-	par_labels = fieldnames(ModelPars)
-	ticks=(1:length(par_labels), par_labels)
-	plot!(; title="correlation matrix", aspect_ratio=1, ticks)
+    heatmap(correlations, clim = (-1, 1))
+    for ij in CartesianIndices(correlations)
+        i, j = ij[1], ij[2]
+        ρ = correlations[ij]
+        annotate!((i, j, round(ρ; digits = 2)))
+    end
+    par_labels = fieldnames(ModelPars)
+    ticks = (1:length(par_labels), par_labels)
+    plot!(; title = "correlation matrix", aspect_ratio = 1, ticks)
 end
 
 # ╔═╡ 758ab556-38c8-4279-8f76-1e02ffce15b5
-const from_hesse =let
-	names = fieldnames(ModelPars)
-	delta_names = "δ" .* string.(names)
-	NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
+const from_hesse = let
+    names = fieldnames(ModelPars)
+    delta_names = "δ" .* string.(names)
+    NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
 end
 
 # ╔═╡ 18d037fa-1a98-4e2f-ade9-0b58d90b3618
-const theta_bounds = map(x->(-1,1) .* 2x, collect(from_hesse))
+const theta_bounds = map(x -> (-1, 1) .* 2x, collect(from_hesse))
 
 # ╔═╡ 1d2c6460-e85c-467b-a8ca-5003f35a0d50
 md"""
@@ -309,19 +310,19 @@ md"""
 
 # ╔═╡ 83e77656-cf22-46de-b0ee-799564a3bed9
 function profile_enll(theta_num, data, initial_estimate)
-	n = length(initial_estimate)
-	# 
-	EM = Diagonal(I, length(initial_estimate))
-	eye = EM[theta_num,:]
-	to_right_dims = EM[:,(1:n)[.!(eye)]]
-	# 
-	p0 = collect(initial_estimate)
-	# 
+    n = length(initial_estimate)
+    #
+    EM = Diagonal(I, length(initial_estimate))
+    eye = EM[theta_num, :]
+    to_right_dims = EM[:, (1:n)[.!(eye)]]
+    #
+    p0 = collect(initial_estimate)
+    #
     optimize(to_right_dims' * p0, BFGS()) do p
-		full_p = to_right_dims * p .+ p0 .* eye
-		_y = extended_nll(ModelPars(full_p), data)
-		_y
-	end
+        full_p = to_right_dims * p .+ p0 .* eye
+        _y = extended_nll(ModelPars(full_p), data)
+        _y
+    end
 end
 
 # ╔═╡ 155f671b-449a-4e77-9786-2bdf9cea5c30
@@ -332,32 +333,35 @@ const NLL0 = extended_nll(best_pars_extnll_mc, data)
 
 # ╔═╡ 0a5a862f-6e0f-4a3a-b608-303bfc288a8b
 likelihood_profiling = let theta_num = 2
-	# 
-	p(δ) = p0 + Diagonal(I, length(p0))[theta_num,:] .* δ
-	# 
-	grid = range(theta_bounds[theta_num]..., 20)
-	projecting = map(grid) do δ
-		extended_nll(AnyModelPars(p(δ)), data) - NLL0
-	end
-	profiling = map(grid) do δ
-		res = profile_enll(theta_num, data, AnyModelPars(p(δ)))
-		res.minimum - NLL0
-	end
-	(; theta_num, grid, projecting, profiling)
+    #
+    p(δ) = p0 + Diagonal(I, length(p0))[theta_num, :] .* δ
+    #
+    grid = range(theta_bounds[theta_num]..., 20)
+    projecting = map(grid) do δ
+        extended_nll(AnyModelPars(p(δ)), data) - NLL0
+    end
+    profiling = map(grid) do δ
+        res = profile_enll(theta_num, data, AnyModelPars(p(δ)))
+        res.minimum - NLL0
+    end
+    (; theta_num, grid, projecting, profiling)
 end;
 
 # ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
 let
-	@unpack projecting, profiling, grid, theta_num = likelihood_profiling
-	# 
-	plot(
-		title="profile on parameter $theta_num",
-		xlab="δ$(fieldnames(ModelPars)[theta_num])",
-		ylab="ΔNLL")
-	plot!(grid, projecting, lab="project likelihood")
-	plot!(grid, profiling, lab="profile likelihood")
-	hline!([0.5], leg=:top)
+    @unpack projecting, profiling, grid, theta_num = likelihood_profiling
+    #
+    plot(
+        title = "profile on parameter $theta_num",
+        xlab = "δ$(fieldnames(ModelPars)[theta_num])",
+        ylab = "ΔNLL")
+    plot!(grid, projecting, lab = "project likelihood")
+    plot!(grid, profiling, lab = "profile likelihood")
+    hline!([0.5], leg = :top)
 end
+
+# cspell:disable
+
 
 # ╔═╡ Cell order:
 # ╟─9da55708-8792-4b26-984f-5795a981bf2c
