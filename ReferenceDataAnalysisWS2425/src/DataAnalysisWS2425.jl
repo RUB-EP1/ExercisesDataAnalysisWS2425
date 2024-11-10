@@ -4,7 +4,7 @@ using QuadGK, Parameters
 using Random, Statistics
 using FHist
 using Optim
-# 
+#
 using Plots, RecipesBase
 using Plots.PlotMeasures: mm
 
@@ -14,7 +14,7 @@ include("functions.jl")
 export sample_rejection, sample_inversion
 include("sampling.jl")
 
-export fit_enll
+export fit_enll, extended_nll
 include("fitting.jl")
 
 export plot_data_fit_with_pulls
