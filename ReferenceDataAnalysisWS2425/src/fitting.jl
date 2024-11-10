@@ -25,22 +25,29 @@ support = (0.0, 1.0)
 enll_value = extended_nll(model, parameters, data; support=support)
 ```
 """
-function extended_nll(
+extended_nll(
     model,
     parameters,
     data;
     support = extrema(data),
     normalization_call = _quadgk_call,
-)
+) = extended_nll(x -> model(x, parameters), data; support, normalization_call)
 
+
+function extended_nll(
+    model,
+    data;
+    support = extrema(data),
+    normalization_call = _quadgk_call,
+)
     # negative log likelihood for model
-    minus_sum_log(parameters) = -sum(data) do x
-        value = model(x, parameters)
+    minus_sum_log = -sum(data) do x
+        value = model(x)
         value > 0 ? log(value) : -1e10
     end
     # extended negative log likelihood
-    return minus_sum_log(parameters) +
-           normalization_call(x -> model(x, parameters), support)
+    return minus_sum_log +
+           normalization_call(model, support)
 end
 
 """
