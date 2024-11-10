@@ -96,7 +96,6 @@ scatter!(sp = 2, bincenters(hpull), hpull.bincounts, yerror = 1, xerror = dx)
     @series begin
         subplot := 1
         linewidth := 1.5
-        @show value
         n_points := value
         model, WD
     end
