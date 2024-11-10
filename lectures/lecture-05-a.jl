@@ -35,9 +35,6 @@ md"""
 In this lecture we discuss methods to estimate statistical uncertainty of parameters
 """
 
-# ╔═╡ 847ecdd3-c7ae-4376-9d67-96385f990da2
-
-
 # ╔═╡ 39ee4bcd-8d01-443f-9714-103ab6d7f7d6
 theme(
     :wong2,
@@ -85,7 +82,7 @@ begin
 		pars::P
 	end
 	Anka(; kw...) = Anka(NamedTuple(kw))
-	Anka{P}(v::Vector) where P = Anka(P(v))
+	Anka{P}(v::Vector) where P = Anka(NamedTuple{fieldnames(P)}(v))
 	# 
 	function peak1_func(model::Anka, x)
 		@unpack μ, σ, a = model.pars
@@ -115,6 +112,12 @@ begin
 	model_func(model::Anka, x) = peak1_func(model, x) + background_func(model, x)
 	# 
 end;
+
+# ╔═╡ 0bb8f104-cbde-4055-acd7-7a0345c0c6bc
+function from_vector(example::Anka{P}, p::Vector) where P
+	NT = NamedTuple{P |> fieldnames}
+	Anka{NT}(p)
+end
 
 # ╔═╡ 54629edc-12ed-402d-bfc4-33cbb0b71848
 const default_model = Anka(; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
@@ -193,15 +196,12 @@ v_{1,2} & σ_2^2 & \dots \\
 the diagonal of the matrix gives the statistical errors.
 """
 
-# ╔═╡ 0bb8f104-cbde-4055-acd7-7a0345c0c6bc
-function from_vector(example::Anka{P}, p::Vector) where P
-	NT = NamedTuple{P |> fieldnames}
-	Anka{NT}(p)
-end
+# ╔═╡ 7c307bed-901b-44ad-b8bf-11cc590b7eb1
+
 
 # ╔═╡ 87711274-3ecc-4887-a470-8b9b1fef07fe
-function extended_nll_function_dual_compatible(p_values::Vector)
-	_model = from_vector(initial_guess, p_values)
+function local_extended_nll(p_values::Vector)
+	_model = typeof(initial_guess)(p_values)
 	enll = extended_nll(data) do x
 		model_func(_model, x)
 	end
@@ -209,22 +209,15 @@ function extended_nll_function_dual_compatible(p_values::Vector)
 end
 
 # ╔═╡ aa00ec4c-5c3e-44d5-ac4b-95adbb4f2a26
-extended_nll_function_dual_compatible(collect(initial_guess.pars))
+local_extended_nll(collect(initial_guess.pars))
 
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
 ▽nll = ForwardDiff.gradient(
-	extended_nll_function_dual_compatible,
+	local_extended_nll,
 	collect(best_pars_extnll.pars))
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
-H_mc = ForwardDiff.hessian(collect(best_pars_extnll.pars)) do pars
-	_pars = NamedTuple{initial_guess.pars |> typeof |> fieldnames}(pars)
-	_model = Anka(_pars)
-	enll = extended_nll(data) do x
-		model_func(_model, x)
-	end
-	enll
-end
+H_mc = ForwardDiff.hessian(local_extended_nll, collect(best_pars_extnll.pars))
 
 # ╔═╡ f974f215-2a41-4e40-8075-746591fbf859
 md"""
@@ -267,28 +260,28 @@ md"""
 ## Likelihood profile
 """
 
+# ╔═╡ 85380f97-f586-4f42-ba1b-a88af67f0766
+const p0 = collect(best_pars_extnll.pars)
+
 # ╔═╡ 83e77656-cf22-46de-b0ee-799564a3bed9
-function profile_enll(theta_num, data, initial_estimate)
-    n = length(initial_estimate)
+function fit_with_fixed(objective, initial; number_to_fix)
+    n = length(initial)
     #
-    EM = Diagonal(I, length(initial_estimate))
-    eye = EM[theta_num, :]
-    to_right_dims = EM[:, (1:n)[.!(eye)]]
+    unitm = Diagonal(I, n)
+    eye = unitm[number_to_fix, :]
+    to_right_dims = unitm[:, (1:n)[.!(eye)]]
     #
-    p0 = collect(initial_estimate)
-    #
-    optimize(to_right_dims' * p0, BFGS()) do p
-        full_p = to_right_dims * p .+ p0 .* eye
-        _y = extended_nll(ModelPars(full_p), data)
-        _y
+    optimize(to_right_dims' * initial, BFGS()) do p
+        full_p = to_right_dims * p .+ initial .* eye
+        objective(full_p)
     end
 end
 
-# ╔═╡ 155f671b-449a-4e77-9786-2bdf9cea5c30
-const p0 = collect(best_pars_extnll)
+# ╔═╡ 2a70dccf-da9c-4acd-9480-30928f3dea5c
+fit_with_fixed(local_extended_nll, p0; number_to_fix=1)
 
 # ╔═╡ 5a056cd7-af1c-43b5-bdfc-783f4a55fede
-const NLL0 = extended_nll(best_pars_extnll_mc, data)
+const NLL0 = local_extended_nll(p0)
 
 # ╔═╡ 0a5a862f-6e0f-4a3a-b608-303bfc288a8b
 likelihood_profiling = let theta_num = 2
@@ -297,10 +290,10 @@ likelihood_profiling = let theta_num = 2
     #
     grid = range(theta_bounds[theta_num]..., 20)
     projecting = map(grid) do δ
-        extended_nll(AnyModelPars(p(δ)), data) - NLL0
+        local_extended_nll(p(δ)) - NLL0
     end
     profiling = map(grid) do δ
-        res = profile_enll(theta_num, data, AnyModelPars(p(δ)))
+        res = fit_with_fixed(local_extended_nll, p(δ); number_to_fix=theta_num)
         res.minimum - NLL0
     end
     (; theta_num, grid, projecting, profiling)
@@ -312,7 +305,7 @@ let
     #
     plot(
         title = "profile on parameter $theta_num",
-        xlab = "δ$(fieldnames(ModelPars)[theta_num])",
+        xlab = "δ$(fieldnames(typeof(initial_guess.pars))[theta_num])",
         ylab = "ΔNLL")
     plot!(grid, projecting, lab = "project likelihood")
     plot!(grid, profiling, lab = "profile likelihood")
@@ -325,10 +318,10 @@ end
 # ╔═╡ Cell order:
 # ╟─9da55708-8792-4b26-984f-5795a981bf2c
 # ╠═2d141b9d-09bb-4074-bf01-4c4b6099585d
-# ╠═847ecdd3-c7ae-4376-9d67-96385f990da2
 # ╠═39ee4bcd-8d01-443f-9714-103ab6d7f7d6
 # ╠═9b6b7d99-9f92-4b0a-b617-4111317e8271
 # ╟─ace5e914-f516-438e-ae04-012573ad3586
+# ╠═0bb8f104-cbde-4055-acd7-7a0345c0c6bc
 # ╠═30eef5b0-1b1b-4711-9d0d-06679c84b23e
 # ╠═8ff5e326-1e5c-431b-a21c-83171af7d879
 # ╠═54629edc-12ed-402d-bfc4-33cbb0b71848
@@ -342,7 +335,7 @@ end
 # ╠═8844e5d2-b779-49de-9177-dcec11d73e8d
 # ╠═45e8e2df-4287-41d5-8568-7e78898cd587
 # ╟─29d39a85-9ea6-4fe8-b71a-ac099e323ef4
-# ╠═0bb8f104-cbde-4055-acd7-7a0345c0c6bc
+# ╠═7c307bed-901b-44ad-b8bf-11cc590b7eb1
 # ╠═87711274-3ecc-4887-a470-8b9b1fef07fe
 # ╠═aa00ec4c-5c3e-44d5-ac4b-95adbb4f2a26
 # ╠═6bf3164c-8ffa-44c3-a27e-5450232a7003
@@ -353,8 +346,9 @@ end
 # ╠═758ab556-38c8-4279-8f76-1e02ffce15b5
 # ╠═18d037fa-1a98-4e2f-ade9-0b58d90b3618
 # ╟─1d2c6460-e85c-467b-a8ca-5003f35a0d50
+# ╠═85380f97-f586-4f42-ba1b-a88af67f0766
+# ╠═2a70dccf-da9c-4acd-9480-30928f3dea5c
 # ╠═83e77656-cf22-46de-b0ee-799564a3bed9
-# ╠═155f671b-449a-4e77-9786-2bdf9cea5c30
 # ╠═5a056cd7-af1c-43b5-bdfc-783f4a55fede
 # ╠═0a5a862f-6e0f-4a3a-b608-303bfc288a8b
 # ╠═c17f58db-7790-49c6-b121-cafef370ef5d
