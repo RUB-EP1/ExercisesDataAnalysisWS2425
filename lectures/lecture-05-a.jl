@@ -260,9 +260,6 @@ md"""
 ## Likelihood profile
 """
 
-# ╔═╡ 85380f97-f586-4f42-ba1b-a88af67f0766
-const p0 = collect(best_pars_extnll.pars)
-
 # ╔═╡ 83e77656-cf22-46de-b0ee-799564a3bed9
 function fit_with_fixed(objective, initial; number_to_fix)
     n = length(initial)
@@ -277,8 +274,8 @@ function fit_with_fixed(objective, initial; number_to_fix)
     end
 end
 
-# ╔═╡ 2a70dccf-da9c-4acd-9480-30928f3dea5c
-fit_with_fixed(local_extended_nll, p0; number_to_fix=1)
+# ╔═╡ 85380f97-f586-4f42-ba1b-a88af67f0766
+const p0 = collect(best_pars_extnll.pars)
 
 # ╔═╡ 5a056cd7-af1c-43b5-bdfc-783f4a55fede
 const NLL0 = local_extended_nll(p0)
@@ -288,7 +285,7 @@ likelihood_profiling = let theta_num = 2
     #
     p(δ) = p0 + Diagonal(I, length(p0))[theta_num, :] .* δ
     #
-    grid = range(theta_bounds[theta_num]..., 20)
+    grid = range(theta_bounds[theta_num]..., 15)
     projecting = map(grid) do δ
         local_extended_nll(p(δ)) - NLL0
     end
@@ -299,17 +296,35 @@ likelihood_profiling = let theta_num = 2
     (; theta_num, grid, projecting, profiling)
 end;
 
+# ╔═╡ 2a70dccf-da9c-4acd-9480-30928f3dea5c
+fit_with_fixed(local_extended_nll, p0; number_to_fix=1)
+
+# ╔═╡ 499edc2f-9273-4bc6-9260-8aebef555f24
+function findzeros_two_sides(xv,yv)
+	yxv = yv .* xv
+	_left = findfirst(yxv) do x
+		x > 0
+	end
+	_right = findlast(yxv) do x
+		x < 0
+	end
+	[xv[_left-1], xv[_right+1]]
+end
+
 # ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
 let
-    @unpack projecting, profiling, grid, theta_num = likelihood_profiling
+	@unpack projecting, profiling, grid, theta_num = likelihood_profiling
     #
-    plot(
-        title = "profile on parameter $theta_num",
-        xlab = "δ$(fieldnames(typeof(initial_guess.pars))[theta_num])",
-        ylab = "ΔNLL")
-    plot!(grid, projecting, lab = "project likelihood")
-    plot!(grid, profiling, lab = "profile likelihood")
-    hline!([0.5], leg = :top)
+	xlab = "δ$(fieldnames(typeof(initial_guess.pars))[theta_num])"
+	plot(title = ["studies of parameter #$theta_num" ""];
+        xlab=[""  xlab],  ylab = "ΔNLL")
+	# 
+    plot!(grid, profiling, lab = "profile likelihood", c=2)
+	plot!(grid, projecting, lab = "project likelihood", c=3)
+	hline!([0.5], leg = :top, c=1)
+    # 
+	vspan!(findzeros_two_sides(grid, profiling .- 1/2), α=0.2, c=2)
+	vspan!(findzeros_two_sides(grid, projecting .- 1/2), α=0.2, c=3)
 end
 
 # ╔═╡ 3b748eaf-446b-42a6-b643-5cb6af823419
@@ -346,10 +361,11 @@ end
 # ╠═758ab556-38c8-4279-8f76-1e02ffce15b5
 # ╠═18d037fa-1a98-4e2f-ade9-0b58d90b3618
 # ╟─1d2c6460-e85c-467b-a8ca-5003f35a0d50
-# ╠═85380f97-f586-4f42-ba1b-a88af67f0766
-# ╠═2a70dccf-da9c-4acd-9480-30928f3dea5c
 # ╠═83e77656-cf22-46de-b0ee-799564a3bed9
+# ╠═85380f97-f586-4f42-ba1b-a88af67f0766
 # ╠═5a056cd7-af1c-43b5-bdfc-783f4a55fede
 # ╠═0a5a862f-6e0f-4a3a-b608-303bfc288a8b
+# ╠═2a70dccf-da9c-4acd-9480-30928f3dea5c
 # ╠═c17f58db-7790-49c6-b121-cafef370ef5d
+# ╠═499edc2f-9273-4bc6-9260-8aebef555f24
 # ╠═3b748eaf-446b-42a6-b643-5cb6af823419
