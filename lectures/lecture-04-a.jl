@@ -7,25 +7,25 @@ using InteractiveUtils
 # ╔═╡ 2d141b9d-09bb-4074-bf01-4c4b6099585d
 # ╠═╡ show_logs = false
 begin
-	using Pkg
-	Pkg.activate(joinpath(@__DIR__,"..", "ReferenceDataAnalysisWS2425"))
-	Pkg.instantiate()
-	# 
-	using DataAnalysisWS2425
-	# 
-	using Measurements
+    using Pkg
+    Pkg.activate(joinpath(@__DIR__, "..", "ReferenceDataAnalysisWS2425"))
+    Pkg.instantiate()
+    #
+    using DataAnalysisWS2425
+    #
+    using Measurements
     using Plots
-	using ForwardDiff
-	using Plots.PlotMeasures: mm
+    using ForwardDiff
+    using Plots.PlotMeasures: mm
     using Statistics
-	using LinearAlgebra
+    using LinearAlgebra
     using Parameters
     using QuadGK
     using Random
     Random.seed!(1234)
     using FHist
     using Optim
-	using DataFrames
+    using DataFrames
 end
 
 # ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
@@ -64,14 +64,14 @@ begin
     end
     function background_func(x, pars)
         @unpack flat, log_slope = pars
-		x0 = sum(support) / 2
-		# 
-		# flat is a value of bgd at support/2
-		# make the slope independent of normalization
-		# log_slope = dy/dx  / y = d log(y) / y
-		# 
-		slope = flat*log_slope
-		coeffs = (flat*1-slope*x0, slope)
+        x0 = sum(support) / 2
+        #
+        # flat is a value of bgd at support/2
+        # make the slope independent of normalization
+        # log_slope = dy/dx  / y = d log(y) / y
+        #
+        slope = flat * log_slope
+        coeffs = (flat * 1 - slope * x0, slope)
         polynomial_scaled(x; coeffs)
     end
     model_func(x, pars) = signal_func(x, pars) + background_func(x, pars)
@@ -81,7 +81,7 @@ end
 const default = (; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
 
 # ╔═╡ 5e4a13fa-0929-46bc-a997-a303f5e44122
-plot(x->model_func(x,default), support...)
+plot(x -> model_func(x, default), support...)
 
 # ╔═╡ 8878c8be-21ba-4fc2-aa59-76754ebfbf0b
 md"""
@@ -89,9 +89,10 @@ md"""
 """
 
 # ╔═╡ 02b194bf-661f-44ee-94b8-9f2a21b3d219
-pseudodata(pars, n) = sample_inversion(n, support) do x
-	model_func(x, pars)
-end
+pseudodata(pars, n) =
+    sample_inversion(n, support) do x
+        model_func(x, pars)
+    end
 
 # ╔═╡ d1b7527c-4375-4773-99b4-d039462b5044
 const nData = 1_000
@@ -143,11 +144,11 @@ The extended negative log likelihood (NLL) is similar to nll before, but without
 """
 
 # ╔═╡ 28bf9f8e-567b-4857-91ac-1c6646556076
-quadgk_call(f) = quadgk(f, support...)[1] 
+quadgk_call(f) = quadgk(f, support...)[1]
 
 # ╔═╡ 22442c7f-f5b7-4b65-afcf-78a15585bdc3
 function extended_nll(pars, data;
-	normalization_call = quadgk_call)
+    normalization_call = quadgk_call)
     #
     minus_sum_log = -sum(data) do x
         value = model_func(x, pars)
@@ -169,40 +170,40 @@ md"""
 
 # ╔═╡ 755a09d9-c491-439d-b933-1cd7cc29089e
 initial_estimate = let
-	μ = 2.35
-	σ = 0.03
-	# 
-	f_back = 0.7
-	# 
-	I_back = nData*f_back
-	flat = I_back / (support[2]-support[1])
-	log_slope = 2.0
-	# 
-	I_sig = nData*(1-f_back)
-	a = I_sig/sqrt(2π)/σ
-	# 
-	ModelPars((; μ, σ, a, flat, log_slope))
+    μ = 2.35
+    σ = 0.03
+    #
+    f_back = 0.7
+    #
+    I_back = nData * f_back
+    flat = I_back / (support[2] - support[1])
+    log_slope = 2.0
+    #
+    I_sig = nData * (1 - f_back)
+    a = I_sig / sqrt(2π) / σ
+    #
+    ModelPars((; μ, σ, a, flat, log_slope))
 end
 
 # ╔═╡ 7f9e7439-59fe-4402-9738-ca8747299f84
 let
     bins = range(support..., 50)
-    h = Hist1D(data; binedges=bins)
-	# 
-	plot(h, seriestype=:stepbins)
+    h = Hist1D(data; binedges = bins)
+    #
+    plot(h, seriestype = :stepbins)
     #
     normalization = quadgk(support...) do x
         model_func(x, initial_estimate)
     end[1]
     dx = bins[2] - bins[1]
     scale = dx * nData / normalization
-	#
-	scaled_model(x) = scale * model_func(x, initial_estimate)
-	p = plot!(scaled_model, support...)
+    #
+    scaled_model(x) = scale * model_func(x, initial_estimate)
+    p = plot!(scaled_model, support...)
 end
 
 # ╔═╡ b42b7e2e-df09-4273-8282-c294b30f095a
-function fit_enll(data, initial_estimate; normalization_call=quadgk_call)
+function fit_enll(data, initial_estimate; normalization_call = quadgk_call)
     objective(p) = extended_nll(ModelPars(p), data; normalization_call)
     optimize(
         objective,
@@ -225,8 +226,8 @@ best_pars_extnll = ModelPars(ext_unbinned_fit.minimizer)
 # ╔═╡ 2465c8bd-4f47-4f93-b48c-42bd04bc23b9
 let
     bins = range(support..., 70)
-    h = Hist1D(data; binedges=bins)
-	plot(h, seriestype=:stepbins)
+    h = Hist1D(data; binedges = bins)
+    plot(h, seriestype = :stepbins)
     #
     normalization = quadgk(support...) do x
         model_func(x, best_pars_extnll)
@@ -234,22 +235,22 @@ let
     dx = bins[2] - bins[1]
     n = length(data)
     scale = dx * n / normalization
-	# 
-	scaled_model(x) = scale * model_func(x, best_pars_extnll)
+    #
+    scaled_model(x) = scale * model_func(x, best_pars_extnll)
     plot!(scaled_model, support...)
-	plot!(x -> scale * signal_func(x, best_pars_extnll), support...,
-		fill = 0, alpha = 0.4)
-	#
-	# add pull
-	p = plot!(xaxis=nothing)
-	centers = (bins[1:end-1] + bins[2:end]) ./ 2
-	yv_model = scaled_model.(centers)
-	scatter(centers, h.bincounts .- yv_model, ylims=(:auto,:auto),
-		xerror=(bins[2]-bins[1])/2, yerror=sqrt.(h.bincounts), ms=2)
-	pull = hline!([0], lc=2)
-	plot(p, pull,
-		layout=grid(2,1, heights=(0.8,0.2)),
-		link=:x, bottom_margin=[-4mm 0mm])
+    plot!(x -> scale * signal_func(x, best_pars_extnll), support...,
+        fill = 0, alpha = 0.4)
+    #
+    # add pull
+    p = plot!(xaxis = nothing)
+    centers = (bins[1:end-1] + bins[2:end]) ./ 2
+    yv_model = scaled_model.(centers)
+    scatter(centers, h.bincounts .- yv_model, ylims = (:auto, :auto),
+        xerror = (bins[2] - bins[1]) / 2, yerror = sqrt.(h.bincounts), ms = 2)
+    pull = hline!([0], lc = 2)
+    plot(p, pull,
+        layout = grid(2, 1, heights = (0.8, 0.2)),
+        link = :x, bottom_margin = [-4mm 0mm])
 end
 
 # ╔═╡ a05ea1e6-9667-4f73-b4ca-fc5ffccbb84b
@@ -257,7 +258,7 @@ end
 best_yields = let # model integral is fixed to N_data
     nSignal = quadgk(x -> signal_func(x, best_pars_extnll), support...)[1]
     nBackground = quadgk(x -> background_func(x, best_pars_extnll), support...)[1]
-	(; nSignal, nBackground)
+    (; nSignal, nBackground)
 end
 
 # ╔═╡ dc0082f0-546f-425d-8fc3-fcf969b5fade
@@ -267,19 +268,19 @@ md"""
 
 # ╔═╡ 133057a5-64cb-4eeb-885b-07fec21c745d
 toys = map(1:100) do _
-	_data = pseudodata(default, nData)
-	_fit_result = ext_unbinned_fit = fit_enll(_data, initial_estimate)
-	#
-	return ModelPars(_fit_result.minimizer)
+    _data = pseudodata(default, nData)
+    _fit_result = ext_unbinned_fit = fit_enll(_data, initial_estimate)
+    #
+    return ModelPars(_fit_result.minimizer)
 end |> DataFrame
 
 # ╔═╡ 1be765bf-7c78-4bfd-9079-1a3182a9b4ad
 toys.nSignal = map(eachrow(toys)) do pars
-	quadgk(x -> signal_func(x, pars), support...)[1]
+    quadgk(x -> signal_func(x, pars), support...)[1]
 end;
 
 # ╔═╡ 44d04cbc-695f-45f9-b31b-90c28d606891
-transform!(toys, :σ=>ByRow(abs)=>:σ);
+transform!(toys, :σ => ByRow(abs) => :σ);
 
 # ╔═╡ 8bcdff59-9157-498b-8e83-f271360ee7ff
 toys
@@ -289,31 +290,31 @@ normal_bins(s) = range((mean(s) .+ std(s) .* [-3, 3])..., 30)
 
 # ╔═╡ e5482cbf-87f6-4942-80ce-6b4c9ebfb3ab
 default_nSignal = let
-	Is = quadgk(x -> signal_func(x, default), support...)[1]
-	Im = quadgk(x -> model_func(x, default), support...)[1]
-	Is / Im * nData
-end	
+    Is = quadgk(x -> signal_func(x, default), support...)[1]
+    Im = quadgk(x -> model_func(x, default), support...)[1]
+    Is / Im * nData
+end
 
 # ╔═╡ 8e0d5554-eacd-40cc-9e26-ab6c4fed8cef
 let
-	plot(title=["μ" "σ" "nSignal"],
-		stephist(toys.μ, bins=normal_bins(toys.μ)),
-		stephist(toys.σ .|> abs, bins=normal_bins(toys.σ)),
-		stephist(toys.nSignal, bins=normal_bins(toys.nSignal)))
-	# 
-	vline!(sp=1, [default.μ best_pars_extnll.μ], lab=["default" "fit"],
-		lc=[:gray :red], lw=[1 2])
-	# 
-	vline!(sp=2, [default.σ abs(best_pars_extnll.σ)], lab=["default" "fit"],
-		lc=[:gray :red], lw=[1 2])
-	# 
-	vline!(sp=3, [default_nSignal best_yields.nSignal],
-		lab=["default" "fit"], lc=[:gray :red], lw=[1 2])
+    plot(title = ["μ" "σ" "nSignal"],
+        stephist(toys.μ, bins = normal_bins(toys.μ)),
+        stephist(toys.σ .|> abs, bins = normal_bins(toys.σ)),
+        stephist(toys.nSignal, bins = normal_bins(toys.nSignal)))
+    #
+    vline!(sp = 1, [default.μ best_pars_extnll.μ], lab = ["default" "fit"],
+        lc = [:gray :red], lw = [1 2])
+    #
+    vline!(sp = 2, [default.σ abs(best_pars_extnll.σ)], lab = ["default" "fit"],
+        lc = [:gray :red], lw = [1 2])
+    #
+    vline!(sp = 3, [default_nSignal best_yields.nSignal],
+        lab = ["default" "fit"], lc = [:gray :red], lw = [1 2])
 end
 
 # ╔═╡ 21b32675-48f3-40a9-b086-f4842b9fae0e
-stat_toys = combine(toys, 
-	All() .=> std .=> "δ" .* names(toys)) |> first |> NamedTuple
+stat_toys = combine(toys,
+                All() .=> std .=> "δ" .* names(toys)) |> first |> NamedTuple
 
 # ╔═╡ 5e997750-3f04-49e1-a083-dc47338be149
 md"""
@@ -324,22 +325,22 @@ md"""
 const nMC = nData * 10;
 
 # ╔═╡ 334ab41b-fb0e-4a1f-8b30-3bafd281d525
-const data_mc = support[1] .+ rand(nMC) .* (support[2]-support[1]);
+const data_mc = support[1] .+ rand(nMC) .* (support[2] - support[1]);
 
 # ╔═╡ bd1417a4-6101-495b-a47f-b1c045ea8fb8
-mc_call(f) = (support[2]-support[1]) * mean(f, data_mc)
+mc_call(f) = (support[2] - support[1]) * mean(f, data_mc)
 
 # ╔═╡ 36584517-4416-4c39-8816-75db05b9a495
 # notice the time, compare to `quadgk_call`
-ext_unbinned_fit_mc = fit_enll(data, initial_estimate; normalization_call=mc_call)
+ext_unbinned_fit_mc = fit_enll(data, initial_estimate; normalization_call = mc_call)
 
 # ╔═╡ 1ba5cacd-ce13-4707-b27d-dedf2b51ccbc
 best_pars_extnll_mc = ModelPars(ext_unbinned_fit_mc.minimizer);
 
 # ╔═╡ 8fafefef-940e-4b7e-998f-57773a3f79f5
 [
-	(; normalization_call = :quadgk, best_pars_extnll...),
-	(; normalization_call = :mc, best_pars_extnll_mc...)] |> DataFrame
+    (; normalization_call = :quadgk, best_pars_extnll...),
+    (; normalization_call = :mc, best_pars_extnll_mc...)] |> DataFrame
 
 # ╔═╡ 29d39a85-9ea6-4fe8-b71a-ac099e323ef4
 md"""
@@ -365,19 +366,19 @@ const AnyModelPars = NamedTuple{(fieldnames(ModelPars))}
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
 ## Gradient should be zero in the proper minimum
 ▽nll = ForwardDiff.gradient(
-	p->extended_nll(AnyModelPars(p), data; normalization_call=mc_call),
-	collect(best_pars_extnll_mc))
+    p -> extended_nll(AnyModelPars(p), data; normalization_call = mc_call),
+    collect(best_pars_extnll_mc))
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
 H_mc = ForwardDiff.hessian(
-	p->extended_nll(AnyModelPars(p), data; normalization_call=mc_call),
-	collect(best_pars_extnll_mc))
+    p -> extended_nll(AnyModelPars(p), data; normalization_call = mc_call),
+    collect(best_pars_extnll_mc))
 
 # ╔═╡ 758ab556-38c8-4279-8f76-1e02ffce15b5
-from_hesse =let
-	names = fieldnames(ModelPars)
-	delta_names = "δ" .* string.(names)
-	NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
+from_hesse = let
+    names = fieldnames(ModelPars)
+    delta_names = "δ" .* string.(names)
+    NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
 end
 
 # ╔═╡ 3e2a4cef-684e-4de0-a5c2-5569bee217b9
@@ -387,9 +388,11 @@ Here is a comparison of the statistical errors from pseudoexperiments, and these
 
 # ╔═╡ 785039e8-9079-495e-b9b7-1515f2857435
 [
-	(method = :toys, stat_toys...),
-	(method = :hesse, from_hesse..., δnSignal=missing)
+    (method = :toys, stat_toys...),
+    (method = :hesse, from_hesse..., δnSignal = missing),
 ] |> DataFrame
+
+# cspell:disable
 
 # ╔═╡ Cell order:
 # ╟─9da55708-8792-4b26-984f-5795a981bf2c

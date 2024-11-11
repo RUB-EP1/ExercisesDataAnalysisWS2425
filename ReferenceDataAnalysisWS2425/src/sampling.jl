@@ -18,7 +18,7 @@ Generates `n` samples using the rejection sampling method for a given function `
 julia> data = sample_rejection(exp, 10, (0, 4))
 ```
 """
-function sample_rejection(f, n, support; nbins=1000)
+function sample_rejection(f, n, support; nbins = 1000)
     samples = []
     M = maximum(f, range(support..., nbins))
     while length(samples) < n
@@ -33,7 +33,7 @@ end
 
 function invert_on_grid(y_i; x_grid, y_values)
     ibin = findfirst(y_values .> y_i) - 1
-    f_i = (y_i-y_values[ibin]) / (y_values[ibin+1]-y_values[ibin])
+    f_i = (y_i - y_values[ibin]) / (y_values[ibin+1] - y_values[ibin])
     return x_grid[ibin] + f_i * (x_grid[ibin+1] - x_grid[ibin])
 end
 
@@ -56,12 +56,12 @@ Generates `n` samples using the inversion sampling method for a given function `
 julia> data = sample_inversion(exp, 10, (0, 4))
 ```
 """
-function sample_inversion(f, n, support; nbins=1000)
+function sample_inversion(f, n, support; nbins = 1000)
     cdf(x) = quadgk(f, support[1], x)[1]
-    x_grid = range(support..., nbins+1)
-    y_values = cdf.(x_grid)	./ cdf(support[2])
-    # 
+    x_grid = range(support..., nbins + 1)
+    y_values = cdf.(x_grid) ./ cdf(support[2])
+    #
     y_sample = rand(n)
     x_sample = invert_on_grid.(y_sample; x_grid, y_values)
-	return x_sample
+    return x_sample
 end

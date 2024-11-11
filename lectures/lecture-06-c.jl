@@ -5,15 +5,16 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 14132512-9db8-11ef-361a-5d00f6083e73
+# dependences are managed by Pluto package manager
 begin
-	using Zygote
-	using ChainRulesCore
-	using QuadGK
+    using ChainRulesCore # pullbacks for standard functions
+    using Zygote # computations of derivatives
+    using QuadGK # example we will use
 end
 
 # ╔═╡ 7d028454-9bf1-4a93-94de-813d067b1497
 md"""
-# Automatic differentiation in reverse mode
+# AD in reverse mode
 
 This notebook showcase Reverse ID implementation in julia using `Zygote.jl` package.
 """
@@ -21,18 +22,31 @@ This notebook showcase Reverse ID implementation in julia using `Zygote.jl` pack
 # ╔═╡ 33d37aa9-4ee7-42a0-a91c-9f57391b04e2
 f(x) = (x^2 + 3x + 2) / log(x)
 
-# ╔═╡ ec2a4bbf-2863-4d29-b4bd-93832882794f
-@code_lowered f(x0)
-
-# ╔═╡ a0826a36-9825-49a1-8be2-383d2d8a95f3
-@code_llvm debuginfo=:none f(x0)
+# ╔═╡ 811bdfec-a660-4c09-a110-e9d1882de363
+md"""
+## Function representation
+Let's first look into internal intermediate representation of the code using
+- `@code_lowered`,
+- `@code_llvm`,
+- `@code_native`, and
+- `@code_typed`
+Look up documentation.
+"""
 
 # ╔═╡ 64119294-9727-4704-8f9d-c64cb3ebd1b5
 x0 = 5.0
 
+# ╔═╡ ec2a4bbf-2863-4d29-b4bd-93832882794f
+@code_lowered f(x0)
+
+# ╔═╡ a0826a36-9825-49a1-8be2-383d2d8a95f3
+@code_llvm debuginfo = :none f(x0)
+
 # ╔═╡ 310db30d-0d8b-4454-8503-21d730189c83
 md"""
 ## Gradient and pullbacks
+
+`Zygote` computes the gradient, but we can look into internals, by checking a `pullback` function, that propagates the derivative in the backward direction.
 """
 
 # ╔═╡ a67afdf9-c5c7-40c9-8d7b-0a26b95494c3
@@ -47,6 +61,8 @@ back_y(1.0)
 # ╔═╡ 517f3ed6-fbe2-4a10-9e47-7aab9fbcbbfd
 md"""
 ## With two arguments
+
+The pullback function returns a tuple of two numbers 
 """
 
 # ╔═╡ 7b4c3770-4919-4440-9d6f-f51a071da68d
@@ -62,13 +78,15 @@ z, back_z = Zygote.pullback(g, x0, y0)
 back_z(1.0) # Tuple of two
 
 # ╔═╡ 911f9f08-2265-481b-9db1-9039d9a5ab42
-individual_partials = 
-	Zygote.gradient(x->g(x, y0), x0)[1],
-	Zygote.gradient(y->g(x0, y), y0)[1]
+individual_partials =
+    Zygote.gradient(x -> g(x, y0), x0)[1],
+    Zygote.gradient(y -> g(x0, y), y0)[1]
 
 # ╔═╡ e88b7dcb-b7f8-44bf-8826-c1c6d7712b0f
 md"""
 ### Vectors
+
+As in the previous case, a pullback for a function of multiple arguments is a collection of values. It is a Tuple for positional arguments, and it is a vector for vector arguments.
 """
 
 # ╔═╡ 70079822-fdba-4215-ad84-a4d6705fc106
@@ -86,6 +104,10 @@ back_h(1) # one argument, a vector
 # ╔═╡ 186872e5-0ef7-4023-8159-dc10a1dba9dd
 md"""
 ## Customary reverse-propagation rule
+
+To define a customary back propagation rule, one needs to write `ChainRulesCore.rrule` telling how the graduent flows backward from the function to its arguments.
+
+For the function `quadgk` the output is a tuple, `(value, uncertainty)`. Hense the input to the pullback is a tuple `(δvalue, δerr)`.
 """
 
 # ╔═╡ 8f5a7e55-6c29-4b5a-8c24-c86f1d11c9bf
@@ -95,7 +117,7 @@ function ChainRulesCore.rrule(::typeof(quadgk), f, a::Number, b::Number)
     function pullback(Δ) # Δ is a Tuple(δint, δerr)
         grad_a = Δ[1] * f(a)
         return (ZeroTangent(), ZeroTangent(), -grad_a, grad_a)
-    end 
+    end
     return integral_witherr, pullback
 end
 
@@ -109,19 +131,32 @@ quadgk(f, 1.5, 2.0)
 a0 = 2.0
 
 # ╔═╡ 1ee6cc1c-b1a4-4cd4-b7ce-9236b5fca36a
-begin
-	u, back_u = Zygote.pullback(funcion_on_upper, a0)
-	gradient_on_upper = back_u((1.0, 0.0)), back_u((0.0, 1.0))
+let
+    u, back_u = Zygote.pullback(funcion_on_upper, a0)
+    gradient_on_upper = back_u((1.0, 0.0)), back_u((0.0, 1.0))
 end
+
+# ╔═╡ b61b61a8-28c5-4f7b-b9c6-646ea9b28fe2
+md"""
+To undestand better the two argument input to the pullback, let's consider an example of a simple $R^1\to R^2$ mapping.
+"""
 
 # ╔═╡ 3d3eda1e-169f-4696-953d-4fbbfca76bcc
 myf(a) = (a, 2a)
 
 # ╔═╡ f143e453-84a7-436f-9aaa-e40f79833d88
-begin
-	val_myf, back_myf = Zygote.pullback(myf, a0)
-	back_myf((1.0, 0.0)), back_myf((0.0, 1.0))
+let
+    val_myf, back_myf = Zygote.pullback(myf, a0)
+    back_myf((1.0, 0.0)), back_myf((0.0, 1.0))
 end
+
+# ╔═╡ 213d6658-65f5-4ab2-971f-86e5413c1285
+md"""
+The pull back called on a Tuple gives a directional gradient. 
+"""
+
+# ╔═╡ e9a7fb22-c945-4478-96a6-040085a391d0
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -702,7 +737,8 @@ version = "17.4.0+2"
 # ╟─7d028454-9bf1-4a93-94de-813d067b1497
 # ╠═14132512-9db8-11ef-361a-5d00f6083e73
 # ╠═33d37aa9-4ee7-42a0-a91c-9f57391b04e2
-# ╠═ec2a4bbf-2863-4d29-b4bd-93832882794f
+# ╟─811bdfec-a660-4c09-a110-e9d1882de363
+# ╟─ec2a4bbf-2863-4d29-b4bd-93832882794f
 # ╠═a0826a36-9825-49a1-8be2-383d2d8a95f3
 # ╠═64119294-9727-4704-8f9d-c64cb3ebd1b5
 # ╟─310db30d-0d8b-4454-8503-21d730189c83
@@ -726,7 +762,10 @@ version = "17.4.0+2"
 # ╠═5b6641f0-8619-4317-bb1e-9c7a79a3a78a
 # ╠═4662ea81-9f01-4aac-97ed-ae7deed303eb
 # ╠═1ee6cc1c-b1a4-4cd4-b7ce-9236b5fca36a
+# ╟─b61b61a8-28c5-4f7b-b9c6-646ea9b28fe2
 # ╠═3d3eda1e-169f-4696-953d-4fbbfca76bcc
 # ╠═f143e453-84a7-436f-9aaa-e40f79833d88
+# ╟─213d6658-65f5-4ab2-971f-86e5413c1285
+# ╠═e9a7fb22-c945-4478-96a6-040085a391d0
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

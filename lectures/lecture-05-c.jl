@@ -128,6 +128,8 @@ begin
     vspan!(μ .+ [-1, 1] .* σ, alpha = 0.3)
 end
 
+# cspell:disable
+
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
