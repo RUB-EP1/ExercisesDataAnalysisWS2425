@@ -1,10 +1,13 @@
 backgr
 Breit
 coeffs
+curvehistpulls
 dataframes
 Dhruvanshu
 docstrings
+ENLL
 extnll
+Frida
 histogramming
 julia
 lineshapes
@@ -13,6 +16,10 @@ mycdf
 mypdf
 nbins
 Parmar
+pdglive
+pmatrix
+pseudodata
+pseudoexperiments
 Stahl
 unbinned
 Voigt

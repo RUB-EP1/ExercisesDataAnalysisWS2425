@@ -55,8 +55,7 @@ function extended_nll(
         value > 0 ? log(value) : -1e10
     end
     # extended negative log likelihood
-    return minus_sum_log +
-           normalization_call(model, support)
+    return minus_sum_log + normalization_call(model, support)
 end
 
 """

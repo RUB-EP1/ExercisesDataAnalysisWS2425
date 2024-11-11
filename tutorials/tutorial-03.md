@@ -79,7 +79,7 @@ fit_result = fit_enll(model, init_pars, data; support=support)
 
 ````julia
 """
-    plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlbl="", ylbl="")
+    plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlab="", ylab="")
 
 Plot a histogram of data with a fit using model overlaid and a pull distribution.
 
@@ -88,8 +88,8 @@ Plot a histogram of data with a fit using model overlaid and a pull distribution
 - `model`: A function that represents the model to be fitted. It should take two arguments: data points and parameters.
 - `binning`: The bin edges for the histogram.
 - `best_fit_pars`: The best-fit parameters for the model.
-- `xlbl`: (Optional) Label for the x-axis. Default is an empty string.
-- `ylbl`: (Optional) Label for the y-axis. Default is an empty string.
+- `xlab`: (Optional) Label for the x-axis. Default is an empty string.
+- `ylab`: (Optional) Label for the y-axis. Default is an empty string.
 
 # Example
 ```julia
@@ -97,7 +97,7 @@ data = [0.1, 0.2, 0.3, 0.4, 0.5]
 model(x, p) = p[1] * exp(-p[2] * x)
 binning = 0:0.1:1.0
 best_fit_pars = [1.0, 0.1]
-plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlbl="X-axis", ylbl="Y-axis")
+plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlab="X-axis", ylab="Y-axis")
 ```
 """
 ````

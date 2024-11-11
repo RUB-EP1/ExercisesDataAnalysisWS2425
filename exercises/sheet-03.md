@@ -33,4 +33,4 @@ How does it compare to the previous methods?
 
 Explore the power of accurate derivatives computed with automatic differentiation method, either with the `Anka` model, or `Frida` model.
 Once your model is set up to work with dual numbers, one can use a flag `autodiff = :forward` to utilize the `ForwardDiff.jl` for minimization, see [Optim.jl documentation for more details](https://julianlsolvers.github.io/Optim.jl/stable/user/gradientsandhessians/).<br>
-How the number of iteration chantes
+How the number of iteration chances?

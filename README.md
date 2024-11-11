@@ -29,6 +29,7 @@ Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-
 The project is a valid julia Julia module, that is being developed along with the course.
 It provides essential tools and examples for statistical data analysis and fitting, designed to support and complement the lecture materials.
 Many lecture notebooks start with a dependency cell that includes,
+
 ```julia
 let
     using Pkg
@@ -36,6 +37,7 @@ let
     Pkg.instantiate()
 end
 ```
+
 referring to the functionality implemented in the module. [Read more about environments.](https://plutojl.org/en/docs/packages-advanced/)
 
 Students' repository have a similar structure, with the exercises and tutorials focused on the homework.

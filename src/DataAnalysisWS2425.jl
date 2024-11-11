@@ -17,7 +17,7 @@ include("sampling.jl")
 export fit_enll, extended_nll
 include("fitting.jl")
 
-export WithData, curvedfitwithpulls
+export WithData, curvehistpulls
 include("plotting_recipe.jl")
 
 end # module DataAnalysisWS2425

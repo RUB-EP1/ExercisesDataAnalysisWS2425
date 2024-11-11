@@ -22,7 +22,7 @@ The notebook introduces a recipe that make plotting curve on top of histogram ea
 begin
     struct WithData
         factor::Float64
-        support::Tuple{Float64, Float64}
+        support::Tuple{Float64,Float64}
     end
     WithData(bins, N::Int = 1) = WithData(N * diff(bins)[1], (bins[1], bins[end]))
     WithData(h::Hist1D) = WithData(h.binedges[1], Int(sum(h.bincounts)))
