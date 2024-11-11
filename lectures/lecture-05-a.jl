@@ -71,24 +71,28 @@ function pol1_with_logs_slope(x, pars)
 
 # ╔═╡ 8ff5e326-1e5c-431b-a21c-83171af7d879
 begin
-	# """
-	# 	SpectrumModels
-
-	# is an abstract type for class of models to fit a XiKpi spectrum.
-	# """
 	abstract type SpectrumModels end
-	
-	struct Anka{P} <: SpectrumModels
-		pars::P
+	Base.collect(model::SpectrumModels) =
+		getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
+	# 
+	# Define a generic constructor for any subtype of SpectrumModels
+	function (::Type{T})(p_values::Union{AbstractVector,NTuple}) where {T <: SpectrumModels}
+	    T(; NamedTuple{fieldnames(T)}(p_values)...)
 	end
-	Anka(; kw...) = Anka(NamedTuple(kw))
-	Anka{P}(v::Vector) where P = Anka(NamedTuple{fieldnames(P)}(v))
+	# 
+	@with_kw struct Anka{P} <: SpectrumModels
+		μ::P
+		σ::P
+		a::P
+		flat::P
+		log_slope::P
+	end
 	# 
 	function peak1_func(model::Anka, x)
-		@unpack μ, σ, a = model.pars
+		@unpack μ, σ, a = model
 	    gaussian_scaled(x; μ, σ, a)
 	end
-	background_func(model::Anka, x) = pol1_with_logs_slope(x, model.pars)
+	background_func(model::Anka, x) = pol1_with_logs_slope(x, model)
 	#
 	"""
 		model_func(model::Anka, x)
@@ -116,11 +120,8 @@ end;
 # ╔═╡ 54629edc-12ed-402d-bfc4-33cbb0b71848
 const default_model = Anka(; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
 
-# ╔═╡ d12cccba-5afd-43f3-bc99-7b7961f86132
-const AnyModelPars = typeof(default_model)
-
 # ╔═╡ a78de1dc-dc59-4296-a18d-a08a8186fb7d
-const model_fieldnames = fieldnames(typeof(default_model.pars))
+const model_fieldnames = fieldnames(Anka)
 
 # ╔═╡ 8878c8be-21ba-4fc2-aa59-76754ebfbf0b
 md"""
@@ -159,13 +160,13 @@ initial_guess =
 	Anka(; μ = 2.35, σ = 0.01, flat = 1175.17, log_slope = 2.1, a = 5000.0)
 
 # ╔═╡ 2d97dcb6-78fe-4fda-acd9-d1b72f680862
-fit_result = fit_enll(collect(initial_guess.pars), data; support) do x, pars
-	_model = AnyModelPars(pars)
+fit_result = fit_enll(collect(initial_guess), data; support) do x, pars
+	_model = Anka(pars)
 	model_func(_model, x)
 end
 
 # ╔═╡ 8844e5d2-b779-49de-9177-dcec11d73e8d
-best_pars_extnll = fit_result.minimizer |> AnyModelPars
+best_pars_extnll = fit_result.minimizer |> Anka
 
 # ╔═╡ 45e8e2df-4287-41d5-8568-7e78898cd587
 let
@@ -196,28 +197,22 @@ v_{1,2} & σ_2^2 & \dots \\
 the diagonal of the matrix gives the statistical errors.
 """
 
-# ╔═╡ 7c307bed-901b-44ad-b8bf-11cc590b7eb1
-
-
 # ╔═╡ 87711274-3ecc-4887-a470-8b9b1fef07fe
-function local_extended_nll(p_values::Vector)
-	_model = AnyModelPars(p_values)
+function local_extended_nll(p_values::AbstractArray)
+	_model = Anka(p_values)
 	enll = extended_nll(data) do x
 		model_func(_model, x)
 	end
 	enll
 end
 
-# ╔═╡ aa00ec4c-5c3e-44d5-ac4b-95adbb4f2a26
-local_extended_nll(collect(initial_guess.pars))
-
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
 ▽nll = ForwardDiff.gradient(
 	local_extended_nll,
-	collect(best_pars_extnll.pars))
+	collect(best_pars_extnll) |> collect)
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
-H_mc = ForwardDiff.hessian(local_extended_nll, collect(best_pars_extnll.pars))
+H_mc = ForwardDiff.hessian(local_extended_nll, collect(best_pars_extnll))
 
 # ╔═╡ f974f215-2a41-4e40-8075-746591fbf859
 md"""
@@ -232,6 +227,12 @@ correlations = let
     inv(matrix_of_σ) * V * inv(matrix_of_σ)
 end;
 
+# ╔═╡ 758ab556-38c8-4279-8f76-1e02ffce15b5
+const from_hesse = let
+    delta_names = "δ" .* string.(model_fieldnames)
+    NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
+end
+
 # ╔═╡ b7d7425c-78ae-40c2-9aa6-9e24e7de5290
 begin
     heatmap(correlations, clim = (-1, 1))
@@ -244,19 +245,19 @@ begin
     plot!(; title = "correlation matrix", aspect_ratio = 1, ticks)
 end
 
-# ╔═╡ 758ab556-38c8-4279-8f76-1e02ffce15b5
-const from_hesse = let
-    delta_names = "δ" .* string.(model_fieldnames)
-    NamedTuple{Symbol.(delta_names)}(sqrt.(diag(inv(H_mc))))
-end
-
-# ╔═╡ 18d037fa-1a98-4e2f-ade9-0b58d90b3618
-const theta_bounds = map(x -> (-1, 1) .* 2x, collect(from_hesse))
-
 # ╔═╡ 1d2c6460-e85c-467b-a8ca-5003f35a0d50
 md"""
 ## Likelihood profile
 """
+
+# ╔═╡ 85380f97-f586-4f42-ba1b-a88af67f0766
+const p0 = collect(best_pars_extnll)
+
+# ╔═╡ 5a056cd7-af1c-43b5-bdfc-783f4a55fede
+const NLL0 = local_extended_nll(p0)
+
+# ╔═╡ 18d037fa-1a98-4e2f-ade9-0b58d90b3618
+const theta_bounds = map(x -> (-1, 1) .* 2x, collect(from_hesse))
 
 # ╔═╡ 83e77656-cf22-46de-b0ee-799564a3bed9
 function fit_with_fixed(objective, initial; number_to_fix)
@@ -272,18 +273,12 @@ function fit_with_fixed(objective, initial; number_to_fix)
     end
 end
 
-# ╔═╡ 85380f97-f586-4f42-ba1b-a88af67f0766
-const p0 = collect(best_pars_extnll.pars)
-
-# ╔═╡ 5a056cd7-af1c-43b5-bdfc-783f4a55fede
-const NLL0 = local_extended_nll(p0)
-
 # ╔═╡ 0a5a862f-6e0f-4a3a-b608-303bfc288a8b
 likelihood_profiling = let theta_num = 2
     #
     p(δ) = p0 + Diagonal(I, length(p0))[theta_num, :] .* δ
     #
-    grid = range(theta_bounds[theta_num]..., 15)
+    grid = range(theta_bounds[theta_num]..., 10)
     projecting = map(grid) do δ
         local_extended_nll(p(δ)) - NLL0
     end
@@ -294,12 +289,25 @@ likelihood_profiling = let theta_num = 2
     (; theta_num, grid, projecting, profiling)
 end;
 
+# ╔═╡ b1f721ff-fa4c-42a3-8a50-3003d9be731b
+function interpolate_to_zero(two_x,two_y)
+	w_left = 1 ./ two_y .* [1, -1]
+	w_left ./= sum(w_left)
+	return two_x' * w_left
+end
+
 # ╔═╡ 499edc2f-9273-4bc6-9260-8aebef555f24
 function findzeros_two_sides(xv,yv)
 	yxv = yv .* xv
 	_left = findfirst(x->x>0, yxv)
 	_right = findlast(x->x<0,yxv)
-	[xv[_left-1], xv[_right+1]]
+	# 
+	x_left_zero = interpolate_to_zero(
+		[xv[_left-1], xv[_left]], [yv[_left-1], yv[_left]])
+	x_right_zero = interpolate_to_zero(
+		[xv[_right], xv[_right+1]], [yv[_right], yv[_right+1]])
+	# 
+	[x_left_zero, x_right_zero]
 end
 
 # ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
@@ -330,7 +338,6 @@ end
 # ╠═30eef5b0-1b1b-4711-9d0d-06679c84b23e
 # ╠═8ff5e326-1e5c-431b-a21c-83171af7d879
 # ╠═54629edc-12ed-402d-bfc4-33cbb0b71848
-# ╠═d12cccba-5afd-43f3-bc99-7b7961f86132
 # ╠═a78de1dc-dc59-4296-a18d-a08a8186fb7d
 # ╟─8878c8be-21ba-4fc2-aa59-76754ebfbf0b
 # ╠═d1b7527c-4375-4773-99b4-d039462b5044
@@ -342,9 +349,7 @@ end
 # ╠═8844e5d2-b779-49de-9177-dcec11d73e8d
 # ╠═45e8e2df-4287-41d5-8568-7e78898cd587
 # ╟─29d39a85-9ea6-4fe8-b71a-ac099e323ef4
-# ╠═7c307bed-901b-44ad-b8bf-11cc590b7eb1
 # ╠═87711274-3ecc-4887-a470-8b9b1fef07fe
-# ╠═aa00ec4c-5c3e-44d5-ac4b-95adbb4f2a26
 # ╠═6bf3164c-8ffa-44c3-a27e-5450232a7003
 # ╠═555ccd0e-a14a-40ab-976f-19e26665312c
 # ╟─f974f215-2a41-4e40-8075-746591fbf859
@@ -358,5 +363,6 @@ end
 # ╠═83e77656-cf22-46de-b0ee-799564a3bed9
 # ╠═0a5a862f-6e0f-4a3a-b608-303bfc288a8b
 # ╠═c17f58db-7790-49c6-b121-cafef370ef5d
+# ╠═b1f721ff-fa4c-42a3-8a50-3003d9be731b
 # ╠═499edc2f-9273-4bc6-9260-8aebef555f24
 # ╠═3b748eaf-446b-42a6-b643-5cb6af823419
