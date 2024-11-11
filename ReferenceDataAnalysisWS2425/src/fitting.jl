@@ -1,5 +1,14 @@
 _quadgk_call(f, support) = quadgk(f, support...)[1]
 
+function _data_in_support(data, support)
+    red_data = filter(x -> support[1] < x < support[2], data)
+    if length(data) > length(red_data)
+        print("Reduced dataset to domain $support to get normalizations right")
+    end
+    return red_data
+end
+
+
 """
     extended_nll(model, parameters, data; support = extrema(data), normalization_call = _quadgk_call)
 
@@ -81,7 +90,7 @@ function fit_enll(
     init_pars,
     data;
     support = extrema(data),
-    alg = BFGS,
+    alg = BFGS(),
     normalization_call = _quadgk_call,
 )
     # check if data is within limits
@@ -96,6 +105,6 @@ function fit_enll(
             normalization_call = normalization_call,
         ),
         collect(init_pars),
-        alg(),
+        alg,
     )
 end

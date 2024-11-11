@@ -17,9 +17,6 @@ include("sampling.jl")
 export fit_enll, extended_nll
 include("fitting.jl")
 
-export plot_data_fit_with_pulls
-include("plotting.jl")
-
 export WithData, curvedfitwithpulls
 include("plotting_recipe.jl")
 
