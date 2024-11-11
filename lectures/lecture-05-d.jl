@@ -13,7 +13,7 @@ end
 
 # ╔═╡ ad399e0f-d3b3-4560-bee3-11c40985b455
 md"""
-# Plotting recipe
+# Lecture 5d: Plotting recipe
 
 The notebook introduces a recipe that make plotting curve on top of histogram easier.
 """

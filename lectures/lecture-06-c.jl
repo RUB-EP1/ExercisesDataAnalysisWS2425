@@ -14,7 +14,7 @@ end
 
 # ╔═╡ 7d028454-9bf1-4a93-94de-813d067b1497
 md"""
-# AD in reverse mode
+# Lecture 6c: AD in reverse mode
 
 This notebook showcase Reverse ID implementation in julia using `Zygote.jl` package.
 """
@@ -62,7 +62,7 @@ back_y(1.0)
 md"""
 ## With two arguments
 
-The pullback function returns a tuple of two numbers 
+The pullback function returns a tuple of two numbers
 """
 
 # ╔═╡ 7b4c3770-4919-4440-9d6f-f51a071da68d
@@ -152,7 +152,7 @@ end
 
 # ╔═╡ 213d6658-65f5-4ab2-971f-86e5413c1285
 md"""
-The pull back called on a Tuple gives a directional gradient. 
+The pull back called on a Tuple gives a directional gradient.
 """
 
 # ╔═╡ e9a7fb22-c945-4478-96a6-040085a391d0

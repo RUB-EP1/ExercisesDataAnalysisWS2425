@@ -21,7 +21,7 @@ end
 
 # ╔═╡ 85a7a141-79f6-4e75-9b97-0056e2d4a1c8
 md"""
-# Lecture 6-a: $\chi^2$ distribution
+# Lecture 6a: $\chi^2$ distribution
 
 This lecture demonstrate how $\chi^2$ distribution comes about:
 # - how to generate it using the gaussian distribution, and

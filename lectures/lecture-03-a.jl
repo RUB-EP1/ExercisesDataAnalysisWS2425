@@ -14,7 +14,7 @@ end;
 
 # ╔═╡ f595bb8c-8f83-11ef-1ae9-bdb0a013e5e5
 md"""
-# Notebook 3a: properties of estimators
+# Lecture 3a: properties of estimators
 
 In this notebook we perform pseudo experiments to evaluate a **bias** and **efficiency** of the estimators.
 
