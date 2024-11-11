@@ -1,8 +1,15 @@
 ### A Pluto.jl notebook ###
-# v0.19.45
+# v0.20.1
 
 using Markdown
 using InteractiveUtils
+
+# ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
+md"""
+# Lecture 5a: Parameter uncertainties
+
+In this lecture we discuss methods to estimate statistical uncertainty of parameters
+"""
 
 # ╔═╡ 2d141b9d-09bb-4074-bf01-4c4b6099585d
 # ╠═╡ show_logs = false
@@ -27,13 +34,6 @@ begin
     using Optim
     using DataFrames
 end
-
-# ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
-md"""
-# Lecture 5a: Parameter uncertainties
-
-In this lecture we discuss methods to estimate statistical uncertainty of parameters
-"""
 
 # ╔═╡ 39ee4bcd-8d01-443f-9714-103ab6d7f7d6
 theme(
@@ -296,6 +296,22 @@ likelihood_profiling = let theta_num = 2
     (; theta_num, grid, projecting, profiling)
 end;
 
+# ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
+let
+    @unpack projecting, profiling, grid, theta_num = likelihood_profiling
+    #
+    xlab = "δ$(model_fieldnames[theta_num])"
+    plot(title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
+        xlab, ylab = "ΔNLL")
+    #
+    plot!(grid, profiling, lab = "profile likelihood", c = 2)
+    plot!(grid, projecting, lab = "project likelihood", c = 3)
+    hline!([0.5], leg = :top, c = 1)
+    #
+    vspan!(findzeros_two_sides(grid, profiling .- 1 / 2), α = 0.2, c = 2)
+    vspan!(findzeros_two_sides(grid, projecting .- 1 / 2), α = 0.2, c = 3)
+end
+
 # ╔═╡ b1f721ff-fa4c-42a3-8a50-3003d9be731b
 function interpolate_to_zero(two_x, two_y)
     w_left = 1 ./ two_y .* [1, -1]
@@ -315,22 +331,6 @@ function findzeros_two_sides(xv, yv)
         [xv[_right], xv[_right+1]], [yv[_right], yv[_right+1]])
     #
     [x_left_zero, x_right_zero]
-end
-
-# ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
-let
-    @unpack projecting, profiling, grid, theta_num = likelihood_profiling
-    #
-    xlab = "δ$(model_fieldnames[theta_num])"
-    plot(title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
-        xlab, ylab = "ΔNLL")
-    #
-    plot!(grid, profiling, lab = "profile likelihood", c = 2)
-    plot!(grid, projecting, lab = "project likelihood", c = 3)
-    hline!([0.5], leg = :top, c = 1)
-    #
-    vspan!(findzeros_two_sides(grid, profiling .- 1 / 2), α = 0.2, c = 2)
-    vspan!(findzeros_two_sides(grid, projecting .- 1 / 2), α = 0.2, c = 3)
 end
 
 # ╔═╡ 02f9de05-3137-436b-b38f-c4456204bde4
@@ -358,12 +358,6 @@ likelihood_profiling_2d = let theta_num = 2, theta_num′ = 3
     (; theta_num, theta_num′, grid, grid′, projecting, profiling)
 end;
 
-# ╔═╡ 663765c7-c8f6-4c6e-89b5-f6a78d443d60
-chi2_ndf2_quantile(α) = -2log(1 - α)
-
-# ╔═╡ f2c1cc33-54cd-4024-8811-8c3cc9d872ea
-levels = chi2_ndf2_quantile.([0.68, 0.95]) ./ 2
-
 # ╔═╡ 1eafb617-c63d-4d2b-b30a-9876d33990b4
 let
     @unpack grid, grid′, projecting, profiling = likelihood_profiling_2d
@@ -378,6 +372,12 @@ let
     vspan!(from_hesse[theta_num] .* [-1, 1], α = 0.1)
     hspan!(from_hesse[theta_num′] .* [-1, 1], α = 0.1)
 end
+
+# ╔═╡ 663765c7-c8f6-4c6e-89b5-f6a78d443d60
+chi2_ndf2_quantile(α) = -2log(1 - α)
+
+# ╔═╡ f2c1cc33-54cd-4024-8811-8c3cc9d872ea
+levels = chi2_ndf2_quantile.([0.68, 0.95]) ./ 2
 
 # ╔═╡ 3b748eaf-446b-42a6-b643-5cb6af823419
 # cspell:disable

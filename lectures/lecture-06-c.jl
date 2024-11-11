@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.45
+# v0.20.1
 
 using Markdown
 using InteractiveUtils
@@ -33,14 +33,14 @@ Let's first look into internal intermediate representation of the code using
 Look up documentation.
 """
 
-# ╔═╡ 64119294-9727-4704-8f9d-c64cb3ebd1b5
-x0 = 5.0
-
 # ╔═╡ ec2a4bbf-2863-4d29-b4bd-93832882794f
 @code_lowered f(x0)
 
 # ╔═╡ a0826a36-9825-49a1-8be2-383d2d8a95f3
 @code_llvm debuginfo = :none f(x0)
+
+# ╔═╡ 64119294-9727-4704-8f9d-c64cb3ebd1b5
+x0 = 5.0
 
 # ╔═╡ 310db30d-0d8b-4454-8503-21d730189c83
 md"""
