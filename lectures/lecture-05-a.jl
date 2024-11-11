@@ -74,16 +74,16 @@ end
 
 # ╔═╡ 8ff5e326-1e5c-431b-a21c-83171af7d879
 begin
-    abstract type SpectrumModels end
-    Base.collect(model::SpectrumModels) =
+    abstract type SpectrumModel end
+    Base.collect(model::SpectrumModel) =
         getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
     #
-    # Define a generic constructor for any subtype of SpectrumModels
-    function (::Type{T})(p_values::Union{AbstractVector, NTuple}) where {T <: SpectrumModels}
+    # Define a generic constructor for any subtype of SpectrumModel
+    function (::Type{T})(p_values::Union{AbstractVector, NTuple}) where {T <: SpectrumModel}
         T(; NamedTuple{fieldnames(T)}(p_values)...)
     end
     #
-    @with_kw struct Anka{P} <: SpectrumModels
+    @with_kw struct Anka{P} <: SpectrumModel
         μ::P
         σ::P
         a::P
@@ -103,7 +103,7 @@ begin
 
     where
 
-    Anka{P} <: SpectrumModels
+    Anka{P} <: SpectrumModel
 
     evaluation of the pdf for model `Anka`.
     is a simple spectral model that has two components,
