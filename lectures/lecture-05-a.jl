@@ -8,7 +8,7 @@ using InteractiveUtils
 # ╠═╡ show_logs = false
 begin
     using Pkg
-    Pkg.activate(joinpath(@__DIR__, "..", "ReferenceDataAnalysisWS2425"))
+    Pkg.activate(joinpath(@__DIR__, ".."))
     Pkg.instantiate()
     #
     using DataAnalysisWS2425
@@ -57,7 +57,7 @@ md"""
 
 # ╔═╡ 30eef5b0-1b1b-4711-9d0d-06679c84b23e
 """
-	pol1_with_logs_slope(x, pars; x0::Float64=0.0)
+pol1_with_logs_slope(x, pars; x0::Float64=0.0)
 
 Computes a polynomial function of the second order.
 The `pars` is expected to provide two parameters, `flat` and `log_slope`.
@@ -65,7 +65,7 @@ The `flat` is a value of function at the support/2.
 The slope independent of normalization using `log_slope = dy/dx  / y = d log(y) / dx`
 Parameters `x0` is used to decorrelate the parameters.
 """
-function pol1_with_logs_slope(x, pars; x0::Float64=0.0)
+function pol1_with_logs_slope(x, pars; x0::Float64 = 0.0)
     @unpack flat, log_slope = pars
     slope = flat * log_slope
     coeffs = (flat - slope * x0, slope)
@@ -74,51 +74,51 @@ end
 
 # ╔═╡ 8ff5e326-1e5c-431b-a21c-83171af7d879
 begin
-	abstract type SpectrumModels end
-	Base.collect(model::SpectrumModels) =
-		getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
-	# 
-	# Define a generic constructor for any subtype of SpectrumModels
-	function (::Type{T})(p_values::Union{AbstractVector,NTuple}) where {T <: SpectrumModels}
-	    T(; NamedTuple{fieldnames(T)}(p_values)...)
-	end
-	# 
-	@with_kw struct Anka{P} <: SpectrumModels
-		μ::P
-		σ::P
-		a::P
-		flat::P
-		log_slope::P
-	end
-	# 
-	function peak1_func(model::Anka, x)
-		@unpack μ, σ, a = model
-	    gaussian_scaled(x; μ, σ, a)
-	end
-	background_func(model::Anka, x) =
-		pol1_with_logs_slope(x, model; x0=sum(support)/2)
-	#
-	"""
-		total_func(model::Anka, x)
+    abstract type SpectrumModels end
+    Base.collect(model::SpectrumModels) =
+        getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
+    #
+    # Define a generic constructor for any subtype of SpectrumModels
+    function (::Type{T})(p_values::Union{AbstractVector, NTuple}) where {T <: SpectrumModels}
+        T(; NamedTuple{fieldnames(T)}(p_values)...)
+    end
+    #
+    @with_kw struct Anka{P} <: SpectrumModels
+        μ::P
+        σ::P
+        a::P
+        flat::P
+        log_slope::P
+    end
+    #
+    function peak1_func(model::Anka, x)
+        @unpack μ, σ, a = model
+        gaussian_scaled(x; μ, σ, a)
+    end
+    background_func(model::Anka, x) =
+        pol1_with_logs_slope(x, model; x0 = sum(support) / 2)
+    #
+    """
+    total_func(model::Anka, x)
 
-	where
-	
-		Anka{P} <: SpectrumModels
-	
-	evaluation of the pdf for model `Anka`.
-	is a simple spectral model that has two components,
-	 - a background described by pol1, and
-	 - a peaking signal described by the gaussian function
+    where
 
-	# Example
-	```julia
-	julia> model = Anka(; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
-	julia> total_func(model, 3.3)
-	4.1775
-	```
-	"""
-	total_func(model::Anka, x) = peak1_func(model, x) + background_func(model, x)
-	# 
+    Anka{P} <: SpectrumModels
+
+    evaluation of the pdf for model `Anka`.
+    is a simple spectral model that has two components,
+     - a background described by pol1, and
+     - a peaking signal described by the gaussian function
+
+    # Example
+    ```julia
+    julia> model = Anka(; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
+    julia> total_func(model, 3.3)
+    4.1775
+    ```
+    """
+    total_func(model::Anka, x) = peak1_func(model, x) + background_func(model, x)
+    #
 end;
 
 # ╔═╡ 54629edc-12ed-402d-bfc4-33cbb0b71848
@@ -137,21 +137,21 @@ const nData = 1_000
 
 # ╔═╡ d1fdce14-0768-4838-b244-8b7fb101b137
 const data = sample_inversion(nData, support) do x
-        total_func(default_model, x)
-    end;
+    total_func(default_model, x)
+end;
 
 # ╔═╡ 255e5019-f8e0-49ed-8efa-ba21004008aa
 let
     binedges = range(support..., 100)
     h = Hist1D(data; binedges)
-	plot(h, seriestype=:stepbins)
-	# I have to compute normalization, it is neither nData, nor 1
-	norm = quadgk(support...) do x
-		total_func(default_model, x)
-	end[1]
-	plot!(WithData(h); n_points=300) do x
-		total_func(default_model, x) / norm
-	end
+    plot(h, seriestype = :stepbins)
+    # I have to compute normalization, it is neither nData, nor 1
+    norm = quadgk(support...) do x
+        total_func(default_model, x)
+    end[1]
+    plot!(WithData(h); n_points = 300) do x
+        total_func(default_model, x) / norm
+    end
 end
 
 # ╔═╡ 156e44f7-90a8-434d-a90a-38355b630c01
@@ -160,13 +160,13 @@ md"""
 """
 
 # ╔═╡ 71f3919c-92c6-47a4-b6cb-d1d2195cb685
-initial_guess = 
-	Anka(; μ = 2.35, σ = 0.01, flat = 1175.17, log_slope = 2.1, a = 5000.0)
+initial_guess =
+    Anka(; μ = 2.35, σ = 0.01, flat = 1175.17, log_slope = 2.1, a = 5000.0)
 
 # ╔═╡ 2d97dcb6-78fe-4fda-acd9-d1b72f680862
 fit_result = fit_enll(collect(initial_guess), data; support) do x, pars
-	_model = Anka(pars)
-	total_func(_model, x)
+    _model = Anka(pars)
+    total_func(_model, x)
 end
 
 # ╔═╡ 8844e5d2-b779-49de-9177-dcec11d73e8d
@@ -174,13 +174,13 @@ best_pars_extnll = fit_result.minimizer |> Anka
 
 # ╔═╡ 45e8e2df-4287-41d5-8568-7e78898cd587
 let
-	binedges = range(support..., 100)
-	h = Hist1D(data; binedges)
-	# 
-	curvedfitwithpulls(h, xlab = "Mass [GeV]", ylab = "Entries";
-		data_scale_curve = false, n_points=1000) do x
-		total_func(best_pars_extnll, x)
-	end
+    binedges = range(support..., 100)
+    h = Hist1D(data; binedges)
+    #
+    curvedfitwithpulls(h, xlab = "Mass [GeV]", ylab = "Entries";
+        data_scale_curve = false, n_points = 1000) do x
+        total_func(best_pars_extnll, x)
+    end
 end
 
 # ╔═╡ 29d39a85-9ea6-4fe8-b71a-ac099e323ef4
@@ -203,11 +203,11 @@ the diagonal of the matrix gives the statistical errors.
 
 # ╔═╡ 87711274-3ecc-4887-a470-8b9b1fef07fe
 function local_extended_nll(p_values::AbstractArray)
-	_model = Anka(p_values)
-	enll = extended_nll(data) do x
-		total_func(_model, x)
-	end
-	enll
+    _model = Anka(p_values)
+    enll = extended_nll(data) do x
+        total_func(_model, x)
+    end
+    enll
 end
 
 # ╔═╡ 85bcd959-c204-48df-a3af-5a84e6cf0181
@@ -215,8 +215,8 @@ best_pars_extnll
 
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
 ▽nll = ForwardDiff.gradient(
-	local_extended_nll,
-	collect(best_pars_extnll) |> collect)
+    local_extended_nll,
+    collect(best_pars_extnll) |> collect)
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
 H_mc = ForwardDiff.hessian(local_extended_nll, collect(best_pars_extnll))
@@ -290,47 +290,47 @@ likelihood_profiling = let theta_num = 2
         local_extended_nll(p(δ)) - NLL0
     end
     profiling = map(grid) do δ
-        res = fit_with_fixed(local_extended_nll, p(δ); numbers_to_fix=[theta_num])
+        res = fit_with_fixed(local_extended_nll, p(δ); numbers_to_fix = [theta_num])
         res.minimum - NLL0
     end
     (; theta_num, grid, projecting, profiling)
 end;
 
 # ╔═╡ b1f721ff-fa4c-42a3-8a50-3003d9be731b
-function interpolate_to_zero(two_x,two_y)
-	w_left = 1 ./ two_y .* [1, -1]
-	w_left ./= sum(w_left)
-	return two_x' * w_left
+function interpolate_to_zero(two_x, two_y)
+    w_left = 1 ./ two_y .* [1, -1]
+    w_left ./= sum(w_left)
+    return two_x' * w_left
 end
 
 # ╔═╡ 499edc2f-9273-4bc6-9260-8aebef555f24
-function findzeros_two_sides(xv,yv)
-	yxv = yv .* xv
-	_left = findfirst(x->x>0, yxv)
-	_right = findlast(x->x<0,yxv)
-	# 
-	x_left_zero = interpolate_to_zero(
-		[xv[_left-1], xv[_left]], [yv[_left-1], yv[_left]])
-	x_right_zero = interpolate_to_zero(
-		[xv[_right], xv[_right+1]], [yv[_right], yv[_right+1]])
-	# 
-	[x_left_zero, x_right_zero]
+function findzeros_two_sides(xv, yv)
+    yxv = yv .* xv
+    _left = findfirst(x -> x > 0, yxv)
+    _right = findlast(x -> x < 0, yxv)
+    #
+    x_left_zero = interpolate_to_zero(
+        [xv[_left-1], xv[_left]], [yv[_left-1], yv[_left]])
+    x_right_zero = interpolate_to_zero(
+        [xv[_right], xv[_right+1]], [yv[_right], yv[_right+1]])
+    #
+    [x_left_zero, x_right_zero]
 end
 
 # ╔═╡ c17f58db-7790-49c6-b121-cafef370ef5d
 let
-	@unpack projecting, profiling, grid, theta_num = likelihood_profiling
+    @unpack projecting, profiling, grid, theta_num = likelihood_profiling
     #
-	xlab = "δ$(model_fieldnames[theta_num])"
-	plot(title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
+    xlab = "δ$(model_fieldnames[theta_num])"
+    plot(title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
         xlab, ylab = "ΔNLL")
-	# 
-    plot!(grid, profiling, lab = "profile likelihood", c=2)
-	plot!(grid, projecting, lab = "project likelihood", c=3)
-	hline!([0.5], leg = :top, c=1)
-    # 
-	vspan!(findzeros_two_sides(grid, profiling .- 1/2), α=0.2, c=2)
-	vspan!(findzeros_two_sides(grid, projecting .- 1/2), α=0.2, c=3)
+    #
+    plot!(grid, profiling, lab = "profile likelihood", c = 2)
+    plot!(grid, projecting, lab = "project likelihood", c = 3)
+    hline!([0.5], leg = :top, c = 1)
+    #
+    vspan!(findzeros_two_sides(grid, profiling .- 1 / 2), α = 0.2, c = 2)
+    vspan!(findzeros_two_sides(grid, projecting .- 1 / 2), α = 0.2, c = 3)
 end
 
 # ╔═╡ 02f9de05-3137-436b-b38f-c4456204bde4
@@ -341,42 +341,42 @@ md"""
 # ╔═╡ bc7e2edb-d9ca-4267-8a07-ad1e3ed147a7
 likelihood_profiling_2d = let theta_num = 2, theta_num′ = 3
     #
-	d = Diagonal(I, length(p0))
-    p(δ,δ′) = p0 + d[theta_num, :] .* δ + d[theta_num′, :] .* δ′
+    d = Diagonal(I, length(p0))
+    p(δ, δ′) = p0 + d[theta_num, :] .* δ + d[theta_num′, :] .* δ′
     #
     grid = range(theta_bounds[theta_num]..., 10)
     grid′ = range(theta_bounds[theta_num′]..., 10)
-	# 
-    projecting = map(Iterators.product(grid,grid′)) do (δ,δ′)
-        local_extended_nll(p(δ,δ′)) - NLL0
+    #
+    projecting = map(Iterators.product(grid, grid′)) do (δ, δ′)
+        local_extended_nll(p(δ, δ′)) - NLL0
     end
-    profiling = map(Iterators.product(grid,grid′)) do (δ,δ′)
-        res = fit_with_fixed(local_extended_nll, p(δ,δ′);
-			numbers_to_fix=[theta_num, theta_num′])
+    profiling = map(Iterators.product(grid, grid′)) do (δ, δ′)
+        res = fit_with_fixed(local_extended_nll, p(δ, δ′);
+            numbers_to_fix = [theta_num, theta_num′])
         res.minimum - NLL0
     end
     (; theta_num, theta_num′, grid, grid′, projecting, profiling)
 end;
 
 # ╔═╡ 663765c7-c8f6-4c6e-89b5-f6a78d443d60
-chi2_ndf2_quantile(α) = -2log(1-α)
+chi2_ndf2_quantile(α) = -2log(1 - α)
 
 # ╔═╡ f2c1cc33-54cd-4024-8811-8c3cc9d872ea
 levels = chi2_ndf2_quantile.([0.68, 0.95]) ./ 2
 
 # ╔═╡ 1eafb617-c63d-4d2b-b30a-9876d33990b4
 let
-	@unpack grid, grid′, projecting, profiling = likelihood_profiling_2d
-	plot(colorbar=false)
-	contour!(grid, grid′, projecting; levels, c=:orange)
-	contour!(grid, grid′, profiling; levels, c=:purple)
-	# 
-	@unpack theta_num, theta_num′ = likelihood_profiling_2d
-	scatter!([0], [0], m=(:red,:+, 10))
-	plot!(xlab=model_fieldnames[theta_num], ylab=model_fieldnames[theta_num′])
-	# 
-	vspan!(from_hesse[theta_num] .* [-1,1], α=0.1)
-	hspan!(from_hesse[theta_num′] .* [-1,1], α=0.1)
+    @unpack grid, grid′, projecting, profiling = likelihood_profiling_2d
+    plot(colorbar = false)
+    contour!(grid, grid′, projecting; levels, c = :orange)
+    contour!(grid, grid′, profiling; levels, c = :purple)
+    #
+    @unpack theta_num, theta_num′ = likelihood_profiling_2d
+    scatter!([0], [0], m = (:red, :+, 10))
+    plot!(xlab = model_fieldnames[theta_num], ylab = model_fieldnames[theta_num′])
+    #
+    vspan!(from_hesse[theta_num] .* [-1, 1], α = 0.1)
+    hspan!(from_hesse[theta_num′] .* [-1, 1], α = 0.1)
 end
 
 # ╔═╡ 3b748eaf-446b-42a6-b643-5cb6af823419

@@ -8,7 +8,7 @@ using InteractiveUtils
 # ╠═╡ show_logs = false
 begin
     using Pkg
-    Pkg.activate(joinpath(@__DIR__, "..", "ReferenceDataAnalysisWS2425"))
+    Pkg.activate(joinpath(@__DIR__, ".."))
     Pkg.instantiate()
     #
     using DataAnalysisWS2425
