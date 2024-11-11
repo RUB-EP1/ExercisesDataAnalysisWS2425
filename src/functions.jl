@@ -13,7 +13,7 @@ The form of the Gaussian is:
 julia> y = gaussian_scaled(2.0; μ=0.0, σ=1.0, a=3.0)
 ```
 """
-gaussian_scaled(x; μ, σ, a) = a * exp(-(x-μ)^2/(2σ^2))
+gaussian_scaled(x; μ, σ, a) = a * exp(-(x - μ)^2 / (2σ^2))
 
 """
     polynomial_scaled(x; coeffs)
@@ -35,7 +35,7 @@ julia> y = polynomial_scaled(2.0; coeffs=[1.0, -3.0, 2.0])
 function polynomial_scaled(x; coeffs)
     result = 0
     for (i, coeff) in enumerate(coeffs)
-        result += coeff * x^(i-1)
+        result += coeff * x^(i - 1)
     end
     return result
 end
@@ -68,6 +68,6 @@ The Voigt profile is a convolution of a non-relativistic Breit-Wigner function a
 julia> y = voigt_scaled(2.0; m=1.3, Γ=0.15, σ=0.3, a=3.0)
 ```
 """
-voigt_scaled(x; M, Γ, σ, a) = quadgk(-Inf, Inf) do τ 
-    breit_wigner_scaled(x-τ;M, Γ, a) * gaussian_scaled(τ; μ=0, σ, a=1/sqrt(2pi)/σ)
+voigt_scaled(x; M, Γ, σ, a) = quadgk(-Inf, Inf) do τ
+    breit_wigner_scaled(x - τ; M, Γ, a) * gaussian_scaled(τ; μ = 0, σ, a)
 end[1]
