@@ -36,14 +36,7 @@ begin
 end
 
 # ╔═╡ 39ee4bcd-8d01-443f-9714-103ab6d7f7d6
-theme(
-    :wong2,
-    xlims = (:auto, :auto),
-    frame = :box,
-    grid = false,
-    lab = "",
-    lw = 1.5,
-)
+theme(:wong2, xlims = (:auto, :auto), frame = :box, grid = false, lab = "", lw = 1.5)
 
 # ╔═╡ 9b6b7d99-9f92-4b0a-b617-4111317e8271
 const support = (2.2, 2.7); # fixed
@@ -63,7 +56,7 @@ Computes a polynomial function of the second order.
 The `pars` is expected to provide two parameters, `flat` and `log_slope`.
 The `flat` is a value of function at the support/2.
 The slope independent of normalization using `log_slope = dy/dx  / y = d log(y) / dx`
-Parameters `x0` is used to decorrelate the parameters.
+Parameters `x0` is used to de-correlate the parameters.
 """
 function pol1_with_logs_slope(x, pars; x0::Float64 = 0.0)
     @unpack flat, log_slope = pars
@@ -79,7 +72,7 @@ begin
         getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
     #
     # Define a generic constructor for any subtype of SpectrumModel
-    function (::Type{T})(p_values::Union{AbstractVector, NTuple}) where {T <: SpectrumModel}
+    function (::Type{T})(p_values::Union{AbstractVector,NTuple}) where {T<:SpectrumModel}
         T(; NamedTuple{fieldnames(T)}(p_values)...)
     end
     #
@@ -95,8 +88,7 @@ begin
         @unpack μ, σ, a = model
         gaussian_scaled(x; μ, σ, a)
     end
-    background_func(model::Anka, x) =
-        pol1_with_logs_slope(x, model; x0 = sum(support) / 2)
+    background_func(model::Anka, x) = pol1_with_logs_slope(x, model; x0 = sum(support) / 2)
     #
     """
     total_func(model::Anka, x)
@@ -160,8 +152,7 @@ md"""
 """
 
 # ╔═╡ 71f3919c-92c6-47a4-b6cb-d1d2195cb685
-initial_guess =
-    Anka(; μ = 2.35, σ = 0.01, flat = 1175.17, log_slope = 2.1, a = 5000.0)
+initial_guess = Anka(; μ = 2.35, σ = 0.01, flat = 1175.17, log_slope = 2.1, a = 5000.0)
 
 # ╔═╡ 2d97dcb6-78fe-4fda-acd9-d1b72f680862
 fit_result = fit_enll(collect(initial_guess), data; support) do x, pars
@@ -177,15 +168,20 @@ let
     binedges = range(support..., 100)
     h = Hist1D(data; binedges)
     #
-    curvedfitwithpulls(h, xlab = "Mass [GeV]", ylab = "Entries";
-        data_scale_curve = false, n_points = 1000) do x
+    curvehistpulls(
+        h,
+        xlab = "Mass [GeV]",
+        ylab = "Entries";
+        data_scale_curve = false,
+        n_points = 1000,
+    ) do x
         total_func(best_pars_extnll, x)
     end
 end
 
 # ╔═╡ 29d39a85-9ea6-4fe8-b71a-ac099e323ef4
 md"""
-## Hessian and Varaince
+## Hessian and Variance
 
 Using the second order (gaussian) approximation of the nll minimum,
 covariance matrix can be computed as,
@@ -214,9 +210,7 @@ end
 best_pars_extnll
 
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
-▽nll = ForwardDiff.gradient(
-    local_extended_nll,
-    collect(best_pars_extnll) |> collect)
+▽nll = ForwardDiff.gradient(local_extended_nll, collect(best_pars_extnll) |> collect)
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
 H_mc = ForwardDiff.hessian(local_extended_nll, collect(best_pars_extnll))
@@ -270,9 +264,9 @@ const theta_bounds = map(x -> (-1, 1) .* 2x, collect(from_hesse))
 function fit_with_fixed(objective, initial; numbers_to_fix)
     n = length(initial)
     #
-    unitm = Diagonal(I, n)
-    eye = reduce(.|, (unitm[i, :] for i in numbers_to_fix))
-    to_right_dims = unitm[:, (1:n)[.!(eye)]]
+    unit_matrix = Diagonal(I, n)
+    eye = reduce(.|, (unit_matrix[i, :] for i in numbers_to_fix))
+    to_right_dims = unit_matrix[:, (1:n)[.!(eye)]]
     #
     optimize(to_right_dims' * initial, BFGS()) do p
         full_p = to_right_dims * p .+ initial .* eye
@@ -301,15 +295,18 @@ let
     @unpack projecting, profiling, grid, theta_num = likelihood_profiling
     #
     xlab = "δ$(model_fieldnames[theta_num])"
-    plot(title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
-        xlab, ylab = "ΔNLL")
+    plot(
+        title = ["studies of parameter $(model_fieldnames[theta_num])" ""];
+        xlab,
+        ylab = "ΔNLL",
+    )
     #
     plot!(grid, profiling, lab = "profile likelihood", c = 2)
     plot!(grid, projecting, lab = "project likelihood", c = 3)
     hline!([0.5], leg = :top, c = 1)
     #
-    vspan!(findzeros_two_sides(grid, profiling .- 1 / 2), α = 0.2, c = 2)
-    vspan!(findzeros_two_sides(grid, projecting .- 1 / 2), α = 0.2, c = 3)
+    vspan!(find_zero_two_sides(grid, profiling .- 1 / 2), α = 0.2, c = 2)
+    vspan!(find_zero_two_sides(grid, projecting .- 1 / 2), α = 0.2, c = 3)
 end
 
 # ╔═╡ b1f721ff-fa4c-42a3-8a50-3003d9be731b
@@ -320,15 +317,14 @@ function interpolate_to_zero(two_x, two_y)
 end
 
 # ╔═╡ 499edc2f-9273-4bc6-9260-8aebef555f24
-function findzeros_two_sides(xv, yv)
+function find_zero_two_sides(xv, yv)
     yxv = yv .* xv
     _left = findfirst(x -> x > 0, yxv)
     _right = findlast(x -> x < 0, yxv)
     #
-    x_left_zero = interpolate_to_zero(
-        [xv[_left-1], xv[_left]], [yv[_left-1], yv[_left]])
-    x_right_zero = interpolate_to_zero(
-        [xv[_right], xv[_right+1]], [yv[_right], yv[_right+1]])
+    x_left_zero = interpolate_to_zero([xv[_left-1], xv[_left]], [yv[_left-1], yv[_left]])
+    x_right_zero =
+        interpolate_to_zero([xv[_right], xv[_right+1]], [yv[_right], yv[_right+1]])
     #
     [x_left_zero, x_right_zero]
 end
@@ -351,8 +347,11 @@ likelihood_profiling_2d = let theta_num = 2, theta_num′ = 3
         local_extended_nll(p(δ, δ′)) - NLL0
     end
     profiling = map(Iterators.product(grid, grid′)) do (δ, δ′)
-        res = fit_with_fixed(local_extended_nll, p(δ, δ′);
-            numbers_to_fix = [theta_num, theta_num′])
+        res = fit_with_fixed(
+            local_extended_nll,
+            p(δ, δ′);
+            numbers_to_fix = [theta_num, theta_num′],
+        )
         res.minimum - NLL0
     end
     (; theta_num, theta_num′, grid, grid′, projecting, profiling)
@@ -374,10 +373,10 @@ let
 end
 
 # ╔═╡ 663765c7-c8f6-4c6e-89b5-f6a78d443d60
-chi2_ndf2_quantile(α) = -2log(1 - α)
+chi2_ndf2_quintile(α) = -2log(1 - α)
 
 # ╔═╡ f2c1cc33-54cd-4024-8811-8c3cc9d872ea
-levels = chi2_ndf2_quantile.([0.68, 0.95]) ./ 2
+levels = chi2_ndf2_quintile.([0.68, 0.95]) ./ 2
 
 # ╔═╡ 3b748eaf-446b-42a6-b643-5cb6af823419
 # cspell:disable

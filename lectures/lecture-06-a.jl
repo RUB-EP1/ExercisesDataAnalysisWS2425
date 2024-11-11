@@ -29,8 +29,7 @@ This lecture demonstrate how $\chi^2$ distribution comes about:
 """
 
 # ╔═╡ 90f71c33-e5f3-4378-9bca-e044b5e3256c
-theme(:wong2, grid = false, frame = :box,
-    ylims = (0, :auto), xlims = (:auto, :auto))
+theme(:wong2, grid = false, frame = :box, ylims = (0, :auto), xlims = (:auto, :auto))
 
 # ╔═╡ f559fd65-e5dc-43d6-b099-1ba62ab75f0e
 const n = 10_000
