@@ -77,6 +77,12 @@ fit_result = fit_enll(model, init_pars, data; support=support)
 
 ### Plotting function
 
+In Julia, a convenient way to introduce short-cuts for plotting is to use plotting recipe,
+that prescribe transformations of the plotting objects.
+You can copy recipe from [`src/plotting_recipe.jl`](`src/plotting_recipe.jl`) over to your project.
+To understand better how it works, you can start by writing a function below.
+Such function would straightforwardly be related to the plotting recipe.
+
 ````julia
 """
     plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlab="", ylab="")
@@ -106,17 +112,34 @@ plot_data_fit_with_pulls(data, model, binning, best_fit_pars; xlab="X-axis", yla
 Here is the code you copy over to your `test/runtests.jl` file
 
 ```julia
+using Test
+using DataAnalysisWS2425
+
+include("test-distributions.jl")
+include("test-sampling.jl")
+include("test-fitting.jl")
+include("test-plotting.jl")
+```
+
+Where the `test-fitting.jl` file contains the following code,
+
+```julia
+using Test
+using DataAnalysisWS2425
+using Random
+
 @testset "Simple fitting" begin
-    init_pars = (; μ = 0.3, σ = 1.0, a = 1.0)
+    init_pars = (; μ = 0.35, σ = 0.8, a = 1.0)
     support = (-4.0, 4.0)
+    Random.seed!(11122)
     data = sample_inversion(400, support) do x
         gaussian_scaled(x; μ = 0.4, σ = 0.7, a = 1.0)
     end
     model(x, pars) = gaussian_scaled(x; pars.μ, pars.σ, pars.a)
-    ext_unbinned_fit = fit_enll(model, init_pars, data; support)
+    ext_unbinned_fit = fit_enll(model, init_pars, data; support = support)
     best_pars_extnll = typeof(init_pars)(ext_unbinned_fit.minimizer)
     @test ext_unbinned_fit.ls_success
-    @test 0.36 < best_pars_extnll.μ < 0.44
+    @test best_pars_extnll.μ ≈ 0.4296536896499441
 end
 ```
 
