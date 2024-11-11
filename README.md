@@ -36,7 +36,7 @@ let
     Pkg.instantiate()
 end
 ```
-refering to the functionality implemented in the module.
+referring to the functionality implemented in the module. [Read more about environments.](https://plutojl.org/en/docs/packages-advanced/)
 
 Students' repository have a similar structure, with the exercises and tutorials focused on the homework.
 Participants of the course are encouraged to review and build upon the implementation here to strengthen their grasp of Data Analysis.
