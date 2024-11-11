@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.45
+# v0.20.1
 
 using Markdown
 using InteractiveUtils
@@ -12,7 +12,7 @@ end
 
 # ╔═╡ c18fdcf1-ce8e-4b43-9f08-7f5415ec2888
 md"""
-# Forward Diff and Dual numbers
+# Lecture 6b: Forward AD and Dual numbers
 
 In this notebook, we explore how the automatic differentiation works in the forward mode. We will use `ForwardDiff.jl` as an reference implementation.
 """
@@ -64,8 +64,8 @@ f(x0_dual).partials[1]
 
 # ╔═╡ c2091f87-4ead-4db7-aab2-8205013ee736
 from_dual_operations = let
-	g(x) = f(x)
-	g(x0_dual).partials[1]
+    g(x) = f(x)
+    g(x0_dual).partials[1]
 end
 
 # ╔═╡ 728ba2d1-f00b-417a-9bbe-5d9e310e514c
@@ -131,13 +131,14 @@ function model(p)
 end
 
 # ╔═╡ 07af670c-ad38-4aab-a38d-f087111777a6
-t_fixed(x) = let b=2
-	model(MyModelPars(x, 2))
-end
+t_fixed(x) =
+    let b = 2
+        model(MyModelPars(x, 2))
+    end
 
 # ╔═╡ d7eb7e7a-b976-415f-9e90-75728f0aadba
 # gives the errors
-# 
+#
 # let b = 2
 # 	ForwardDiff.gradient(x->t_fixed(x[1]), [1.1])
 # end
@@ -158,9 +159,10 @@ struct MyModelPars2{M, B}
 end
 
 # ╔═╡ e910d00c-ddce-4471-acf2-61976ac3f681
-t_parametric(x) = let b=2
-	model(MyModelPars2(x, b))
-end
+t_parametric(x) =
+    let b = 2
+        model(MyModelPars2(x, b))
+    end
 
 # ╔═╡ de2fcc1c-af77-4257-ab6d-f8ea0b7fab9b
 ForwardDiff.gradient(x -> t_parametric(x[1]), [1.1])
@@ -260,9 +262,9 @@ version = "1.11.0"
 
 [[deps.ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
-git-tree-sha1 = "a9ce73d3c827adab2d70bf168aaece8cce196898"
+git-tree-sha1 = "a2df1b776752e3f344e5116c06d75a10436ab853"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "0.10.37"
+version = "0.10.38"
 
     [deps.ForwardDiff.extensions]
     ForwardDiffStaticArraysExt = "StaticArrays"

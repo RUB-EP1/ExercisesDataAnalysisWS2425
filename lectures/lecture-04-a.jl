@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.45
+# v0.20.1
 
 using Markdown
 using InteractiveUtils
@@ -8,7 +8,7 @@ using InteractiveUtils
 # ╠═╡ show_logs = false
 begin
     using Pkg
-    Pkg.activate(joinpath(@__DIR__, "..", "ReferenceDataAnalysisWS2425"))
+    Pkg.activate(joinpath(@__DIR__, ".."))
     Pkg.instantiate()
     #
     using DataAnalysisWS2425

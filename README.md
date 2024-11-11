@@ -8,7 +8,7 @@ Before getting started with the exercises, you will need to follow the [setup](e
 
 ## Lecture Material
 
-Code for the notebooks showcased at the lectures can be found in the [lectures/](lectures/) folder.
+Code for the notebooks showcased at the lectures can be found in the [lectures/](lectures/) folder, see [lectures/README.md](lectures/README.md) for overview.
 The github link can be used for the path link in Pluto starting page.
 
 ## Exercises and Tutorials
@@ -24,6 +24,23 @@ Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-
 - Sheet-06
 - Sheet-07
 
+## Reference DataAnalysisWS2425
+
+The project is a valid julia Julia module, that is being developed along with the course.
+It provides essential tools and examples for statistical data analysis and fitting, designed to support and complement the lecture materials.
+Many lecture notebooks start with a dependency cell that includes,
+```julia
+let
+    using Pkg
+    Pkg.activate(joinpath(@__DIR__, ".."))
+    Pkg.instantiate()
+end
+```
+referring to the functionality implemented in the module. [Read more about environments.](https://plutojl.org/en/docs/packages-advanced/)
+
+Students' repository have a similar structure, with the exercises and tutorials focused on the homework.
+Participants of the course are encouraged to review and build upon the implementation here to strengthen their grasp of Data Analysis.
+
 ## Technical notes
 
 ### Pre-commit
@@ -34,3 +51,7 @@ To run the checks locally,
 ```bash
 pre-commit run -a
 ```
+
+## License
+
+This project is licensed under the MIT License.

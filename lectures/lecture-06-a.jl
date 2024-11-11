@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.19.45
+# v0.20.1
 
 using Markdown
 using InteractiveUtils
@@ -8,7 +8,7 @@ using InteractiveUtils
 # ╠═╡ show_logs = false
 begin
     using Pkg: Pkg
-    Pkg.activate(joinpath(@__DIR__, "..", "ReferenceDataAnalysisWS2425"))
+    Pkg.activate(joinpath(@__DIR__, ".."))
     Pkg.instantiate()
     #
     using DataAnalysisWS2425
@@ -21,7 +21,7 @@ end
 
 # ╔═╡ 85a7a141-79f6-4e75-9b97-0056e2d4a1c8
 md"""
-# Lecture 6-a: $\chi^2$ distribution
+# Lecture 6a: $\chi^2$ distribution
 
 This lecture demonstrate how $\chi^2$ distribution comes about:
 # - how to generate it using the gaussian distribution, and
