@@ -141,7 +141,7 @@ let
     binedges = range(support..., 100)
     h = Hist1D(data; binedges)
 	plot(h, seriestype=:stepbins)
-	# 
+	# I have to compute normalization, it is neither nData, nor 1
 	norm = quadgk(support...) do x
 		model_func(default_model, x)
 	end[1]
@@ -260,11 +260,11 @@ const NLL0 = local_extended_nll(p0)
 const theta_bounds = map(x -> (-1, 1) .* 2x, collect(from_hesse))
 
 # ╔═╡ 83e77656-cf22-46de-b0ee-799564a3bed9
-function fit_with_fixed(objective, initial; number_to_fix)
+function fit_with_fixed(objective, initial; numbers_to_fix)
     n = length(initial)
     #
     unitm = Diagonal(I, n)
-    eye = unitm[number_to_fix, :]
+    eye = reduce(.|, (unitm[i, :] for i in numbers_to_fix))
     to_right_dims = unitm[:, (1:n)[.!(eye)]]
     #
     optimize(to_right_dims' * initial, BFGS()) do p
@@ -283,7 +283,7 @@ likelihood_profiling = let theta_num = 2
         local_extended_nll(p(δ)) - NLL0
     end
     profiling = map(grid) do δ
-        res = fit_with_fixed(local_extended_nll, p(δ); number_to_fix=theta_num)
+        res = fit_with_fixed(local_extended_nll, p(δ); numbers_to_fix=[theta_num])
         res.minimum - NLL0
     end
     (; theta_num, grid, projecting, profiling)
@@ -326,6 +326,52 @@ let
 	vspan!(findzeros_two_sides(grid, projecting .- 1/2), α=0.2, c=3)
 end
 
+# ╔═╡ 02f9de05-3137-436b-b38f-c4456204bde4
+md"""
+### 2D profiling
+"""
+
+# ╔═╡ bc7e2edb-d9ca-4267-8a07-ad1e3ed147a7
+likelihood_profiling_2d = let theta_num = 2, theta_num′ = 3
+    #
+	d = Diagonal(I, length(p0))
+    p(δ,δ′) = p0 + d[theta_num, :] .* δ + d[theta_num′, :] .* δ′
+    #
+    grid = range(theta_bounds[theta_num]..., 10)
+    grid′ = range(theta_bounds[theta_num′]..., 10)
+	# 
+    projecting = map(Iterators.product(grid,grid′)) do (δ,δ′)
+        local_extended_nll(p(δ,δ′)) - NLL0
+    end
+    profiling = map(Iterators.product(grid,grid′)) do (δ,δ′)
+        res = fit_with_fixed(local_extended_nll, p(δ,δ′);
+			numbers_to_fix=[theta_num, theta_num′])
+        res.minimum - NLL0
+    end
+    (; theta_num, theta_num′, grid, grid′, projecting, profiling)
+end;
+
+# ╔═╡ 663765c7-c8f6-4c6e-89b5-f6a78d443d60
+chi2_ndf2_quantile(α) = -2log(1-α)
+
+# ╔═╡ f2c1cc33-54cd-4024-8811-8c3cc9d872ea
+levels = chi2_ndf2_quantile.([0.68, 0.95]) ./ 2
+
+# ╔═╡ 1eafb617-c63d-4d2b-b30a-9876d33990b4
+let
+	@unpack grid, grid′, projecting, profiling = likelihood_profiling_2d
+	plot(colorbar=false)
+	contour!(grid, grid′, projecting; levels, c=:orange)
+	contour!(grid, grid′, profiling; levels, c=:purple)
+	# 
+	@unpack theta_num, theta_num′ = likelihood_profiling_2d
+	scatter!([0], [0], m=(:red,:+, 10))
+	plot!(xlab=model_fieldnames[theta_num], ylab=model_fieldnames[theta_num′])
+	# 
+	vspan!(from_hesse[theta_num] .* [-1,1], α=0.1)
+	hspan!(from_hesse[theta_num′] .* [-1,1], α=0.1)
+end
+
 # ╔═╡ 3b748eaf-446b-42a6-b643-5cb6af823419
 # cspell:disable
 
@@ -365,4 +411,9 @@ end
 # ╠═c17f58db-7790-49c6-b121-cafef370ef5d
 # ╠═b1f721ff-fa4c-42a3-8a50-3003d9be731b
 # ╠═499edc2f-9273-4bc6-9260-8aebef555f24
+# ╟─02f9de05-3137-436b-b38f-c4456204bde4
+# ╠═bc7e2edb-d9ca-4267-8a07-ad1e3ed147a7
+# ╠═1eafb617-c63d-4d2b-b30a-9876d33990b4
+# ╠═663765c7-c8f6-4c6e-89b5-f6a78d443d60
+# ╠═f2c1cc33-54cd-4024-8811-8c3cc9d872ea
 # ╠═3b748eaf-446b-42a6-b643-5cb6af823419
