@@ -56,18 +56,21 @@ md"""
 """
 
 # ╔═╡ 30eef5b0-1b1b-4711-9d0d-06679c84b23e
-function pol1_with_logs_slope(x, pars)
-        @unpack flat, log_slope = pars
-        x0 = sum(support) / 2
-        #
-        # flat is a value of bgd at support/2
-        # make the slope independent of normalization
-        # log_slope = dy/dx  / y = d log(y) / y
-        #
-        slope = flat * log_slope
-        coeffs = (flat * 1 - slope * x0, slope)
-        polynomial_scaled(x; coeffs)
-    end
+"""
+	pol1_with_logs_slope(x, pars; x0::Float64=0.0)
+
+Computes a polynomial function of the second order.
+The `pars` is expected to provide two parameters, `flat` and `log_slope`.
+The `flat` is a value of function at the support/2.
+The slope independent of normalization using `log_slope = dy/dx  / y = d log(y) / dx`
+Parameters `x0` is used to decorrelate the parameters.
+"""
+function pol1_with_logs_slope(x, pars; x0::Float64=0.0)
+    @unpack flat, log_slope = pars
+    slope = flat * log_slope
+    coeffs = (flat - slope * x0, slope)
+    polynomial_scaled(x; coeffs)
+end
 
 # ╔═╡ 8ff5e326-1e5c-431b-a21c-83171af7d879
 begin
@@ -92,10 +95,11 @@ begin
 		@unpack μ, σ, a = model
 	    gaussian_scaled(x; μ, σ, a)
 	end
-	background_func(model::Anka, x) = pol1_with_logs_slope(x, model)
+	background_func(model::Anka, x) =
+		pol1_with_logs_slope(x, model; x0=sum(support)/2)
 	#
 	"""
-		model_func(model::Anka, x)
+		total_func(model::Anka, x)
 
 	where
 	
@@ -109,11 +113,11 @@ begin
 	# Example
 	```julia
 	julia> model = Anka(; μ = 2.35, σ = 0.01, flat = 1.5, log_slope = 2.1, a = 5.0)
-	julia> model_func(model, 3.3)
+	julia> total_func(model, 3.3)
 	4.1775
 	```
 	"""
-	model_func(model::Anka, x) = peak1_func(model, x) + background_func(model, x)
+	total_func(model::Anka, x) = peak1_func(model, x) + background_func(model, x)
 	# 
 end;
 
@@ -133,8 +137,8 @@ const nData = 1_000
 
 # ╔═╡ d1fdce14-0768-4838-b244-8b7fb101b137
 const data = sample_inversion(nData, support) do x
-        model_func(default_model, x)
-    end
+        total_func(default_model, x)
+    end;
 
 # ╔═╡ 255e5019-f8e0-49ed-8efa-ba21004008aa
 let
@@ -143,10 +147,10 @@ let
 	plot(h, seriestype=:stepbins)
 	# I have to compute normalization, it is neither nData, nor 1
 	norm = quadgk(support...) do x
-		model_func(default_model, x)
+		total_func(default_model, x)
 	end[1]
 	plot!(WithData(h); n_points=300) do x
-		model_func(default_model, x) / norm
+		total_func(default_model, x) / norm
 	end
 end
 
@@ -162,7 +166,7 @@ initial_guess =
 # ╔═╡ 2d97dcb6-78fe-4fda-acd9-d1b72f680862
 fit_result = fit_enll(collect(initial_guess), data; support) do x, pars
 	_model = Anka(pars)
-	model_func(_model, x)
+	total_func(_model, x)
 end
 
 # ╔═╡ 8844e5d2-b779-49de-9177-dcec11d73e8d
@@ -173,9 +177,9 @@ let
 	binedges = range(support..., 100)
 	h = Hist1D(data; binedges)
 	# 
-	curvedfitwithpulls(h, xlab = "X-axis", ylab = "Y-axis";
+	curvedfitwithpulls(h, xlab = "Mass [GeV]", ylab = "Entries";
 		data_scale_curve = false, n_points=1000) do x
-		model_func(best_pars_extnll, x)
+		total_func(best_pars_extnll, x)
 	end
 end
 
@@ -201,10 +205,13 @@ the diagonal of the matrix gives the statistical errors.
 function local_extended_nll(p_values::AbstractArray)
 	_model = Anka(p_values)
 	enll = extended_nll(data) do x
-		model_func(_model, x)
+		total_func(_model, x)
 	end
 	enll
 end
+
+# ╔═╡ 85bcd959-c204-48df-a3af-5a84e6cf0181
+best_pars_extnll
 
 # ╔═╡ 6bf3164c-8ffa-44c3-a27e-5450232a7003
 ▽nll = ForwardDiff.gradient(
@@ -396,6 +403,7 @@ end
 # ╠═45e8e2df-4287-41d5-8568-7e78898cd587
 # ╟─29d39a85-9ea6-4fe8-b71a-ac099e323ef4
 # ╠═87711274-3ecc-4887-a470-8b9b1fef07fe
+# ╠═85bcd959-c204-48df-a3af-5a84e6cf0181
 # ╠═6bf3164c-8ffa-44c3-a27e-5450232a7003
 # ╠═555ccd0e-a14a-40ab-976f-19e26665312c
 # ╟─f974f215-2a41-4e40-8075-746591fbf859
