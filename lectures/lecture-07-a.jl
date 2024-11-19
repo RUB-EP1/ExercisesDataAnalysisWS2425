@@ -23,8 +23,15 @@ In this lecture we will discuss hypothesis testing on a simple example of counti
 """
 
 # ╔═╡ 9dc939dc-5996-4e4f-ac24-f06f8bc52173
-theme(:wong2, frame = :box, grid = false, minorticks = true,
-    ms = 4, markerstrokewidth = 1.2, lab = "")
+theme(
+    :wong2,
+    frame = :box,
+    grid = false,
+    minorticks = true,
+    ms = 4,
+    markerstrokewidth = 1.2,
+    lab = "",
+)
 
 # ╔═╡ 0dac6484-fd47-48a8-bd52-124603a1080b
 md"""
@@ -158,8 +165,7 @@ Let's use `T = mod(N, 15)` and see how the distributions look like
 # ╔═╡ 7880c89d-b5d6-4845-9588-e863b900bb98
 h_H0, h_H1 = let
     binedges = -0.5:14.5
-    Hist1D(mod.(data_H0, 15); binedges),
-    Hist1D(mod.(data_H1, 15); binedges)
+    Hist1D(mod.(data_H0, 15); binedges), Hist1D(mod.(data_H1, 15); binedges)
 end;
 
 # ╔═╡ bd522d2d-b122-4dfe-b4b5-8f3b99ee4ea6
