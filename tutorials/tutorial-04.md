@@ -17,14 +17,15 @@ representing the indices of parameters that should be fixed to their initial val
 
 ## Models
 
-Define the abstract type `SpectrumModel` in `src/functions.jl`, and use it to implement the `Anka` model from lecture 5-a.
+Define the abstract type `SpectrumModel` in `src/functions.jl`, and use it to implement the `Anka` model from [lecture 5a](../lectures/lecture-05-a.jl).
 
 ```julia
 abstract type SpectrumModel end
 Base.collect(model::SpectrumModel) =
     getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
 #
-# Define a generic constructor for any subtype of SpectrumModel
+# Define a generic constructor
+# from a vector or a tuple for any subtype of SpectrumModel.
 function (::Type{T})(p_values::Union{AbstractVector,NTuple}) where {T<:SpectrumModel}
     T(; NamedTuple{fieldnames(T)}(p_values)...)
 end
@@ -77,14 +78,13 @@ julia> model = Frida(; μ1 = 2.29, σ1 = 0.005, μ2 = 2.47, σ2 = 0.008, flat = 
 julia> total_func(model, 3.3)
 11.895
 ```
-
 """
 
 ````
 
 ## Utils
 
-Helper functions to find zeros, used in lecture 5-a, will be useful to have in our code-base.
+Helper functions to find zeros, used in [lecture 5a](../lectures/lecture-07-a.jl), will be useful to have in our code-base.
 They should have the following form:
 
 ````julia
