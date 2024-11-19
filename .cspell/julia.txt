@@ -24,6 +24,7 @@ FFTW
 fieldnames
 findfirst
 findlast
+findmax
 framestyle
 getproperty
 guidefontfamily
@@ -50,6 +51,7 @@ makedocs
 mapslices
 markercolor
 markersize
+markerstrokewidth
 minorticks
 mktempdir
 occursin
