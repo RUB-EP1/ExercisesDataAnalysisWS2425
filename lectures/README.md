@@ -16,3 +16,4 @@ Most of the notebook are showcased at the lectures. Some provide additional info
 - [Lecture-06-a](lecture-06-a.jl): Chi^2 distribution
 - [Lecture-06-b](lecture-06-b.jl): Forward AD and Dual numbers
 - [Lecture-06-c](lecture-06-c.jl): AD in reverse mode
+- [Lecture-07-a](lecture-07-a.jl): Hypothesis testing and Poisson distribution
