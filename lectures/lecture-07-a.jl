@@ -6,21 +6,25 @@ using InteractiveUtils
 
 # ╔═╡ 3a3f01b0-a584-11ef-3f65-337b013657ff
 begin
-	using Plots
-	using Statistics
-	using Random
-	using FHist
-	Random.seed!(1234)
+    using Plots
+    using Statistics
+    using Random
+    using FHist
+    Random.seed!(1234)
 end
 
 # ╔═╡ fc0bb0ad-e5ca-41f1-a55d-078ea3555494
 md"""
 # Lecture 7a: Poisson distribution & Hypotheses testing
+
+In this lecture we will discuss hypothesis testing on a simple example of counting experiment.
+- First, the poisson distribution will be introduced; we will implement the sampling.
+- Then, we will look at the errors of the first and second type when determining critical value of the test statistics.
 """
 
 # ╔═╡ 9dc939dc-5996-4e4f-ac24-f06f8bc52173
-theme(:wong2, frame=:box, grid=false, minorticks=true,
-	ms=4, markerstrokewidth = 1.2, lab="")
+theme(:wong2, frame = :box, grid = false, minorticks = true,
+    ms = 4, markerstrokewidth = 1.2, lab = "")
 
 # ╔═╡ 0dac6484-fd47-48a8-bd52-124603a1080b
 md"""
@@ -28,13 +32,13 @@ $f_\text{Poisson}(k; \lambda) = \frac{e^{-\lambda} \lambda^k}{k!}$
 """
 
 # ╔═╡ f313ccf0-d8ad-4bd0-88ef-d22d2761c1e8
-poisson_pdf(k; λ) = exp(-λ)*λ^k/factorial(k)
+poisson_pdf(k; λ) = exp(-λ) * λ^k / factorial(k)
 
 # ╔═╡ 254e4bbe-aaa7-478d-ac7f-60986c1a326a
 function poisson_cdf(N; λ)
-	kv = 0:ceil(Int,N-1)
-	isempty(kv) && return zero(λ)
-	return sum(k->poisson_pdf(k; λ), kv)
+    kv = 0:ceil(Int, N - 1)
+    isempty(kv) && return zero(λ)
+    return sum(k -> poisson_pdf(k; λ), kv)
 end
 
 # ╔═╡ 3fdc5e10-848e-4875-ac9b-8199d53be77f
@@ -57,19 +61,19 @@ const nData = 1_000
 const λ0 = 9.2
 
 # ╔═╡ 46b9b835-d461-4789-81e6-dd7d4de85781
-data = poisson_sample.(rand(nData); λ=λ0)
+data = poisson_sample.(rand(nData); λ = λ0)
 
 # ╔═╡ a4bce123-ebc4-4761-a7d9-4f1cd6737348
 let
-	kv = 0:15
-	binedges = [-0.5, (kv .+ 0.5)...]
-	dv = poisson_pdf.(kv; λ=λ0) .* nData
-	plot(kv, dv, seriestype=:bar, α=0.3, c=3)
-	h = Hist1D(data; binedges)
-	scatter!(kv, h.bincounts, xerror=0.5, yerror=sqrt.(h.bincounts))
-	m,i = findmax(dv)
-	plot!(ylim = (0, m+2sqrt(m)), xlab="k")
-	vline!([λ0], l=(3,:red))
+    kv = 0:15
+    binedges = [-0.5, (kv .+ 0.5)...]
+    dv = poisson_pdf.(kv; λ = λ0) .* nData
+    plot(kv, dv, seriestype = :bar, α = 0.3, c = 3)
+    h = Hist1D(data; binedges)
+    scatter!(kv, h.bincounts, xerror = 0.5, yerror = sqrt.(h.bincounts))
+    m, i = findmax(dv)
+    plot!(ylim = (0, m + 2sqrt(m)), xlab = "k")
+    vline!([λ0], l = (3, :red))
 end
 
 # ╔═╡ 54be3ac8-e1b0-4936-a097-92346b7a2f66
@@ -98,46 +102,46 @@ md"""
 nToys = 10_000
 
 # ╔═╡ f94bb8df-48be-4c8c-b0e0-0d338eda99cd
-data_H0 = poisson_sample.(rand(nToys); λ=ν_H0);
+data_H0 = poisson_sample.(rand(nToys); λ = ν_H0);
 
 # ╔═╡ 9eb0f1f3-f84c-445c-bbe6-272cacad8685
-data_H1 = poisson_sample.(rand(nToys); λ=ν_H1);
+data_H1 = poisson_sample.(rand(nToys); λ = ν_H1);
 
 # ╔═╡ 3f421fb7-1148-465a-8a49-fff296cb93d7
-1-poisson_cdf(4; λ=ν_H0)
+1 - poisson_cdf(4; λ = ν_H0)
 
 # ╔═╡ 0d2d3b31-cc02-4f43-8b7c-cdbb821a0b1d
-poisson_cdf(4; λ=ν_H1)
+poisson_cdf(4; λ = ν_H1)
 
 # ╔═╡ 12637fab-bdc0-4245-9885-8962dd369961
 let
-	binedges = -0.5:25.5
-	plot(ylab="probability")
-	stephist!(data_H0; bins=binedges, lab="H0")
-	stephist!(data_H1; bins=binedges, lab="H1")
+    binedges = -0.5:25.5
+    plot(ylab = "probability")
+    stephist!(data_H0; bins = binedges, lab = "H0")
+    stephist!(data_H1; bins = binedges, lab = "H1")
 end
 
 # ╔═╡ 27134570-92b3-4659-894a-96eb4588a84e
-typeI_α(x) = 1-poisson_cdf(x; λ=ν_H0)
+typeI_α(x) = 1 - poisson_cdf(x; λ = ν_H0)
 
 # ╔═╡ 91361761-79af-47f3-8505-d18992acbc41
 typeI_α(4)
 
 # ╔═╡ f4084231-fbff-48e9-9553-1278903b8917
-typeII_β(x) = poisson_cdf(x; λ=ν_H1)
+typeII_β(x) = poisson_cdf(x; λ = ν_H1)
 
 # ╔═╡ 097b5e83-36d8-4bb1-9ec6-af279d264b42
-1-typeII_β(4)
+1 - typeII_β(4)
 
 # ╔═╡ fb9b3e31-2dcb-460c-a015-78e89e52b510
 let
-	n_critical = 0:20
-	xv = typeI_α.(n_critical)
-	yv = typeII_β.(n_critical)
-	# 
-	plot(xv, yv, xlab="α", ylab="β", xlims=(0,1), ylims=(0,1))
-	i=16
-	plot!([xv[i+1], xv[i+1], 0], [0, yv[i+1], yv[i+1]],  m=(5,:o))
+    n_critical = 0:20
+    xv = typeI_α.(n_critical)
+    yv = typeII_β.(n_critical)
+    #
+    plot(xv, yv, xlab = "α", ylab = "β", xlims = (0, 1), ylims = (0, 1))
+    i = 16
+    plot!([xv[i+1], xv[i+1], 0], [0, yv[i+1], yv[i+1]], m = (5, :o))
 end
 
 # ╔═╡ 2a2d761d-f6ea-48c7-a211-0895dc2213d6
@@ -153,18 +157,20 @@ Let's use `T = mod(N, 15)` and see how the distributions look like
 
 # ╔═╡ 7880c89d-b5d6-4845-9588-e863b900bb98
 h_H0, h_H1 = let
-	binedges = -0.5:14.5
-	Hist1D(mod.(data_H0, 15); binedges),
-	Hist1D(mod.(data_H1, 15); binedges)
+    binedges = -0.5:14.5
+    Hist1D(mod.(data_H0, 15); binedges),
+    Hist1D(mod.(data_H1, 15); binedges)
 end;
 
 # ╔═╡ bd522d2d-b122-4dfe-b4b5-8f3b99ee4ea6
 let
-	binedges = -0.5:14.5
-	plot(ylab="probability")
-	stephist!(mod.(data_H0, 15); bins=binedges, lab="H0")
-	stephist!(mod.(data_H1, 15); bins=binedges, lab="H1")
+    binedges = -0.5:14.5
+    plot(ylab = "probability")
+    stephist!(mod.(data_H0, 15); bins = binedges, lab = "H0")
+    stephist!(mod.(data_H1, 15); bins = binedges, lab = "H1")
 end
+
+# cspell:disable
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
