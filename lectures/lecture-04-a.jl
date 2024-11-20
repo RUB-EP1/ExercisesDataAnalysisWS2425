@@ -147,8 +147,7 @@ The extended negative log likelihood (NLL) is similar to nll before, but without
 quadgk_call(f) = quadgk(f, support...)[1]
 
 # ╔═╡ 22442c7f-f5b7-4b65-afcf-78a15585bdc3
-function extended_nll(pars, data;
-    normalization_call = quadgk_call)
+function extended_nll(pars, data; normalization_call = quadgk_call)
     #
     minus_sum_log = -sum(data) do x
         value = model_func(x, pars)
@@ -205,11 +204,7 @@ end
 # ╔═╡ b42b7e2e-df09-4273-8282-c294b30f095a
 function fit_enll(data, initial_estimate; normalization_call = quadgk_call)
     objective(p) = extended_nll(ModelPars(p), data; normalization_call)
-    optimize(
-        objective,
-        collect(initial_estimate),
-        BFGS(),
-    )
+    optimize(objective, collect(initial_estimate), BFGS())
 end
 
 # ╔═╡ d7f6c8ab-232a-480f-b076-c2ee8fe83dd4
@@ -238,19 +233,28 @@ let
     #
     scaled_model(x) = scale * model_func(x, best_pars_extnll)
     plot!(scaled_model, support...)
-    plot!(x -> scale * signal_func(x, best_pars_extnll), support...,
-        fill = 0, alpha = 0.4)
+    plot!(x -> scale * signal_func(x, best_pars_extnll), support..., fill = 0, alpha = 0.4)
     #
     # add pull
     p = plot!(xaxis = nothing)
     centers = (bins[1:end-1] + bins[2:end]) ./ 2
     yv_model = scaled_model.(centers)
-    scatter(centers, h.bincounts .- yv_model, ylims = (:auto, :auto),
-        xerror = (bins[2] - bins[1]) / 2, yerror = sqrt.(h.bincounts), ms = 2)
+    scatter(
+        centers,
+        h.bincounts .- yv_model,
+        ylims = (:auto, :auto),
+        xerror = (bins[2] - bins[1]) / 2,
+        yerror = sqrt.(h.bincounts),
+        ms = 2,
+    )
     pull = hline!([0], lc = 2)
-    plot(p, pull,
+    plot(
+        p,
+        pull,
         layout = grid(2, 1, heights = (0.8, 0.2)),
-        link = :x, bottom_margin = [-4mm 0mm])
+        link = :x,
+        bottom_margin = [-4mm 0mm],
+    )
 end
 
 # ╔═╡ a05ea1e6-9667-4f73-b4ca-fc5ffccbb84b
@@ -263,7 +267,7 @@ end
 
 # ╔═╡ dc0082f0-546f-425d-8fc3-fcf969b5fade
 md"""
-## Running pesudoexperiments
+## Running pseudoexperiments
 """
 
 # ╔═╡ 133057a5-64cb-4eeb-885b-07fec21c745d
@@ -297,24 +301,40 @@ end
 
 # ╔═╡ 8e0d5554-eacd-40cc-9e26-ab6c4fed8cef
 let
-    plot(title = ["μ" "σ" "nSignal"],
+    plot(
+        title = ["μ" "σ" "nSignal"],
         stephist(toys.μ, bins = normal_bins(toys.μ)),
         stephist(toys.σ .|> abs, bins = normal_bins(toys.σ)),
-        stephist(toys.nSignal, bins = normal_bins(toys.nSignal)))
+        stephist(toys.nSignal, bins = normal_bins(toys.nSignal)),
+    )
     #
-    vline!(sp = 1, [default.μ best_pars_extnll.μ], lab = ["default" "fit"],
-        lc = [:gray :red], lw = [1 2])
+    vline!(
+        sp = 1,
+        [default.μ best_pars_extnll.μ],
+        lab = ["default" "fit"],
+        lc = [:gray :red],
+        lw = [1 2],
+    )
     #
-    vline!(sp = 2, [default.σ abs(best_pars_extnll.σ)], lab = ["default" "fit"],
-        lc = [:gray :red], lw = [1 2])
+    vline!(
+        sp = 2,
+        [default.σ abs(best_pars_extnll.σ)],
+        lab = ["default" "fit"],
+        lc = [:gray :red],
+        lw = [1 2],
+    )
     #
-    vline!(sp = 3, [default_nSignal best_yields.nSignal],
-        lab = ["default" "fit"], lc = [:gray :red], lw = [1 2])
+    vline!(
+        sp = 3,
+        [default_nSignal best_yields.nSignal],
+        lab = ["default" "fit"],
+        lc = [:gray :red],
+        lw = [1 2],
+    )
 end
 
 # ╔═╡ 21b32675-48f3-40a9-b086-f4842b9fae0e
-stat_toys = combine(toys,
-                All() .=> std .=> "δ" .* names(toys)) |> first |> NamedTuple
+stat_toys = combine(toys, All() .=> std .=> "δ" .* names(toys)) |> first |> NamedTuple
 
 # ╔═╡ 5e997750-3f04-49e1-a083-dc47338be149
 md"""
@@ -340,7 +360,8 @@ best_pars_extnll_mc = ModelPars(ext_unbinned_fit_mc.minimizer);
 # ╔═╡ 8fafefef-940e-4b7e-998f-57773a3f79f5
 [
     (; normalization_call = :quadgk, best_pars_extnll...),
-    (; normalization_call = :mc, best_pars_extnll_mc...)] |> DataFrame
+    (; normalization_call = :mc, best_pars_extnll_mc...),
+] |> DataFrame
 
 # ╔═╡ 29d39a85-9ea6-4fe8-b71a-ac099e323ef4
 md"""
@@ -367,12 +388,14 @@ const AnyModelPars = NamedTuple{(fieldnames(ModelPars))}
 ## Gradient should be zero in the proper minimum
 ▽nll = ForwardDiff.gradient(
     p -> extended_nll(AnyModelPars(p), data; normalization_call = mc_call),
-    collect(best_pars_extnll_mc))
+    collect(best_pars_extnll_mc),
+)
 
 # ╔═╡ 555ccd0e-a14a-40ab-976f-19e26665312c
 H_mc = ForwardDiff.hessian(
     p -> extended_nll(AnyModelPars(p), data; normalization_call = mc_call),
-    collect(best_pars_extnll_mc))
+    collect(best_pars_extnll_mc),
+)
 
 # ╔═╡ 758ab556-38c8-4279-8f76-1e02ffce15b5
 from_hesse = let
@@ -387,10 +410,8 @@ Here is a comparison of the statistical errors from pseudoexperiments, and these
 """
 
 # ╔═╡ 785039e8-9079-495e-b9b7-1515f2857435
-[
-    (method = :toys, stat_toys...),
-    (method = :hesse, from_hesse..., δnSignal = missing),
-] |> DataFrame
+[(method = :toys, stat_toys...), (method = :hesse, from_hesse..., δnSignal = missing)] |>
+DataFrame
 
 # cspell:disable
 

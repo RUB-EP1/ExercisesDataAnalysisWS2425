@@ -25,7 +25,7 @@ x0_dual = ForwardDiff.Dual(x0, 1.0)
 
 # ╔═╡ ef9806df-c423-43f1-9b35-06bc3c543776
 md"""
-## Mathrmatical operations
+## Mathematical operations
 """
 
 # ╔═╡ 1283bbd2-e7e6-4cb1-a35e-955cecaf6793
@@ -153,7 +153,7 @@ How to fix? - use parametric types
 """
 
 # ╔═╡ df889849-a6c2-47de-85b5-d8fac9368d2f
-struct MyModelPars2{M, B}
+struct MyModelPars2{M,B}
     m::M
     b::B
 end

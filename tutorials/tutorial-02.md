@@ -189,7 +189,7 @@ end
     @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 3.0) ≈ 4.674318379761549
 end
 
-# # code for visual instpection of convolution method
+# # code for visual inspection of convolution method
 # using Plots
 # let
 #     plot()
@@ -198,7 +198,7 @@ end
 #     plot!(x->breit_wigner_scaled(x; pars...), 1.1, 2.5)
 # end
 
-# code for visual instpection of simpling methods
+# code for visual inspection of sampling methods
 # using Plots
 # let
 #     f(x) = exp(-x^4)

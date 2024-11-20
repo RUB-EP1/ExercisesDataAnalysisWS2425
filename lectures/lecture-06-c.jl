@@ -5,7 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 14132512-9db8-11ef-361a-5d00f6083e73
-# dependences are managed by Pluto package manager
+# dependencies are managed by Pluto package manager
 begin
     using ChainRulesCore # pullbacks for standard functions
     using Zygote # computations of derivatives
@@ -79,8 +79,7 @@ back_z(1.0) # Tuple of two
 
 # ╔═╡ 911f9f08-2265-481b-9db1-9039d9a5ab42
 individual_partials =
-    Zygote.gradient(x -> g(x, y0), x0)[1],
-    Zygote.gradient(y -> g(x0, y), y0)[1]
+    Zygote.gradient(x -> g(x, y0), x0)[1], Zygote.gradient(y -> g(x0, y), y0)[1]
 
 # ╔═╡ e88b7dcb-b7f8-44bf-8826-c1c6d7712b0f
 md"""
@@ -105,24 +104,24 @@ back_h(1) # one argument, a vector
 md"""
 ## Customary reverse-propagation rule
 
-To define a customary back propagation rule, one needs to write `ChainRulesCore.rrule` telling how the graduent flows backward from the function to its arguments.
+To define a customary back propagation rule, one needs to write `ChainRulesCore.rrule` telling how the gradient flows backward from the function to its arguments.
 
-For the function `quadgk` the output is a tuple, `(value, uncertainty)`. Hense the input to the pullback is a tuple `(δvalue, δerr)`.
+For the function `quadgk` the output is a tuple, `(value, uncertainty)`. Hence the input to the pullback is a tuple `(δ_value, δ_err)`.
 """
 
 # ╔═╡ 8f5a7e55-6c29-4b5a-8c24-c86f1d11c9bf
 # Define the custom rrule for quadgk with respect to the upper limit `a`
 function ChainRulesCore.rrule(::typeof(quadgk), f, a::Number, b::Number)
-    integral_witherr = quadgk(f, a, b)
-    function pullback(Δ) # Δ is a Tuple(δint, δerr)
+    integral_with_err = quadgk(f, a, b)
+    function pullback(Δ) # Δ is a Tuple(δ_int, δ_err)
         grad_a = Δ[1] * f(a)
         return (ZeroTangent(), ZeroTangent(), -grad_a, grad_a)
     end
-    return integral_witherr, pullback
+    return integral_with_err, pullback
 end
 
 # ╔═╡ 84955940-9cc7-4573-b1eb-6d01432107ac
-funcion_on_upper(a) = quadgk(f, 1.5, a)
+function_on_upper(a) = quadgk(f, 1.5, a)
 
 # ╔═╡ 5b6641f0-8619-4317-bb1e-9c7a79a3a78a
 quadgk(f, 1.5, 2.0)
@@ -132,13 +131,13 @@ a0 = 2.0
 
 # ╔═╡ 1ee6cc1c-b1a4-4cd4-b7ce-9236b5fca36a
 let
-    u, back_u = Zygote.pullback(funcion_on_upper, a0)
+    u, back_u = Zygote.pullback(function_on_upper, a0)
     gradient_on_upper = back_u((1.0, 0.0)), back_u((0.0, 1.0))
 end
 
 # ╔═╡ b61b61a8-28c5-4f7b-b9c6-646ea9b28fe2
 md"""
-To undestand better the two argument input to the pullback, let's consider an example of a simple $R^1\to R^2$ mapping.
+To understand better the two argument input to the pullback, let's consider an example of a simple $R^1\to R^2$ mapping.
 """
 
 # ╔═╡ 3d3eda1e-169f-4696-953d-4fbbfca76bcc

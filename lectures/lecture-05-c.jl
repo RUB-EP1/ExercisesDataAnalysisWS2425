@@ -14,11 +14,20 @@ begin
 end
 
 # ╔═╡ e34ca081-f338-42e5-977d-59608c7c62e3
-theme(:wong2, minorticks = true, grid = false, frame = :box,
-    guidefontvalign = :top, guidefonthalign = :right,
+theme(
+    :wong2,
+    minorticks = true,
+    grid = false,
+    frame = :box,
+    guidefontvalign = :top,
+    guidefonthalign = :right,
     foreground_color_legend = nothing,
-    legendfontsize = 9, legend = :topright,
-    xlim = (:auto, :auto), ylim = (:auto, :auto), lab = "")
+    legendfontsize = 9,
+    legend = :topright,
+    xlim = (:auto, :auto),
+    ylim = (:auto, :auto),
+    lab = "",
+)
 
 # ╔═╡ 96b3e91e-2c5a-4842-bf2c-b4093cc2ecd8
 filename = joinpath(@__DIR__, "..", "data", "pressure_volume_cycle.txt")
@@ -27,14 +36,14 @@ filename = joinpath(@__DIR__, "..", "data", "pressure_volume_cycle.txt")
 @assert isfile(filename)
 
 # ╔═╡ 88a57840-ea4a-4325-8530-58e6dd707fa0
-data = DataFrame(readdlm(filename), [:preasure, :volume, :cycle])
+data = DataFrame(readdlm(filename), [:pressure, :volume, :cycle])
 
 # ╔═╡ 702c1124-1434-4a24-93f0-53a939ae8a0c
 begin
     plot()
     for c in unique(data.cycle)
         _data = data[data.cycle.==c, :]
-        plot!(_data.preasure, _data.volume, lab = "cycle $c")
+        plot!(_data.pressure, _data.volume, lab = "cycle $c")
     end
     plot!()
 end
@@ -42,7 +51,7 @@ end
 # ╔═╡ 0db41e33-3ecb-479d-a63e-742a2022caf7
 collection = let
     _data = data[data.cycle.==1, :]
-    collect(zip(_data.preasure, _data.volume))
+    collect(zip(_data.pressure, _data.volume))
 end;
 
 # ╔═╡ 08a542e3-8d7e-4cdf-8b38-cee854c5c03d
@@ -57,7 +66,7 @@ md"""
 function shoelace_area(vertices)
     n = length(vertices)
     area = 0.0
-    for i in 1:n
+    for i ∈ 1:n
         x1, y1 = vertices[i]
         x2, y2 = vertices[mod1(i + 1, n)]
         area += x1 * y2 - y1 * x2

@@ -12,7 +12,7 @@ end
 """
     extended_nll(model, parameters, data; support = extrema(data), normalization_call = _quadgk_call)
 
-Calculate the extended negative log likelihood (ENLL) for a given model and dataset.
+Calculate the extended negative log likelihood (ENLL) for a given model and dataset, passing parameters of the model explicitly.
 
 # Arguments
 - `model`: A function that represents the model. It should take two arguments: observable and parameters.
@@ -42,7 +42,29 @@ extended_nll(
     normalization_call = _quadgk_call,
 ) = extended_nll(x -> model(x, parameters), data; support, normalization_call)
 
+"""
+    extended_nll(model, data; support = extrema(data), normalization_call = _quadgk_call)
 
+Calculate the extended negative log likelihood (ENLL) for a given model and dataset.
+
+# Arguments
+- `model`: A function that represents the model. It should take two arguments: observable and parameters.
+- `data`: A collection of data points.
+- `support`: (Optional) The domain over which the model is evaluated. Defaults to the range of the data.
+- `normalization_call`: (Optional) A function that calculates the normalization of the model over the support. Defaults to `_quadgk_call`.
+
+# Returns
+- `extended_nll_value`: The extended negative log likelihood value for the given model and data.
+
+# Example
+```julia
+model(x, p) = p[1] * exp(-p[2] * x)
+data = [0.1, 0.2, 0.3, 0.4, 0.5]
+support = (0.0, 1.0)
+
+enll_value = extended_nll(model, data)
+```
+"""
 function extended_nll(
     model,
     data;
@@ -55,8 +77,7 @@ function extended_nll(
         value > 0 ? log(value) : -1e10
     end
     # extended negative log likelihood
-    return minus_sum_log +
-           normalization_call(model, support)
+    return minus_sum_log + normalization_call(model, support)
 end
 
 """

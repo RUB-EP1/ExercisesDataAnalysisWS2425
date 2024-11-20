@@ -32,9 +32,9 @@ function sample_rejection(f, n, support; nbins = 1000)
 end
 
 function invert_on_grid(y_i; x_grid, y_values)
-    ibin = findfirst(y_values .> y_i) - 1
-    f_i = (y_i - y_values[ibin]) / (y_values[ibin+1] - y_values[ibin])
-    return x_grid[ibin] + f_i * (x_grid[ibin+1] - x_grid[ibin])
+    i_bin = findfirst(y_values .> y_i) - 1
+    f_i = (y_i - y_values[i_bin]) / (y_values[i_bin+1] - y_values[i_bin])
+    return x_grid[i_bin] + f_i * (x_grid[i_bin+1] - x_grid[i_bin])
 end
 
 """

@@ -21,7 +21,7 @@ end  # displays the plot
 """
 struct WithData
     factor::Float64
-    support::Tuple{Float64, Float64}
+    support::Tuple{Float64,Float64}
 end
 WithData(bins, N::Int = 1) = WithData(N * diff(bins)[1], (bins[1], bins[end]))
 WithData(h::Hist1D) = WithData(h.binedges[1], Int(sum(h.bincounts)))
@@ -34,14 +34,14 @@ end
 
 
 """
-    curvedfitwithpulls(model, h;, data_scale_curve = true, n_points=100)
+    curvehistpulls(model, h;, data_scale_curve = true, n_points=100)
 
 Plots the histogram with Poisson uncertainties, the model by a curve, and a pull distribution.
 
 # Example
 ```julia
 julia> h = Hist1D(data; binedges=1.1:0.1:2.5))
-julia> curvedfitwithpulls(model, h0, xlab = "X-axis", ylab = "Y-axis")
+julia> curvehistpulls(model, h0, xlab = "X-axis", ylab = "Y-axis")
 ```
 
 The recipe does something along the lines of the following code:
@@ -50,24 +50,24 @@ WD = data_scale_curve ? WithData(h) : WithData(h.binedges[1], 1)
 
 # pulls
 mismatches = h0.bincounts - model.(bincenters(h0)) .* WD.factor
-hpull = Hist1D(; binedges, bincounts = mismatches ./ binerrors(h0))
+h_pull = Hist1D(; binedges, bincounts = mismatches ./ binerrors(h0))
 dx = (step(binedges)) / 2
 
 # plotting
 plot(layout = grid(2, 1, heights = (0.8, 0.2)), link = :x)
 plot!(sp = 1, model, WD, lw = 2, lc = :cornflowerblue)
 scatter!(sp = 1, bincenters(h0), h0.bincounts, yerror = binerrors(h0), xerror = dx)
-scatter!(sp = 2, bincenters(hpull), hpull.bincounts, yerror = 1, xerror = dx)
+scatter!(sp = 2, bincenters(h_pull), h_pull.bincounts, yerror = 1, xerror = dx)
 ````
 """
-@userplot CurvedFitWithPulls
+@userplot CurveHistPulls
 
-@recipe function f(h::CurvedFitWithPulls; data_scale_curve = true)
+@recipe function f(h::CurveHistPulls; data_scale_curve = true)
     if length(h.args) != 2 ||
        !(typeof(h.args[2]) <: Hist1D) ||
        !(typeof(h.args[1]) <: Function)
         error(
-            "Marginal CurvedFitWithPulls should be given a histogram and a function.  Got: $(typeof(h.args))",
+            "Marginal CurveHistPulls should be given a histogram and a function.  Got: $(typeof(h.args))",
         )
     end
     model, h = h.args
@@ -75,7 +75,7 @@ scatter!(sp = 2, bincenters(hpull), hpull.bincounts, yerror = 1, xerror = dx)
     WD = data_scale_curve ? WithData(h) : WithData(binedges, 1)
 
     mismatches = h.bincounts - model.(bincenters(h)) .* WD.factor
-    hpull = Hist1D(; binedges, bincounts = mismatches ./ binerrors(h))
+    h_pull = Hist1D(; binedges, bincounts = mismatches ./ binerrors(h))
     dx = (binedges[2] - binedges[1]) / 2
 
     # set up the subplots
@@ -133,6 +133,6 @@ scatter!(sp = 2, bincenters(hpull), hpull.bincounts, yerror = 1, xerror = dx)
         subplot := 2
         yerror := 1.0
         xerror := dx
-        bincenters(hpull), hpull.bincounts
+        bincenters(h_pull), h_pull.bincounts
     end
 end
