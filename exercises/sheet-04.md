@@ -4,7 +4,7 @@ It is now time to estimate whether the hypothesized signal for the $\Xi_c^+ \rig
 
 ## Exercise 1
 
-Given your dataset, estimate the $p$-value of the background-only hypothesis, using a Poissonian test statistic in the central 1 $\sigma$ of the Gaussian signal.
+Given your dataset, estimate the $p$-value of the background-only hypothesis, using a test statistic with the Poisson distribution the central 1$\,\sigma$ of the Gaussian signal.
 
 ## Exercise 2
 
