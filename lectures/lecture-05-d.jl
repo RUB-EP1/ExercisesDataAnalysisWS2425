@@ -4,371 +4,45 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 2d141b9d-09bb-4074-bf01-4c4b6099585d
-# ╠═╡ show_logs = false
+# ╔═╡ c4502f7e-9a02-11ef-3e92-9b8af72c2d2f
 begin
+    using RecipesBase
     using Plots
-    using Statistics
-    using Parameters
-    using QuadGK
-    using Random
     using FHist
-    using Optim
-    Random.seed!(1234)
 end
 
-# ╔═╡ 9da55708-8792-4b26-984f-5795a981bf2c
+# ╔═╡ ad399e0f-d3b3-4560-bee3-11c40985b455
 md"""
-# Lecture 3b: Parameter estimation
+# Lecture 5d: Plotting recipe
 
-In this lecture we discuss methods to estimate parameters of distributions.
+The notebook introduces a recipe that make plotting curve on top of histogram easier.
 """
 
-# ╔═╡ 39ee4bcd-8d01-443f-9714-103ab6d7f7d6
-theme(
-    :wong2,
-    xlims = (:auto, :auto),
-    ylims = (:auto, :auto),
-    frame = :box,
-    grid = false,
-    lab = "",
-    lw = 1.5,
-)
-
-# ╔═╡ 20b68451-a639-44f0-97dd-28a89cf517cd
-md"""
-## Get Data
-"""
-
-# ╔═╡ 9b6b7d99-9f92-4b0a-b617-4111317e8271
-const support = (-1, 1)
-
-# ╔═╡ cf5883ba-8b18-11ef-183a-b33feb7b6dd8
-data = let
-    n_signal = 2_000
-    n_backgr = 4_000
-    #
-    σ = 0.2
-    μ = 0.11
-    #
-    signal = randn(n_signal) .* σ .+ μ
-    background = support[1] .+ rand(n_backgr) .* (support[2] - support[1])
-    full = vcat(signal, background)
-    filter!(full) do x
-        support[1] < x < support[2]
-    end
-    full
-end;
-
-# ╔═╡ 255e5019-f8e0-49ed-8efa-ba21004008aa
-let
-    bins = range(support..., 100)
-    stephist(data; bins)
-end
-
-# ╔═╡ 9cbf63f6-efda-4801-bfa2-80a0a2c1532e
-md"""
-## Build Model
-"""
-
-# ╔═╡ 14ca7758-75d2-436b-a96a-31b1acc73957
-g(x; μ, σ, a) = a * exp(-(x - μ)^2 / (2σ^2))
-
-# ╔═╡ 242d2f6a-eb71-41c3-b8fc-e77a1d96ebf0
-begin #tests
-    @assert g(1; μ = 1, σ = 1, a = 1) == 1
-    @assert g(2.2; μ = 1, σ = 1.2, a = 1) ≈ exp(-1 / 2)
-end
-
-# ╔═╡ 6e50a452-4d8c-404d-ad85-50f552b9b9ae
-pol1(x; x0, x1) = x0 + x * x1
-
-# ╔═╡ 5ab27409-5fbf-4151-b815-3a8f61759956
-begin #tests
-    @assert pol1(3.3; x0 = 1, x1 = 0) == 1
-    @assert pol1(3.3; x0 = 0, x1 = 2) == 6.6
-end
-
-# ╔═╡ 52c836c3-1881-46dd-b860-9a8b0e1698ff
+# ╔═╡ 0481bf5e-99c4-4105-b7d6-e44587e93a28
 begin
-    function signal_func(x, pars)
-        @unpack μ, σ, a = pars
-        g(x; μ, σ, a)
+    struct WithData
+        factor::Float64
+        support::Tuple{Float64,Float64}
     end
-    function background_func(x, pars)
-        @unpack x0, x1 = pars
-        pol1(x; x0, x1)
+    WithData(bins, N::Int = 1) = WithData(N * diff(bins)[1], (bins[1], bins[end]))
+    WithData(h::Hist1D) = WithData(h.binedges[1], Int(sum(h.bincounts)))
+    #
+    @recipe function f(model_fun::Function, scale::WithData; n_points = 100)
+        normalized_function(x) = model_fun(x) * scale.factor
+        xv = range(scale.support..., n_points)
+        return (normalized_function, xv)
     end
-    model_func(x, pars) = signal_func(x, pars) + background_func(x, pars)
 end
 
-# ╔═╡ 54629edc-12ed-402d-bfc4-33cbb0b71848
-default = (; μ = 0.1, σ = 0.18, x0 = 5.0, x1 = 0.1, a = 50.0)
-
-# ╔═╡ d6f72296-7250-4498-8585-9d9a8ebecc02
-@assert model_func(2.2, default) isa Number
-
-# ╔═╡ fdf1979d-ee6b-478f-b575-ea97165170fc
-md"""
-## Fit
-
-first, we will get reasonable default parameters,
-
-0) tuning, then do
-1) binned
-2) unbinned max llh
-3) unbinned extended max llh
-
-fits.
-"""
-
-# ╔═╡ 597a338f-a712-47c9-baae-cda38a2082df
-md"""
-### 0) Tuning
-"""
-
-# ╔═╡ c1c86931-aebf-4f8a-8158-cba188328eef
-const h = Hist1D(data; binedges = range(support..., 200));
-
-# ╔═╡ 374726fc-6fb7-4c90-9a3e-968c42229960
-let
-    plot(h; seriestype = :stepbins)
-    plot!(x -> model_func(x, default), support...)
-end
-
-# ╔═╡ a8da273d-710c-4d11-b7de-f3969f82a1de
-md"""
-### 2) Binned fit
-"""
-
-# ╔═╡ 1a941961-9104-437b-8f5a-3367c1544430
-bincenters(h) = (h.binedges[1][1:end-1] .+ h.binedges[1][2:end]) / 2;
-
-# ╔═╡ 4449d1ae-ec66-4c0f-aee0-80e2fc889d9c
-function chi2(pars, xv, yv)
-    #
-    δy = sqrt.(yv)
-    model_y = model_func.(xv, Ref(pars))
-    Δ = yv .- model_y
-    χ² = sum(Δ .^ 2 ./ δy .^ 2)
-    #
-    return χ² / 1000
-end
-
-# ╔═╡ 5f23fd6a-5950-45df-8136-3aa4a2bb1cf7
-const ModelPars = typeof(default)
-
-# ╔═╡ 1ce98c05-8091-47c5-b53c-14b06b2056b3
-# test
-@assert ModelPars(collect(default)) == default
-
-# ╔═╡ 702024b2-1f96-4684-8e62-540a057f3f66
-chi2(p::Vector, xv, yv) = chi2(ModelPars(p), xv, yv)
-
-# ╔═╡ 1beeb8a3-37bc-4490-9684-a270310969b4
-chi2(default, bincenters(h), h.bincounts)
-
-# ╔═╡ 50e449c5-35ad-404b-bca8-ea5bd85aba17
-binned_fit = let
-    xv, yv = bincenters(h), h.bincounts
-    objective(p) = chi2(ModelPars(p), xv, yv)
-    optimize(objective, collect(default), BFGS())
-end
-
-# ╔═╡ f1ebe372-ce37-4fde-8c03-6ad0fd0f6a95
-best_pars_chi2 = ModelPars(binned_fit.minimizer)
-
-# ╔═╡ e8dea3b0-81c5-45f0-b10d-2dabced5bf29
+# ╔═╡ 51dcde4c-236b-456c-913f-eb88d3ccd0f1
 begin
-    plot(h; seriestype = :stepbins)
-    plot!(x -> model_func(x, best_pars_chi2), support...)
-    plot!(x -> signal_func(x, best_pars_chi2), support..., fill = 0, alpha = 0.4)
-end
+    data = randn(1000)
+    h = Hist1D(data; binedges = range(-5, 5, 100))
 
-# ╔═╡ 98da4e9b-633a-42f2-a86a-c749b59a0594
-md"""
-### 2) Unbinned fit
-
-```math
-P(x|p) = \frac{f(x|p)}{\int f(x|p) dx}
-```
-
-The likelihood is built as a product of probabilities
-```math
-\mathcal{L}(p) = \prod_{i=1}^n P(x_i|p) = \frac{1}{(\int)^n} \prod_{i=1}^n f(x_i|p)
-```
-
-The negative log likelihood (NLL) enables simplification
-```math
-\text{NLL}(p) = -\log \mathcal{L}(p) = - \sum_{i=1}^n \log f(x_i|p) + n \log \int f(x|p) dx
-```
-
-!!! note "Note on normalization"
-	the fit does not care about normalization of the $f$. The NLL is insensitive to the normalization of $f$ since we took care of it explicitly
-"""
-
-# ╔═╡ bfa2bc7c-8af1-4bc7-8930-03befe0c3036
-const fixed_par = (; a = 5.0)
-
-# ╔═╡ dfaa21e1-9743-47e3-91a9-bdd439e9ef8f
-default_reduced = Base.structdiff(default, fixed_par)
-
-# ╔═╡ a746cf4a-6afc-40cd-891a-67bac1246d95
-const ReducedModelPars = typeof(default_reduced)
-
-# ╔═╡ 0d3836c2-c0c1-4603-921f-1a38e8497c79
-function nll(pars, data)
+    model_fun(x) = length(data) * exp(-x^2 / 2) / sqrt(2π)
     #
-    full_par_list = merge(pars, fixed_par)
-    norm_fixed_model_pdf(x) = model_func(x, full_par_list)
-    #
-    minus_sum_log = -sum(data) do x
-        value = norm_fixed_model_pdf(x)
-        value > 0 ? log(value) : -1e10
-    end
-    #
-    n = length(data)
-    normalization = quadgk(support...) do x
-        norm_fixed_model_pdf(x)
-    end[1]
-    nll = minus_sum_log + n * log(normalization)
-    return nll
-end
-
-# ╔═╡ cbae73e3-c2a9-4181-943b-856d65d4aa02
-unbinned_fit = let
-    objective(p) = nll(ReducedModelPars(p), data)
-    optimize(objective, collect((; μ = 0.1, σ = 0.21, x0 = 0.72, x1 = -0.01)), BFGS())
-end
-
-# ╔═╡ d6d0eb84-f676-42f6-9d5a-40700d45b0fd
-best_pars_nll = merge(ReducedModelPars(unbinned_fit.minimizer), fixed_par)
-
-# ╔═╡ aef9b863-fbf2-4057-b4ab-432a4f3d73c1
-let
-    bins = range(support..., 150)
-    stephist(data; bins)
-    #
-    normalization = quadgk(support...) do x
-        model_func(x, best_pars_nll)
-    end[1]
-    dx = bins[2] - bins[1]
-    n = length(data)
-    scale = dx * n / normalization
-    plot!(x -> scale * model_func(x, best_pars_nll), support...)
-    plot!(x -> scale * signal_func(x, best_pars_nll), support..., fill = 0, alpha = 0.4)
-end
-
-# ╔═╡ ee73daf7-a8cd-42dc-a928-bd8f8bcf25a5
-md"""
-### 3) Extended Maximum Likelihood method
-
-
-The extended likelihood is defined with a poisson constrained for pdf integral,
-```math
-\mathcal{L}(p) = \frac{e^{-μ} μ^{n}}{n!} \prod_{i=1}^n P(x_i|p) = \frac{1}{(\int)^n} \prod_{i=1}^n f(x_i|p)
-```
-
-where $\mu = \int f(x|p) dx$.
-
-The extended negative log likelihood (NLL) is similar to nll before, but without `log` for normalization
-```math
-\text{NNL}(p) = -\log \mathcal{L}(p) = - \sum_{i=1}^n \log f(x_i|p) + \int f(x|p) dx
-```
-
-"""
-
-# ╔═╡ 22442c7f-f5b7-4b65-afcf-78a15585bdc3
-function extnll(pars, data)
-    #
-    minus_sum_log = -sum(data) do x
-        value = model_func(x, pars)
-        value > 0 ? log(value) : -1e10
-    end
-    #
-    n = length(data)
-    normalization = quadgk(support...) do x
-        model_func(x, pars)
-    end[1]
-    nll = minus_sum_log + normalization
-    return nll
-end
-
-# ╔═╡ b42b7e2e-df09-4273-8282-c294b30f095a
-ext_unbinned_fit = let
-    objective(p) = extnll(ModelPars(p), data)
-    optimize(
-        objective,
-        collect((; μ = 0.1, σ = 0.1, x0 = 1000.72, x1 = 0.0, a = 4000.0)),
-        BFGS(),
-    )
-end
-
-# ╔═╡ 1089442c-cfa3-4666-9270-999fc084ffe5
-best_pars_extnll = ModelPars(ext_unbinned_fit.minimizer)
-
-# ╔═╡ 2465c8bd-4f47-4f93-b48c-42bd04bc23b9
-let
-    bins = range(support..., 150)
-    stephist(data; bins)
-    #
-    normalization = quadgk(support...) do x
-        model_func(x, best_pars_extnll)
-    end[1]
-    dx = bins[2] - bins[1]
-    n = length(data)
-    scale = dx * n / normalization
-    plot!(x -> scale * model_func(x, best_pars_extnll), support...)
-    plot!(x -> scale * signal_func(x, best_pars_extnll), support..., fill = 0, alpha = 0.4)
-end
-
-# ╔═╡ f22353f4-ba2c-4808-b00e-028dfdd8a0c4
-md"""
-## Looking at the Results
-"""
-
-# ╔═╡ 6ac8db1f-0a82-4132-a10d-c82ef3344f49
-best_pars_chi2
-
-# ╔═╡ b4b07784-f504-4065-9abb-a77ba00c2b78
-best_pars_nll
-
-# ╔═╡ aaf66c5f-f15a-485b-a126-2fd47321231e
-best_pars_extnll
-
-# ╔═╡ 13ae8371-c986-45b4-97c8-9d02f1f1c927
-md"""
-### Integral of the signal
-
-While the shape parameters can be directly compared,
-the parameters related to the normalization are treated differently between the samples. We look at them one by one:
-
-1. Binned
-2. Likelihood with fixed parameter `a`
-3. extended Likelihood
-"""
-
-# ╔═╡ c756812b-f88f-47b9-972c-3d367eef5729
-# least chi2
-let # curve is normalized to bins, => integral/bin_width
-    bin_width = (h.binedges[1][2] - h.binedges[1][1])
-    N_signal = quadgk(x -> signal_func(x, best_pars_chi2), support...)[1] / bin_width
-end
-
-# ╔═╡ a05ea1e6-9667-4f73-b4ca-fc5ffccbb84b
-# extended nll
-let # model integral is fixed to N_data
-    N_signal = quadgk(x -> signal_func(x, best_pars_extnll), support...)[1]
-end
-
-# ╔═╡ db57d4e4-2c5e-4c61-a2cb-695953ccc761
-# nll with one fixed normalization parameter, `a`
-let
-    f_signal =
-        quadgk(x -> signal_func(x, best_pars_extnll), support...)[1] /
-        quadgk(x -> model_func(x, best_pars_extnll), support...)[1]
-    #
-    N_signal = f_signal * length(data)
+    plot(h, seriestype = :stepbins)
+    plot!(model_fun, WithData(h.binedges[1]), lw = 2)
 end
 
 # cspell:disable
@@ -377,19 +51,13 @@ end
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 FHist = "68837c9b-b678-4cd5-9925-8a54edc8f695"
-Optim = "429524aa-4258-5aef-a3af-852621145aeb"
-Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-QuadGK = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [compat]
 FHist = "~0.11.6"
-Optim = "~1.9.4"
-Parameters = "~0.12.3"
 Plots = "~1.40.8"
-QuadGK = "~2.11.1"
+RecipesBase = "~1.3.4"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -398,53 +66,11 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.1"
 manifest_format = "2.0"
-project_hash = "3e6d4c3c3b33106c9571329f45f838967c553ed4"
-
-[[deps.Adapt]]
-deps = ["LinearAlgebra", "Requires"]
-git-tree-sha1 = "50c3c56a52972d78e8be9fd135bfb91c9574c140"
-uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "4.1.1"
-weakdeps = ["StaticArrays"]
-
-    [deps.Adapt.extensions]
-    AdaptStaticArraysExt = "StaticArrays"
+project_hash = "692cd8420577a851e890053f9ad53e043ce78920"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
 version = "1.1.2"
-
-[[deps.ArrayInterface]]
-deps = ["Adapt", "LinearAlgebra"]
-git-tree-sha1 = "d60a1922358aa203019b7857a2c8c37329b8736c"
-uuid = "4fba245c-0d91-5ea0-9b3e-6abc04ee57a9"
-version = "7.17.0"
-
-    [deps.ArrayInterface.extensions]
-    ArrayInterfaceBandedMatricesExt = "BandedMatrices"
-    ArrayInterfaceBlockBandedMatricesExt = "BlockBandedMatrices"
-    ArrayInterfaceCUDAExt = "CUDA"
-    ArrayInterfaceCUDSSExt = "CUDSS"
-    ArrayInterfaceChainRulesCoreExt = "ChainRulesCore"
-    ArrayInterfaceChainRulesExt = "ChainRules"
-    ArrayInterfaceGPUArraysCoreExt = "GPUArraysCore"
-    ArrayInterfaceReverseDiffExt = "ReverseDiff"
-    ArrayInterfaceSparseArraysExt = "SparseArrays"
-    ArrayInterfaceStaticArraysCoreExt = "StaticArraysCore"
-    ArrayInterfaceTrackerExt = "Tracker"
-
-    [deps.ArrayInterface.weakdeps]
-    BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
-    BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
-    CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-    CUDSS = "45b445bb-4962-46a0-9369-b4df9d0f772e"
-    ChainRules = "082447d4-558c-5d27-93f4-14fc19e9eca2"
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    GPUArraysCore = "46192b85-c4d5-4398-a991-12ede77f4527"
-    ReverseDiff = "37e2e3b7-166d-5795-8a7a-e32c996b4267"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArraysCore = "1e83bf80-4336-4d27-bf5d-d5a4f845583c"
-    Tracker = "9f7883ad-71c0-57eb-9f7f-b5c9e6d3789c"
 
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
@@ -509,22 +135,18 @@ deps = ["ColorTypes", "FixedPointNumbers", "LinearAlgebra", "Requires", "Statist
 git-tree-sha1 = "8b3b6f87ce8f65a2b4f857528fd8d70086cd72b1"
 uuid = "c3611d14-8923-5661-9e6a-0046d554d3a4"
 version = "0.11.0"
-weakdeps = ["SpecialFunctions"]
 
     [deps.ColorVectorSpace.extensions]
     SpecialFunctionsExt = "SpecialFunctions"
+
+    [deps.ColorVectorSpace.weakdeps]
+    SpecialFunctions = "276daf66-3868-5448-9aa4-cd146d93841b"
 
 [[deps.Colors]]
 deps = ["ColorTypes", "FixedPointNumbers", "Reexport"]
 git-tree-sha1 = "64e15186f0aa277e174aa81798f7eb8598e0157e"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.13.0"
-
-[[deps.CommonSubexpressions]]
-deps = ["MacroTools"]
-git-tree-sha1 = "cda2cfaebb4be89c9084adaca7dd7333369715c5"
-uuid = "bbf7d656-a473-5ed7-a52c-81e309532950"
-version = "0.3.1"
 
 [[deps.Compat]]
 deps = ["TOML", "UUIDs"]
@@ -595,23 +217,6 @@ deps = ["Mmap"]
 git-tree-sha1 = "9e2f36d3c96a820c678f2f1f1782582fcf685bae"
 uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 version = "1.9.1"
-
-[[deps.DiffResults]]
-deps = ["StaticArraysCore"]
-git-tree-sha1 = "782dd5f4561f5d267313f23853baaaa4c52ea621"
-uuid = "163ba53b-c6d8-5494-b064-1a9d43ac40c5"
-version = "1.1.0"
-
-[[deps.DiffRules]]
-deps = ["IrrationalConstants", "LogExpFunctions", "NaNMath", "Random", "SpecialFunctions"]
-git-tree-sha1 = "23163d55f885173722d1e4cf0f6110cdbaf7e272"
-uuid = "b552c78f-8df3-52c6-915a-8e097449b14b"
-version = "1.15.1"
-
-[[deps.Distributed]]
-deps = ["Random", "Serialization", "Sockets"]
-uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
-version = "1.11.0"
 
 [[deps.DocStringExtensions]]
 deps = ["LibGit2"]
@@ -686,40 +291,6 @@ version = "0.11.6"
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 version = "1.11.0"
 
-[[deps.FillArrays]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "6a70198746448456524cb442b8af316927ff3e1a"
-uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "1.13.0"
-
-    [deps.FillArrays.extensions]
-    FillArraysPDMatsExt = "PDMats"
-    FillArraysSparseArraysExt = "SparseArrays"
-    FillArraysStatisticsExt = "Statistics"
-
-    [deps.FillArrays.weakdeps]
-    PDMats = "90014a1f-27ba-587c-ab20-58faa44d9150"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
-
-[[deps.FiniteDiff]]
-deps = ["ArrayInterface", "LinearAlgebra", "Setfield"]
-git-tree-sha1 = "b10bdafd1647f57ace3885143936749d61638c3b"
-uuid = "6a86dc24-6348-571c-b903-95158fe2bd41"
-version = "2.26.0"
-
-    [deps.FiniteDiff.extensions]
-    FiniteDiffBandedMatricesExt = "BandedMatrices"
-    FiniteDiffBlockBandedMatricesExt = "BlockBandedMatrices"
-    FiniteDiffSparseArraysExt = "SparseArrays"
-    FiniteDiffStaticArraysExt = "StaticArrays"
-
-    [deps.FiniteDiff.weakdeps]
-    BandedMatrices = "aae01518-5342-5314-be14-df237901396f"
-    BlockBandedMatrices = "ffab5731-97b5-5995-9138-79e8c1846df0"
-    SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-    StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
-
 [[deps.FixedPointNumbers]]
 deps = ["Statistics"]
 git-tree-sha1 = "05882d6995ae5c12bb5f36dd2ed3f61c98cbb172"
@@ -737,16 +308,6 @@ git-tree-sha1 = "9c68794ef81b08086aeb32eeaf33531668d5f5fc"
 uuid = "1fa38f19-a742-5d3f-a2b9-30dd87b9d5f8"
 version = "1.3.7"
 
-[[deps.ForwardDiff]]
-deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "LinearAlgebra", "LogExpFunctions", "NaNMath", "Preferences", "Printf", "Random", "SpecialFunctions"]
-git-tree-sha1 = "a2df1b776752e3f344e5116c06d75a10436ab853"
-uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "0.10.38"
-weakdeps = ["StaticArrays"]
-
-    [deps.ForwardDiff.extensions]
-    ForwardDiffStaticArraysExt = "StaticArrays"
-
 [[deps.FreeType2_jll]]
 deps = ["Artifacts", "Bzip2_jll", "JLLWrappers", "Libdl", "Zlib_jll"]
 git-tree-sha1 = "5c1d8ae0efc6c2e7b1fc502cbe25def8f661b7bc"
@@ -758,11 +319,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "1ed150b39aebcc805c26b93a8d0122c940f64ce2"
 uuid = "559328eb-81f9-559d-9380-de523a88c83c"
 version = "1.0.14+0"
-
-[[deps.Future]]
-deps = ["Random"]
-uuid = "9fa8497b-333b-5362-9e8d-4d0656e87820"
-version = "1.11.0"
 
 [[deps.GLFW_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Libglvnd_jll", "Xorg_libXcursor_jll", "Xorg_libXi_jll", "Xorg_libXinerama_jll", "Xorg_libXrandr_jll", "libdecor_jll", "xkbcommon_jll"]
@@ -1011,12 +567,6 @@ git-tree-sha1 = "5ee6203157c120d79034c748a2acba45b82b8807"
 uuid = "38a345b3-de98-5d2b-a5d3-14cd9215e700"
 version = "2.40.1+0"
 
-[[deps.LineSearches]]
-deps = ["LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Printf"]
-git-tree-sha1 = "e4c3be53733db1051cc15ecf573b1042b3a712a1"
-uuid = "d3d80556-e9d4-5f37-9878-2ab0fcc64255"
-version = "7.3.0"
-
 [[deps.LinearAlgebra]]
 deps = ["Libdl", "OpenBLAS_jll", "libblastrampoline_jll"]
 uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
@@ -1115,12 +665,6 @@ version = "1.11.0"
 uuid = "14a3606d-f60d-562e-9121-12d972cd8159"
 version = "2023.12.12"
 
-[[deps.NLSolversBase]]
-deps = ["DiffResults", "Distributed", "FiniteDiff", "ForwardDiff"]
-git-tree-sha1 = "a0b464d183da839699f4c79e7606d9d186ec172c"
-uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.8.3"
-
 [[deps.NaNMath]]
 deps = ["OpenLibm_jll"]
 git-tree-sha1 = "0877504529a3e5c3343c6f8b4c0381e57e4387e4"
@@ -1164,24 +708,6 @@ git-tree-sha1 = "7493f61f55a6cce7325f197443aa80d32554ba10"
 uuid = "458c3c95-2e84-50aa-8efc-19380b2a3a95"
 version = "3.0.15+1"
 
-[[deps.OpenSpecFun_jll]]
-deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Pkg"]
-git-tree-sha1 = "13652491f6856acfd2db29360e1bbcd4565d04f1"
-uuid = "efe28fd5-8261-553b-a9e1-b2916fc3738e"
-version = "0.5.5+0"
-
-[[deps.Optim]]
-deps = ["Compat", "FillArrays", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "PositiveFactorizations", "Printf", "SparseArrays", "StatsBase"]
-git-tree-sha1 = "d9b79c4eed437421ac4285148fcadf42e0700e89"
-uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "1.9.4"
-
-    [deps.Optim.extensions]
-    OptimMOIExt = "MathOptInterface"
-
-    [deps.Optim.weakdeps]
-    MathOptInterface = "b8f27783-ece8-5eb3-8dc8-9495eed66fee"
-
 [[deps.Opus_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl"]
 git-tree-sha1 = "6703a85cb3781bd5909d48730a67205f3f31a575"
@@ -1203,12 +729,6 @@ deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "FriBidi_jl
 git-tree-sha1 = "e127b609fb9ecba6f201ba7ab753d5a605d53801"
 uuid = "36c8627f-9965-5494-a995-c6b170f724f3"
 version = "1.54.1+0"
-
-[[deps.Parameters]]
-deps = ["OrderedCollections", "UnPack"]
-git-tree-sha1 = "34c0e9ad262e5f7fc75b10a9952ca7692cfc5fbe"
-uuid = "d96e819e-fc66-5662-9728-84c9c7592b0a"
-version = "0.12.3"
 
 [[deps.Parsers]]
 deps = ["Dates", "PrecompileTools", "UUIDs"]
@@ -1268,12 +788,6 @@ version = "1.40.8"
     ImageInTerminal = "d8c32880-2388-543b-8c61-d9f865259254"
     Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
-[[deps.PositiveFactorizations]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "17275485f373e6673f7e7f97051f703ed5b15b20"
-uuid = "85a6dd25-e78a-55b7-8502-1745935b8125"
-version = "0.2.4"
-
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
 git-tree-sha1 = "5aa36f7049a63a1528fe8f7c3f2113413ffd4e1f"
@@ -1314,18 +828,6 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Qt6Base_jll", "Qt6Declarative_jll"
 git-tree-sha1 = "729927532d48cf79f49070341e1d918a65aba6b0"
 uuid = "e99dba38-086e-5de3-a5b1-6e4c66e897c3"
 version = "6.7.1+1"
-
-[[deps.QuadGK]]
-deps = ["DataStructures", "LinearAlgebra"]
-git-tree-sha1 = "cda3b045cf9ef07a08ad46731f5a3165e56cf3da"
-uuid = "1fd47b50-473d-5c70-9696-f719f8f3bcdc"
-version = "2.11.1"
-
-    [deps.QuadGK.extensions]
-    QuadGKEnzymeExt = "Enzyme"
-
-    [deps.QuadGK.weakdeps]
-    Enzyme = "7da242da-08ed-463a-9acd-ee780be4f1d9"
 
 [[deps.REPL]]
 deps = ["InteractiveUtils", "Markdown", "Sockets", "StyledStrings", "Unicode"]
@@ -1380,12 +882,6 @@ version = "1.2.1"
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
 version = "1.11.0"
 
-[[deps.Setfield]]
-deps = ["ConstructionBase", "Future", "MacroTools", "StaticArraysCore"]
-git-tree-sha1 = "e2cc6d8c88613c05e1defb55170bf5ff211fbeac"
-uuid = "efcf1570-3423-57d1-acb7-fd33fddbac46"
-version = "1.1.1"
-
 [[deps.Showoff]]
 deps = ["Dates", "Grisu"]
 git-tree-sha1 = "91eddf657aca81df9ae6ceb20b959ae5653ad1de"
@@ -1411,18 +907,6 @@ version = "1.2.1"
 deps = ["Libdl", "LinearAlgebra", "Random", "Serialization", "SuiteSparse_jll"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 version = "1.11.0"
-
-[[deps.SpecialFunctions]]
-deps = ["IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "2f5d4697f21388cbe1ff299430dd169ef97d7e14"
-uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.4.0"
-
-    [deps.SpecialFunctions.extensions]
-    SpecialFunctionsChainRulesCoreExt = "ChainRulesCore"
-
-    [deps.SpecialFunctions.weakdeps]
-    ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
 
 [[deps.StableRNGs]]
 deps = ["Random"]
@@ -1545,11 +1029,6 @@ version = "1.5.1"
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 version = "1.11.0"
-
-[[deps.UnPack]]
-git-tree-sha1 = "387c1f73762231e86e0c9c5443ce3b4a0a9a0c2b"
-uuid = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
-version = "1.0.2"
 
 [[deps.Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
@@ -1884,55 +1363,9 @@ version = "1.4.1+1"
 """
 
 # ╔═╡ Cell order:
-# ╟─9da55708-8792-4b26-984f-5795a981bf2c
-# ╠═2d141b9d-09bb-4074-bf01-4c4b6099585d
-# ╠═39ee4bcd-8d01-443f-9714-103ab6d7f7d6
-# ╟─20b68451-a639-44f0-97dd-28a89cf517cd
-# ╠═9b6b7d99-9f92-4b0a-b617-4111317e8271
-# ╠═cf5883ba-8b18-11ef-183a-b33feb7b6dd8
-# ╠═255e5019-f8e0-49ed-8efa-ba21004008aa
-# ╟─9cbf63f6-efda-4801-bfa2-80a0a2c1532e
-# ╠═14ca7758-75d2-436b-a96a-31b1acc73957
-# ╠═242d2f6a-eb71-41c3-b8fc-e77a1d96ebf0
-# ╠═6e50a452-4d8c-404d-ad85-50f552b9b9ae
-# ╠═5ab27409-5fbf-4151-b815-3a8f61759956
-# ╠═52c836c3-1881-46dd-b860-9a8b0e1698ff
-# ╠═54629edc-12ed-402d-bfc4-33cbb0b71848
-# ╠═d6f72296-7250-4498-8585-9d9a8ebecc02
-# ╟─fdf1979d-ee6b-478f-b575-ea97165170fc
-# ╟─597a338f-a712-47c9-baae-cda38a2082df
-# ╠═c1c86931-aebf-4f8a-8158-cba188328eef
-# ╠═374726fc-6fb7-4c90-9a3e-968c42229960
-# ╟─a8da273d-710c-4d11-b7de-f3969f82a1de
-# ╠═1a941961-9104-437b-8f5a-3367c1544430
-# ╠═4449d1ae-ec66-4c0f-aee0-80e2fc889d9c
-# ╠═1beeb8a3-37bc-4490-9684-a270310969b4
-# ╠═5f23fd6a-5950-45df-8136-3aa4a2bb1cf7
-# ╠═1ce98c05-8091-47c5-b53c-14b06b2056b3
-# ╠═702024b2-1f96-4684-8e62-540a057f3f66
-# ╠═50e449c5-35ad-404b-bca8-ea5bd85aba17
-# ╠═f1ebe372-ce37-4fde-8c03-6ad0fd0f6a95
-# ╠═e8dea3b0-81c5-45f0-b10d-2dabced5bf29
-# ╟─98da4e9b-633a-42f2-a86a-c749b59a0594
-# ╠═bfa2bc7c-8af1-4bc7-8930-03befe0c3036
-# ╠═dfaa21e1-9743-47e3-91a9-bdd439e9ef8f
-# ╠═a746cf4a-6afc-40cd-891a-67bac1246d95
-# ╠═0d3836c2-c0c1-4603-921f-1a38e8497c79
-# ╠═cbae73e3-c2a9-4181-943b-856d65d4aa02
-# ╠═d6d0eb84-f676-42f6-9d5a-40700d45b0fd
-# ╠═aef9b863-fbf2-4057-b4ab-432a4f3d73c1
-# ╟─ee73daf7-a8cd-42dc-a928-bd8f8bcf25a5
-# ╠═22442c7f-f5b7-4b65-afcf-78a15585bdc3
-# ╠═b42b7e2e-df09-4273-8282-c294b30f095a
-# ╠═1089442c-cfa3-4666-9270-999fc084ffe5
-# ╠═2465c8bd-4f47-4f93-b48c-42bd04bc23b9
-# ╟─f22353f4-ba2c-4808-b00e-028dfdd8a0c4
-# ╠═6ac8db1f-0a82-4132-a10d-c82ef3344f49
-# ╠═b4b07784-f504-4065-9abb-a77ba00c2b78
-# ╠═aaf66c5f-f15a-485b-a126-2fd47321231e
-# ╟─13ae8371-c986-45b4-97c8-9d02f1f1c927
-# ╠═c756812b-f88f-47b9-972c-3d367eef5729
-# ╠═a05ea1e6-9667-4f73-b4ca-fc5ffccbb84b
-# ╠═db57d4e4-2c5e-4c61-a2cb-695953ccc761
+# ╟─ad399e0f-d3b3-4560-bee3-11c40985b455
+# ╠═c4502f7e-9a02-11ef-3e92-9b8af72c2d2f
+# ╠═0481bf5e-99c4-4105-b7d6-e44587e93a28
+# ╠═51dcde4c-236b-456c-913f-eb88d3ccd0f1
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

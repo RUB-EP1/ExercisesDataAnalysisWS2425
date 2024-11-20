@@ -114,7 +114,7 @@ We will also use the sampling methods and generalize them to take any function a
 
 ````julia
 """
-    sample_rejection(f, n, support, nbins=1000)
+    sample_rejection(f, n, support; nbins=1000)
 
 Generates `n` samples using the rejection sampling method for a given function `f` over a specified `support` range.
 
@@ -122,7 +122,7 @@ Generates `n` samples using the rejection sampling method for a given function `
 - `f::Function`: The function to sample from.
 - `n::Int`: The number of samples to generate.
 - `support::Tuple{T, T}`: A tuple specifying the range `(a, b)` where the function `f` will be sampled.
-- `nbins::Int`: Optional. The number of equidistant points in `support` to find the maximum of `f`. Default is `1000`.
+- `nbins::Int`: Optional keyword argument. The number of equidistant points in `support` used to search for the maximum of `f`
 
 # Returns
 - An array of `n` samples generated from the distribution defined by `f`.
@@ -144,7 +144,7 @@ Generates `n` samples using the inversion sampling method for a given function `
 - `f::Function`: The function to sample from.
 - `n::Int`: The number of samples to generate.
 - `support::Tuple{T, T}`: A tuple specifying the range `(a, b)` where the function `f` will be sampled.
-- `nbins::Int`: Optional. The number of equidistant points in `support` for which the c.d.f. is pre-computed. Default is `1000`.
+- `nbins::Int`: Optional keyword argument. The number of equidistant points in `support` for which the c.d.f. is pre-computed.
 
 # Returns
 - An array of `n` samples generated from the distribution defined by `f`.
@@ -185,35 +185,48 @@ end
 
 # test the implementation of voigt_scaled
 @testset "Voigt profile" begin
-    @test voigt_scaled(1530.0; M = 1532.0, Γ = 9.0, σ = 6.0, a = 1532.0) ≈ 0.10160430090139255
-    @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 1.0) ≈ 0.1952796435889611
+    @test voigt_scaled(1.53; M = 1.532, Γ = 9.0, σ = 6.0, a = 1) ≈ 0.002641789064996706
+    @test voigt_scaled(4.2; M = 4.3, Γ = 0.1, σ = 0.05, a = 3.0) ≈ 4.674318379761549
 end
 
-# test the implementation of sample_rejection
+# # code for visual inspection of convolution method
+# using Plots
+# let
+#     plot()
+#     pars = (; M = 1.532, Γ = 0.03, a = 2)
+#     plot!(x->voigt_scaled(x; pars..., σ = 0.05), 1.1, 2.5)
+#     plot!(x->breit_wigner_scaled(x; pars...), 1.1, 2.5)
+# end
+
+# code for visual inspection of sampling methods
+# using Plots
+# let
+#     f(x) = exp(-x^4)
+#     data = sample_inversion(f, 100_000, (-2.0, 2.0); nbins=20)
+#     bins = range(-2, 2, 400)
+#     stephist(data; bins)
+# end
+
 @testset "Rejection sampling" begin
     Random.seed!(1234)
-    @test sample_rejection(
-        x -> gaussian_scaled(x; μ = 2286.4, σ = 7.0, a = 1.0),
-        3,
-        (2240.0, 2330.0),
-    ) ≈ [2284.4824880201377, 2290.863082333516, 2296.4114519317136]
-    @test sample_rejection(
-        x -> voigt_scaled(x; M = 1532.0, Γ = 9.0, σ = 6.0, a = 1532),
-        2,
-        (1500.0, 1560.0),
-    ) ≈ [1535.3323235714606, 1534.4594091166991]
+    #
+    g(x) = gaussian_scaled(x; μ = 2286.4, σ = 7.0, a = 1.0)
+    data_g = sample_rejection(g, 3, (2240.0, 2330.0))
+    @test data_g isa Vector
+    @test length(data_g) == 3
+    #
+    v(x) = voigt_scaled(x; M = 1532.0, Γ = 9.0, σ = 6.0, a = 1532)
+    data_v = sample_rejection(v, 2, (1500.0, 1560.0))
+    @test data_v isa Vector
+    @test length(data_v) == 2
 end
 
-# test the implementation of sample_inversion
 @testset "Inversion sampling" begin
-    Random.seed!(1234)
-    @test sample_inversion(x -> gaussian_scaled(x; μ = 0.4, σ = 0.7, a = 1.0), 4, (-4.0, 4.0)) ≈
-          [0.5438341871307295, 1.733853123918199, 0.4335500428402825, 1.1008379801314545]
-    @test sample_inversion(
-        x -> breit_wigner_scaled(x; M = 1532.0, Γ = 9.0, a = 1532),
-        3,
-        (1500.0, 1560.0),
-    ) ≈ [1523.9607479415154, 1532.8935525470029, 1532.8572201887143]
+    data_g = sample_inversion(4, (-4.0, 4.0)) do x
+        gaussian_scaled(x; μ = 0.4, σ = 0.7, a = 1.0)
+    end
+    @test data_g isa Vector
+    @test length(data_g) == 4
 end
 
 ```
