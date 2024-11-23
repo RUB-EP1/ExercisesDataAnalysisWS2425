@@ -37,10 +37,10 @@ The $\mathrm{CL}\_{s}$ method has been developed for Higgs searches at LEP [1], 
 
 Your task is to compute the observed $\mathrm{CL}\_{s}$ values in 20 points of the $\Xi_c^+$ signal fit fraction up to twice the signal strength that you have observed in the fit.
 
-Since $ \displaystyle \mathrm{CL}\_{s} ( \theta ) = \frac{ p\_{1} ( \theta ) }{ 1 - p\_{0} } $
+Since $\mathrm{CL}\_{s} ( \theta ) = \displaystyle\frac{ p\_{1} ( \theta ) }{ 1 - p\_{0} }$
 is defined as the ratio of $p$-values of rejecting the alternative hypothesis ($p\_{1}$)
 over accepting the null-hypothesis ($1-p\_{0}$), you need to generate toy datasets (about 500 should be sufficient) for a given alternative hypothesis.
-Evaluate the test statistic $\displaystyle -2 \ln \frac{ L\_{s+b} ( \mu = \theta )}{ L\_{b}(\mu=0) } $ and the integral from the observed value on data.
+Evaluate the test statistic $-2\ln Q$ and the integral from the observed value on data.
 You can re-use the distribution of the test statistic under the null hypothesis found in Exercise 2.
 
 Make a plot of the observed distribution of $\mathrm{CL}_s$ as a function of $\theta$ to read off the 95 % upper limit on $\theta$.
