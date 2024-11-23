@@ -25,3 +25,5 @@ pseudoexperiments
 Stahl
 unbinned
 Voigt
+Higgs
+mathrm
