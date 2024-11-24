@@ -40,6 +40,7 @@ function polynomial_scaled(x; coeffs)
     return result
 end
 
+
 """
     breit_wigner_scaled(x; M, Γ, a=1.0)
 
