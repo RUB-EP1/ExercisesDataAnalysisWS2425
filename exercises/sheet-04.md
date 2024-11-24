@@ -14,7 +14,10 @@ The $p$-value will be integral of the test statistic from the observed number of
 
 ## Exercise 2
 
-Compute the same $p$-value with a simple likelihood-ratio test statistic $-2\ln Q$ with $Q=\displaystyle\frac{L_{s+b}(\mu=1)}{L_{b}(\mu=0)}$,
+Compute the same $p$-value with a simple likelihood-ratio test statistic $-2\ln Q$ with $
+
+$$Q=\displaystyle\frac{L_{s+b}(\mu=1)}{L_{b}(\mu=0)},$$
+
 and where $\mu$ indicates the signal strength, with $\mu=1$ being that of the best fit result.
 
 Contrary to the previous exercise, the distribution of the test statistic is not known.
@@ -24,7 +27,10 @@ Note that the definition of the test statistic is such, that all parameters are 
 Make a plot of the test statistic distribution and the observed value of the test statistic under the signal+background hypothesis on your initial dataset.
 
 Convert the $p$-value to a significance and compare it to common approximations
-$Z\approx\sqrt(-2 \ln Q)$, $Z\approx S/\sqrt(S+B)$, $Z\approx 2(\sqrt{S+B}-\sqrt{B})$ and $Z\approx\sqrt{2(S+B) \ln(1+S/B) - 2S}$, where $S$ and $B$ and the number of signal and background events (in a given interval).
+- $Z\approx\sqrt{-2 \ln Q}$,
+- $Z\approx S/\sqrt{S+B}$,
+- $Z\approx 2(\sqrt{S+B}-\sqrt{B})$, and
+- $Z\approx\sqrt{2(S+B) \ln(1+S/B) - 2S}$, where $S$ and $B$ and the number of signal and background events (in a given interval).
 
 ## Exercise 3
 
@@ -35,11 +41,13 @@ In this exercise, we break down technical details of the construction.
 In the top plot, you see 95 % confidence limits on the standard model signal strength computed with the $\mathrm{CL}_s$ method as a function of the reconstructed invariant-mass.
 The $\mathrm{CL}\_{s}$ method has been developed for Higgs searches at LEP [1], the predecessor of the LHC.
 
-Your task is to compute the observed $\mathrm{CL}\_{s}$ values in 20 points of the $\Xi_c^+$ signal fit fraction up to twice the signal strength that you have observed in the fit.
+Your task is to compute the observed $\mathrm{CL}_{s}$ values in 20 points of the $\Xi_c^+$ signal fit fraction up to twice the signal strength that you have observed in the fit.
 
-Since $\mathrm{CL}\_{s} ( \theta ) = \displaystyle\frac{ p\_{1} ( \theta ) }{ 1 - p\_{0} }$
-is defined as the ratio of $p$-values of rejecting the alternative hypothesis ($p\_{1}$)
-over accepting the null-hypothesis ($1-p\_{0}$), you need to generate toy datasets (about 500 should be sufficient) for a given alternative hypothesis.
+$$
+\mathrm{CL}_{s} ( \theta ) = \displaystyle\frac{ p_{1} ( \theta ) }{ 1 - p_{0} }
+$$
+is defined as the ratio of $p$-values of rejecting the alternative hypothesis ($p_{1}$)
+over accepting the null-hypothesis ($1-p_{0}$), you need to generate toy datasets (about 500 should be sufficient) for a given alternative hypothesis.
 Evaluate the test statistic $-2\ln Q$ and the integral from the observed value on data.
 You can re-use the distribution of the test statistic under the null hypothesis found in Exercise 2.
 
