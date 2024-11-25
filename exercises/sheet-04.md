@@ -22,6 +22,7 @@ and where $\mu$ indicates the signal strength, with $\mu=1$ being that of the be
 
 Contrary to the previous exercise, the distribution of the test statistic is not known.
 It can be obtained by sampling datasets under the background-only hypothesis and evaluating the likelihood on this "toy" dataset with the signal + background hypothesis.
+Generate 1000 toy datasets for this exercise.
 Note that the definition of the test statistic is such, that all parameters are fixed; i.e. you only need to evaluate the likelihood ratio without having to fit the toy data.
 
 Make a plot of the test statistic distribution and the observed value of the test statistic under the signal+background hypothesis on your initial dataset.
@@ -47,7 +48,7 @@ Your task is to compute one slice of the "Brazil flag" plot for $\Xi_c^+$ distri
 Using the best fit values obtained in Sheet 3, you can fix all parameters and define the $H_0$ and $H_1$ hypotheses, as background-only,
 and background+signal, respectively.
 1. Using an estimation of the signal significance from Exercise 2, find a range of the signal-strength parameter $a$ in which the significance changes from 0.5σ to 2.0σ. Define four scan points in this range.
-2. For each value of the strength parameter, generate a distribution of the test statistic defined as $2\ln Q$ using pseudo datasets under the $H_0$ and $H_1$ hypothesis.
+2. For each value of the strength parameter, generate a distribution of the test statistic defined as $2\ln Q$ using 250 pseudo datasets under the $H_1$ hypothesis. You can re-use the 1000 toy samples generated for Exercise 2.
 3. Compute $p\_0$, $\mathrm{CL}\_s$, $\mathrm{CL}\_{s+b}$, and $\mathrm{CL}\_s = \mathrm{CL}\_{s+b}/\mathrm{CL}\_b$ from the test statistic distributions.
 4. Plot results of the $\mathrm{CL}_{s}$ scan as a function of the signal strength.
 5. Add a value of the $\mathrm{CL}_{s}$ for the observed data.
