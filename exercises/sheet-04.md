@@ -49,10 +49,10 @@ and background+signal, respectively.
 1. Using an estimation of the signal significance from Exercise 2, find a range of the signal-strength parameter $a$ in which the significance changes from 0.5σ to 2.0σ. Define four scan points in this range.
 2. For each value of the strength parameter, generate a distribution of the test statistic defined as $2\ln Q$ using pseudo datasets under the $H_0$ and $H_1$ hypothesis.
 3. Compute $p\_0$, $\mathrm{CL}\_s$, $\mathrm{CL}\_{s+b}$, and $\mathrm{CL}\_s = \mathrm{CL}\_{s+b}/\mathrm{CL}\_b$ from the test statistic distributions.
-5. Plot results of the $\mathrm{CL}_{s}$ scan as a function of the signal strength.
-6. Add a value of the $\mathrm{CL}_{s}$ for the observed data.
-7. Determine the internal of the strength parameter such that the value $0.05$ is covered within the central 68% of $\mathrm{CL}_{s}$ distribution (use the scan values, and $0.16$ and $0.84$ quantiles of the test statistics distribution under the $H_0$ hypothesis)
-8. Find the value of the strength parameter for which the observed $\mathrm{CL}_{s}$ value reaches 0.05.
+4. Plot results of the $\mathrm{CL}_{s}$ scan as a function of the signal strength.
+5. Add a value of the $\mathrm{CL}_{s}$ for the observed data.
+6. Determine the internal of the strength parameter such that the value $0.05$ is covered within the central 68% of $\mathrm{CL}_{s}$ distribution (use the scan values, and $0.16$ and $0.84$ quantiles of the test statistics distribution under the $H_0$ hypothesis)
+7. Find the value of the strength parameter for which the observed $\mathrm{CL}_{s}$ value reaches 0.05.
 
 ## Exercise 4* (extra points)
 
