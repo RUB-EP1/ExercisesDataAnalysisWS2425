@@ -1,7 +1,7 @@
 name = "DataAnalysisWS2425"
 uuid = "80bb52da-7f4f-4ad3-be2f-09a63098136f"
 authors = ["Mikhail Mikhasenko <mikhail.mikhasenko@cern.ch>", "Marian Stahl <marian.stahl@cern.ch>"]
-version = "0.1.0"
+version = "0.4.0"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"

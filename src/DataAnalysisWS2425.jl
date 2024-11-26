@@ -17,6 +17,16 @@ include("sampling.jl")
 export fit_enll, extended_nll
 include("fitting.jl")
 
+export Anka, Frida
+export peak1_func, peak2_func
+export background_func
+export total_func
+include("models.jl")
+
+export find_zero_two_sides
+export interpolate_to_zero
+include("utils.jl")
+
 export WithData, curvehistpulls
 include("plotting_recipe.jl")
 
