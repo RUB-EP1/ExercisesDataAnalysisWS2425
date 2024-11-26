@@ -18,8 +18,8 @@ Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-
 
 - [Sheet-01](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-01.md), published on **9/10/2024**, due on **20/10/2024**, discussed at the [Tutorial-02](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-02.md)
 - [Sheet-02](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-02.md), published on **25/10/2024**, due on **3/11/2024**, discussed at the [Tutorial-03](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-03.md)
-- [Sheet-03](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-03.md), published on **11/11/2024**, due on **17/11/2024**,
-- Sheet-04
+- [Sheet-03](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-03.md), published on **11/11/2024**, due on **17/11/2024**, discussed at the [Tutorial-04](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-04.md)
+- [Sheet-04](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-04.md), published on **26/11/2024**, due on **08/12/2024**
 - Sheet-05
 - Sheet-06
 - Sheet-07
