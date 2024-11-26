@@ -54,6 +54,15 @@ To run the checks locally,
 pre-commit run -a
 ```
 
+### Git: delete branches that are gone
+
+Once the PR is merged, and branch is delete on remote, it is a good idea to clear up the local copy.
+It is done by pruning branches, following deleting these that are gone.
+```bash
+git fetch --prune
+git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+```
+
 ## License
 
 This project is licensed under the MIT License.

@@ -17,12 +17,13 @@ Make a plot of the correlation matrix of fit parameters using the `heatmap` colo
 
 > [!TIP]
 > Look at the [pdglive](https://pdglive.lbl.gov/Particle.action?init=0&node=S045&home=BXXX040) website of the $\Xi_c^+$ particle to get a good starting parameter for the mean of your second Gaussian.
+> Yield is defined as the total number of events for the process, which is obtained from the integral of your signal function.
 
 ## Exercise 2
 
 Compute the profile likelihood ratio in 20 points around the best fit value of the yield.
 Choose the points to scan based on the uncertainties determined in Exercise 1.
-How does the two-sided confidence level at 68.3% (1 $\sigma$) constructed with the profile likelihood compare to the uncertainty calculated from the Hessian matrix?
+How does the two-sided confidence level at 68.3% (1 $\sigma$) constructed with the profile likelihood compare to the uncertainty calculated from the Hessian matrix in exercise 1?
 
 ## Exercise 3
 
