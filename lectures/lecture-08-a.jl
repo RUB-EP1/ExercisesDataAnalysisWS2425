@@ -21,10 +21,15 @@ begin
     Random.seed!(1000)
     #
     using Plots
-    theme(:wong2,
-        grid = false, frame = :box,
-        ylims = (0, :auto), xlims = (:auto, :auto),
-        lab = "", linealpha = 1)
+    theme(
+        :wong2,
+        grid = false,
+        frame = :box,
+        ylims = (0, :auto),
+        xlims = (:auto, :auto),
+        lab = "",
+        linealpha = 1,
+    )
 end
 
 # ╔═╡ b4a9b6fa-fdfb-483f-9d46-407a443dae7e
@@ -100,9 +105,12 @@ _quadgk_call_on_model(model, support) =
     DataAnalysisWS2425._quadgk_call(x -> total_func(model, x), support)
 
 # ╔═╡ f3141719-2f62-41b2-94c2-b97708a5ba05
-function nll(model, data;
+function nll(
+    model,
+    data;
     support = extrema(data),
-    normalization_call = _quadgk_call_on_model)
+    normalization_call = _quadgk_call_on_model,
+)
     #
     minus_sum_log = -sum(data) do x
         value = total_func(model, x)
@@ -116,8 +124,8 @@ function nll(model, data;
 end
 
 # ╔═╡ 4bc454ca-7361-4b2e-ac22-34f7dcc224d0
-_integral(model, support) = DataAnalysisWS2425._quadgk_call(
-    x -> total_func(model, x), support)
+_integral(model, support) =
+    DataAnalysisWS2425._quadgk_call(x -> total_func(model, x), support)
 
 # ╔═╡ b00fb9ba-8b64-49b1-819f-ee0c1e093b5d
 md"""
@@ -168,11 +176,9 @@ H1_model(; μ, a) = Anka(; μ, a, resolution..., background_parameters...)
 
 # ╔═╡ 5b691c65-13f9-4e01-8748-d5eb3e76cfcb
 function expectations(support, nData = 1; μ, a = 1.0)
-    fB = _integral(H0_model, μ .+ (-1, 1) .* resolution.σ) /
-         _integral(H0_model, support)
+    fB = _integral(H0_model, μ .+ (-1, 1) .* resolution.σ) / _integral(H0_model, support)
     _H1_model = H1_model(; μ, a)
-    fSB = _integral(_H1_model, μ .+ (-1, 1) .* resolution.σ) /
-          _integral(_H1_model, support)
+    fSB = _integral(_H1_model, μ .+ (-1, 1) .* resolution.σ) / _integral(_H1_model, support)
     #
     nB, nSB = nData .* (fB, fSB)
     (; nB, nSB)
@@ -182,7 +188,8 @@ end
 expectations(support, nData; μ = μ_test)
 
 # ╔═╡ 4aba026b-a6d9-480c-805d-7d49b7049689
-test_statistics(data; μ, a, kw...) = 2 * (nll(H0_model, data; kw...) - nll(H1_model(; μ, a), data; kw...))
+test_statistics(data; μ, a, kw...) =
+    2 * (nll(H0_model, data; kw...) - nll(H1_model(; μ, a), data; kw...))
 
 # ╔═╡ 0e398379-ed9b-4b31-987f-5523479db943
 const nSample_H0_test = 1_000;
@@ -248,8 +255,11 @@ let
     let
         μ = mean(H0_sample_test)
         σ = std(H0_sample_test)
-        plot!(x -> gaussian_scaled(x; a = 1 / sqrt(2π) / σ, μ, σ),
-            WithData(bins, nSample_H0_test), l = (1, :black))
+        plot!(
+            x -> gaussian_scaled(x; a = 1 / sqrt(2π) / σ, μ, σ),
+            WithData(bins, nSample_H0_test),
+            l = (1, :black),
+        )
     end
     plot!()
 end
@@ -285,8 +295,7 @@ begin
     scatter!([a_test], 1 .- p_values_test[[3]], m = (:d, 10, :black))
     plot!(xlim = (0.8, 1.3) .* a_test)
     plot!(ylim = (1e-5, 1), yscale = :log10)
-    hline!([0.05], l = (:gray, 1),
-        ann = (a_test * 1.1, 0.05, text("95%", :bottom)))
+    hline!([0.05], l = (:gray, 1), ann = (a_test * 1.1, 0.05, text("95%", :bottom)))
 end
 
 # ╔═╡ 6638d724-e2a7-4ad7-b162-545ce87ab994
@@ -310,8 +319,7 @@ begin
         end
         HypothesisSimulations(T_H0, T_H1, (; a, μ))
     end
-    pvalue(sample::Vector, value::Float64) =
-        sum(sample .> value) / length(sample)
+    pvalue(sample::Vector, value::Float64) = sum(sample .> value) / length(sample)
     CLb(hs::HypothesisSimulations, value::Float64) = 1 - pvalue(hs.T_H0, value) + 1e-10
     CLsb(hs::HypothesisSimulations, value::Float64) = 1 - pvalue(hs.T_H1, value) + 1e-10
     CLs(hs::HypothesisSimulations, value::Float64) = CLsb(hs, value) / CLb(hs, value)
@@ -337,8 +345,13 @@ fast_normalization(model, support) = model.a * _int_s + _int_b;
 
 # ╔═╡ 578459f4-c461-4d5b-9982-40ddad1965ef
 ht_a_scan = map([0.15, 0.2, 0.25, 0.3, 0.35, 0.4]) do a
-    HypothesisSimulations(; a, μ = μ_test, nSample = 5000, nData = nData,
-        normalization_call = fast_normalization)
+    HypothesisSimulations(;
+        a,
+        μ = μ_test,
+        nSample = 5000,
+        nData = nData,
+        normalization_call = fast_normalization,
+    )
 end;
 
 # ╔═╡ 122c7e23-2553-4f3b-90f2-7bce60f86f9a
@@ -358,8 +371,7 @@ let
     #
     plot!(xlim = (-0.01, 0.55))
     plot!(ylims = (1e-4, 1.4), yscale = :log10)
-    hline!([0.05], l = (:gray, 1),
-        ann = (a_test * 1.1, 0.05, text("5%", :bottom)))
+    hline!([0.05], l = (:gray, 1), ann = (a_test * 1.1, 0.05, text("5%", :bottom)))
 end
 
 # ╔═╡ Cell order:
