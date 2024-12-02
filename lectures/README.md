@@ -17,3 +17,5 @@ Most of the notebook are showcased at the lectures. Some provide additional info
 - [Lecture-06-b](lecture-06-b.jl): Forward AD and Dual numbers
 - [Lecture-06-c](lecture-06-c.jl): AD in reverse mode
 - [Lecture-07-a](lecture-07-a.jl): Hypothesis testing and Poisson distribution
+- [Lecture-07-a](lecture-08-a.jl): CLb and CLsn, and CLs for hypothesis testing. Brazil flag plot.
+- [Lecture-09-a](lecture-09-a.jl): Neyman's construction of confidence intervals
