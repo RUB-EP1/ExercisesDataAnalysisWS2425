@@ -45,10 +45,13 @@ isphysical
 ispositive
 joinpath
 legendfontsize
+lims
+linealpha
 linecolor
 linewidth
 makedocs
 mapslices
+markeralpha
 markercolor
 markersize
 markerstrokewidth
@@ -99,4 +102,5 @@ ylab
 ylim
 ylimits
 ylims
+yscale
 ΔNLL

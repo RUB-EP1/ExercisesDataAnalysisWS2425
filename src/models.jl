@@ -3,7 +3,7 @@ Base.collect(model::SpectrumModel) =
     getproperty.(model |> Ref, collect(fieldnames(typeof(model))))
 #
 # Define a generic constructor for any subtype of SpectrumModel
-function (::Type{T})(p_values::Union{AbstractVector, NTuple}) where {T <: SpectrumModel}
+function (::Type{T})(p_values::Union{AbstractVector,NTuple}) where {T<:SpectrumModel}
     T(; NamedTuple{fieldnames(T)}(p_values)...)
 end
 
