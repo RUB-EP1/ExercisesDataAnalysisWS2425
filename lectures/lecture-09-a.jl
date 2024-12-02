@@ -28,8 +28,8 @@ md"""
 In this lecture we discuss the Neyman method for constructing confidence intervals.
 - The data are distributed following a gaussian function, with a known mean μ.
 - Variance is unknown and has to be determined from the sample.
-- Numerical simulations are supportend by analytical expressions
-- First we proceed with a single pseudoexperiment given parameter `pars0`, then, scale to a scan.
+- Numerical simulations are supported by analytical expressions
+- First we proceed with a single pseudoexperiments given parameter `pars0`, then, scale to a scan.
 """
 
 # ╔═╡ fd0cfafb-084e-4e81-bc83-2d2efc2f6006
@@ -97,19 +97,19 @@ md"""
 # ╔═╡ 43b18c22-9bef-4ae4-a393-947c151f4849
 central_CL_simulations = map(range(0.05, 0.45, 10)) do σ_sq_true
     _pars = (; σ = sqrt(σ_sq_true))
-    _ensamble = map(1:n_sample) do _
+    _ensemble = map(1:n_sample) do _
         _data = generate(_pars, n_data)
         estimator_variance(_data)
     end
-    interval = quantile(_ensamble, [0.16, 0.84])
+    interval = quantile(_ensemble, [0.16, 0.84])
     (; σ_sq_true, interval)
 end |> DataFrame
 
 # ╔═╡ 699f85c1-1a25-4a9a-91d4-a61f238b0b9c
 md"""
 Questions:
-- do controur curve meet at 0?
-- are the courtour curve straight lines?
+- do contour curve meet at 0?
+- are the contour curve straight lines?
 - why blue points walk around the line
 """
 

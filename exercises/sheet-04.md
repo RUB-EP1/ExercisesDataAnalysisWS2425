@@ -50,7 +50,7 @@ Using the best fit values obtained in Sheet 3, you can fix all parameters and de
 and background+signal, respectively.
 
 1. Using an estimation of the signal significance from Exercise 2, find a range of the signal-strength parameter $a$ in which the significance changes from 0.5σ to 2.0σ. Define four scan points in this range.
-2. For each value of the strength parameter, generate a distribution of the test statistic defined as $2\ln Q$ using 250 pseudo datasets under the $H_1$ hypothesis. You can re-use the 1000 toy samples generated for Exercise 2, but you will need to re-evaluate the likeihood on them.
+2. For each value of the strength parameter, generate a distribution of the test statistic defined as $2\ln Q$ using 250 pseudo datasets under the $H_1$ hypothesis. You can re-use the 1000 toy samples generated for Exercise 2, but you will need to re-evaluate the likelihood on them.
 3. Compute $p\_0$, $\mathrm{CL}\_s$, $\mathrm{CL}\_{s+b}$, and $\mathrm{CL}\_s = \mathrm{CL}\_{s+b}/\mathrm{CL}\_b$ from the test statistic distributions.
 4. Plot results of the $\mathrm{CL}_{s}$ scan as a function of the signal strength.
 5. Add a value of the $\mathrm{CL}_{s}$ for the observed data.

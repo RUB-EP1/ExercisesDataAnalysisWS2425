@@ -42,7 +42,7 @@ In this notebook, we will figure out how statistical methods has been used to se
 ![](https://cds.cern.ch/record/1471031/files/CombinedResults.png)
 
 Short list of references:
-- A good [CLs discussion](https://inspirehep.net/literature/599622) by Alexander L. Read. How on interprete the Brazil plot
+- A good [CLs discussion](https://inspirehep.net/literature/599622) by Alexander L. Read. How on interpret the Brazil plot
 - [ROOT Demo](https://root.cern/doc/master/StandardHypoTestInvDemo_8C.html): not a typo. X-axis should be CL, rather then a p-value
 """
 
@@ -82,9 +82,9 @@ md"""
 ## Hypothesis testing
 
 Let's assume that we search of a signal of known width of `σ=0.1GeV` (resolution).
-- We do not knonw the location of the peak, it will be a scann variable.
+- We do not known the location of the peak, it will be a scan variable.
 - We do not know a strength of the peak and will scan for it as well.
-We start from scanning the stregth for a given mass.
+We start from scanning the strength parameter for a given, fixed mass.
 """
 
 # ╔═╡ f24b965e-9e8c-4576-83a7-e9e4bb7ecb19
@@ -182,7 +182,7 @@ end
 expectations(support, nData; μ = μ_test)
 
 # ╔═╡ 4aba026b-a6d9-480c-805d-7d49b7049689
-test_statitics(data; μ, a, kw...) = 2 * (nll(H0_model, data; kw...) - nll(H1_model(; μ, a), data; kw...))
+test_statistics(data; μ, a, kw...) = 2 * (nll(H0_model, data; kw...) - nll(H1_model(; μ, a), data; kw...))
 
 # ╔═╡ 0e398379-ed9b-4b31-987f-5523479db943
 const nSample_H0_test = 1_000;
@@ -205,7 +205,7 @@ n = nData*nSample_H0_test
 pseudo_data = sample_rejection(x->total_func(H0_model,x), n, support)
 pseudo_data_matrix = reshape(pseudo_data, (nSample_H0_test, nData))
 mapslices(pseudo_data_matrix, dims=2) do _data
-test_statitics(_data; μ=μ_test, a=a_test) # try also ; nomalization_call=fast_normalization
+test_statistics(_data; μ=μ_test, a=a_test) # try also ; normalization_call=fast_normalization
 end[:,1]
 end
 ```
@@ -221,7 +221,7 @@ H0_sample_test = map(1:nSample_H0_test) do _
     μ = μ_test
     a = a_test
     pseudo_data = sample_rejection(x -> total_func(H0_model, x), nData, support)
-    test_statitics(pseudo_data; μ, a, support)
+    test_statistics(pseudo_data; μ, a, support)
 end;
 
 # ╔═╡ 9adf880e-61a8-473b-9bef-ac3967aa6db5
@@ -229,12 +229,12 @@ H1_sample_test = map(1:nSample_H1_test) do _
     μ = μ_test
     a = a_test
     pseudo_data = sample_rejection(x -> total_func(H1_model(; μ, a), x), nData, support)
-    test_statitics(pseudo_data; μ, a)
+    test_statistics(pseudo_data; μ, a)
 end;
 
 # ╔═╡ 417d3a65-9a19-44b5-9482-bceb86bf6999
 md"""
-## Asymptotics
+# Asymptotics
 Let's look at the tail of the H0 distribution
 """
 
@@ -302,11 +302,11 @@ begin
         #
         T_H0 = map(1:nSample) do _
             pseudo_data = sample_rejection(f0, nData, support)
-            test_statitics(pseudo_data; μ, a, kw...)
+            test_statistics(pseudo_data; μ, a, kw...)
         end
         T_H1 = map(1:nSample) do _
             pseudo_data = sample_rejection(f1, nData, support)
-            test_statitics(pseudo_data; μ, a, kw...)
+            test_statistics(pseudo_data; μ, a, kw...)
         end
         HypothesisSimulations(T_H0, T_H1, (; a, μ))
     end
