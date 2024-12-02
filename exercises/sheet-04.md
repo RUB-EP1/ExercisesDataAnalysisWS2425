@@ -14,7 +14,7 @@ The $p$-value will be integral of the test statistic from the observed number of
 
 ## Exercise 2
 
-Compute the same $p$-value with a simple likelihood-ratio test statistic $2\ln Q$ with 
+Compute the same $p$-value with a simple likelihood-ratio test statistic $2\ln Q$ with
 
 $$Q=\displaystyle\frac{L_{s+b}(\mu=1)}{L_{b}(\mu=0)},$$
 
@@ -28,6 +28,7 @@ Note that the definition of the test statistic is such, that all parameters are 
 Make a plot of the test statistic distribution and the observed value of the test statistic under the signal+background hypothesis on your initial dataset.
 
 Convert the $p$-value to a significance and compare it to common approximations
+
 - $Z\approx\sqrt{-2 \ln Q}$,
 - $Z\approx S/\sqrt{S+B}$,
 - $Z\approx 2(\sqrt{S+B}-\sqrt{B})$, and
@@ -47,6 +48,7 @@ Your task is to compute one slice of the "Brazil flag" plot for $\Xi_c^+$ distri
 
 Using the best fit values obtained in Sheet 3, you can fix all parameters and define the $H_0$ and $H_1$ hypotheses, as background-only,
 and background+signal, respectively.
+
 1. Using an estimation of the signal significance from Exercise 2, find a range of the signal-strength parameter $a$ in which the significance changes from 0.5σ to 2.0σ. Define four scan points in this range.
 2. For each value of the strength parameter, generate a distribution of the test statistic defined as $2\ln Q$ using 250 pseudo datasets under the $H_1$ hypothesis. You can re-use the 1000 toy samples generated for Exercise 2, but you will need to re-evaluate the likeihood on them.
 3. Compute $p\_0$, $\mathrm{CL}\_s$, $\mathrm{CL}\_{s+b}$, and $\mathrm{CL}\_s = \mathrm{CL}\_{s+b}/\mathrm{CL}\_b$ from the test statistic distributions.
@@ -61,4 +63,4 @@ Perform a scan of the mass parameter in 10 bins around the signal peak position 
 
 ## References
 
-[1] https://inspirehep.net/literature/599622
+[1] <https://inspirehep.net/literature/599622>
