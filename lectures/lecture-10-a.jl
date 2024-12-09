@@ -5,6 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 77ea602c-d9a7-4956-b702-331566c1b2cc
+# ╠═╡ show_logs = false
 begin
     using Pkg: Pkg
     Pkg.activate(joinpath(@__DIR__, ".."))
@@ -20,7 +21,6 @@ begin
     using Measurements
     using DataAnalysisWS2425
     using DataFrames
-    # using NearestNeighbors
 end
 
 # ╔═╡ a78f1cc1-9fe0-4969-9a13-32c9113a0b28
