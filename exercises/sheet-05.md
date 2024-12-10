@@ -9,10 +9,10 @@ Choose the range of support such it is centered around the Gaussian mean, and th
 The integrals of signal and background should be equal.
 
 Fit the toy data with the model used for generation for four different scenarios:
-a) all parameters except the signal strength[1] are known (fixed to the values used to generate the toy);
-b) the signal strength and the width are unknown;
-c) signal strength, width and mean of the Gaussian are unknown;
-d) all parameters are unknown.
+1. all parameters except the signal strength[1] are known (fixed to the values used to generate the toy);
+2. the signal strength and the width are unknown;
+3. signal strength, width and mean of the Gaussian are unknown;
+4. all parameters are unknown.
 
 Compute the $p$-value from the likelihood ratio and the $\chi^2$ distribution for each case.
 
