@@ -20,3 +20,4 @@ Most of the notebook are showcased at the lectures. Some provide additional info
 - [Lecture-07-a](lecture-08-a.jl): CLb and CLsn, and CLs for hypothesis testing. Brazil flag plot.
 - [Lecture-09-a](lecture-09-a.jl): Neyman's construction of confidence intervals
 - [Lecture-10-a](lecture-10-a.jl): MVA basics: ROC, FOM
+- [Lecture-11-a](lecture-11-a.jl): Construction of Decision Trees
