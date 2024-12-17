@@ -9,6 +9,7 @@ Choose the range of support such it is centered around the Gaussian mean, and th
 The integrals of signal and background should be equal.
 
 Fit the toy data with the model used for generation for four different scenarios:
+
 1. all parameters except the signal strength[1] are known (fixed to the values used to generate the toy);
 2. the signal strength and the width are unknown;
 3. signal strength, width and mean of the Gaussian are unknown;

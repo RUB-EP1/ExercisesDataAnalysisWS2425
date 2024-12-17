@@ -7,11 +7,11 @@ These samples contain events that are mostly of combinatorial nature for the bac
 
 ## Exercise 1
 
-Using the pre-processed signal and background samples from tutorial 6, train 3 classifiers of your choice and compare their ROC curves. Argue which classifier you would choose to apply to your data.
+Using the pre-processed signal and background samples from tutorial 6, train 3 classifiers of your choice (different types, or different tuning of hyperparameters) and compare their ROC curves measured on the training data. Argue which classifier you would choose to apply to your data.
 
 ## Exercise 2
 
-Which variables are the most discriminating ones? Are they always the same? Print the importance of variables for the classifier you chose in Exercise 1, and make a plot of the 3 highest ranked ones.
+Which variables are the most discriminating ones (look for `impurity_importance` in [DecisionTree.jl](https://github.com/JuliaAI/DecisionTree.jl))? Are the highest ranked variables always the same? Print the importance of variables for the classifier you chose in Exercise 1, and make a plot of the 3 highest ranked ones, showing the normalized training data distributions and the distribution of the variable in your dataset.
 
 ## Exercise 3
 

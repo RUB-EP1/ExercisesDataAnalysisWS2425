@@ -4,6 +4,7 @@ backgr
 Breit
 coeffs
 curvehistpulls
+dataframe
 dataframes
 Dhruvanshu
 docstrings
@@ -32,3 +33,9 @@ Stahl
 unbinned
 Voigt
 σhat
+Wilks
+SUSY
+DOCA
+OWNPVIPCHI2
+moodle
+hyperparameters

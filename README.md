@@ -20,8 +20,8 @@ Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-
 - [Sheet-02](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-02.md), published on **25/10/2024**, due on **3/11/2024**, discussed at the [Tutorial-03](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-03.md)
 - [Sheet-03](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-03.md), published on **11/11/2024**, due on **17/11/2024**, discussed at the [Tutorial-04](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-04.md)
 - [Sheet-04](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-04.md), published on **26/11/2024**, due on **08/12/2024**, discussed at the [Tutorial-05](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-05.md)
-- [Sheet-05](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-05.md), published on **10/12/2024**, due on **17/12/2024**
-- [Sheet-06](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-06.md), published on **16/12/2024**, due on **19/01/2025**
+- [Sheet-05](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-05.md), published on **10/12/2024**, due on **17/12/2024**, discussed at the [Tutorial-06](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-06.md)
+- [Sheet-06](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-06.md), published on **17/12/2024**, due on **19/01/2025**
 - Sheet-07
 
 ## Reference DataAnalysisWS2425
