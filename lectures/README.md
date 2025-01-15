@@ -21,3 +21,4 @@ Most of the notebook are showcased at the lectures. Some provide additional info
 - [Lecture-09-a](lecture-09-a.jl): Neyman's construction of confidence intervals
 - [Lecture-10-a](lecture-10-a.jl): MVA basics: ROC, FOM
 - [Lecture-11-a](lecture-11-a.jl): Construction of Decision Trees
+- [Lecture-11-a](lecture-11-a.jl): Weights, effective sample size, and weighted uncertainties
