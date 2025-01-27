@@ -22,3 +22,5 @@ Most of the notebook are showcased at the lectures. Some provide additional info
 - [Lecture-10-a](lecture-10-a.jl): MVA basics: ROC, FOM
 - [Lecture-11-a](lecture-11-a.jl): Construction of Decision Trees
 - [Lecture-12-a](lecture-12-a.jl): Weights, effective sample size, and weighted uncertainties
+- [Lecture-13-a](lecture-13-a.jl): Systematic uncertainties
+- [Lecture-14-a](lecture-14-a.jl): Gradient boosting
