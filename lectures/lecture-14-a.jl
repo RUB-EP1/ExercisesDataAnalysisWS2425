@@ -18,10 +18,10 @@ end
 
 # ╔═╡ 9a9e116b-737b-46c1-a551-901e3b568d05
 begin
-	using DataFrames
-	using XGBoost
-	using Plots
-	using PlutoUI
+    using DataFrames
+    using XGBoost
+    using Plots
+    using PlutoUI
 end
 
 # ╔═╡ aaf6e584-dc2b-11ef-2ed1-ef3e51cec7de
@@ -54,7 +54,7 @@ Within the termination regions (leafs of the decision tree), labeled by $R_{j,m}
 
 $\gamma_{j,m} = \text{argmin}_{\gamma} \sum_{x_i \in R_{j,m}} L(y_i,F_{m-1}(x_i)+\gamma)$
 
-When using the _mean square error_ for the loss function, 
+When using the _mean square error_ for the loss function,
 
 $L_\text{MSE} = \sum_i (y_i-F(x_i))^2\,$
 
@@ -80,46 +80,46 @@ md"""
 
 # ╔═╡ 31375974-3775-402c-b8e2-6e340a10d68d
 function sinx_over_x(x)
-	r = sqrt((x[1]-0.4)^2+(x[2]-0.1)^2)*10
-	sin(r)/r
+    r = sqrt((x[1] - 0.4)^2 + (x[2] - 0.1)^2) * 10
+    sin(r) / r
 end
 
 # ╔═╡ 07868378-6392-4191-bb91-1c7b4d6e7f8b
 function diagonal_split(x)
-	ifmore = x[1]>x[2]
-	2*ifmore-1
+    ifmore = x[1] > x[2]
+    2 * ifmore - 1
 end
 
 # ╔═╡ e2e17148-c46c-43f2-b44f-7ef53e952e0e
 function chess(x)
-	n = 1.3
-	condition1 = mod(x[1], 1/n) > 1/(2n)
-	condition2 = mod(x[2], 1/n) > 1/(2n)
-	(2*condition1 - 1) * (2*condition2 - 1)
+    n = 1.3
+    condition1 = mod(x[1], 1 / n) > 1 / (2n)
+    condition2 = mod(x[2], 1 / n) > 1 / (2n)
+    (2 * condition1 - 1) * (2 * condition2 - 1)
 end
 
 # ╔═╡ 25709f8b-30fd-4b92-bf0e-ee93aebdbfe8
 function teeth(x)
-    condition = sin(5π * (x[1] - 0.55))/5 + 0.3 + 0.4x[1] < x[2] < 0.7 + 0.4x[1]
-    2*condition - 1
+    condition = sin(5π * (x[1] - 0.55)) / 5 + 0.3 + 0.4x[1] < x[2] < 0.7 + 0.4x[1]
+    2 * condition - 1
 end
 
 # ╔═╡ 104df820-e6a3-497d-b3ab-34364298d3ea
 list_of_target_functions = [
-	diagonal_split => "diagonal",
-	sinx_over_x => "sin(x) / x",
-	chess => "chess",
-	teeth => "teeth",
+    diagonal_split => "diagonal",
+    sinx_over_x => "sin(x) / x",
+    chess => "chess",
+    teeth => "teeth",
 ];
 
 # ╔═╡ 2786e160-f659-4837-8b12-31fb1e4e3e25
 let
-	n = length(list_of_target_functions)
-	plot([
-		heatmap(range(0,1,99), range(0,1,99),
-			(x1,x2)->f([x1,x2]); aspect_ratio=1, title, titlefontsize=10)
-		for (f,title) in list_of_target_functions]...,
-	axis=nothing, colorbar=false, layout=grid(1,n), size=(100*n,100))
+    n = length(list_of_target_functions)
+    plot([
+            heatmap(range(0, 1, 99), range(0, 1, 99),
+                (x1, x2) -> f([x1, x2]); aspect_ratio = 1, title, titlefontsize = 10)
+            for (f, title) in list_of_target_functions]...,
+        axis = nothing, colorbar = false, layout = grid(1, n), size = (100 * n, 100))
 end
 
 # ╔═╡ 3fa16cc8-6256-4c71-851c-9d1e427c0d42
@@ -142,21 +142,21 @@ const nTraining = 10000
 
 # ╔═╡ 3dc41fb9-cb9d-463e-96ee-e378ee99ca93
 begin # training sample
-	X = randn(nTraining, 2)
-	y = f_target.(eachslice(X, dims=1));
+    X = randn(nTraining, 2)
+    y = f_target.(eachslice(X, dims = 1))
 end;
 
 # ╔═╡ e8e17d83-46e0-4505-a714-dce0af24b789
 clims = extrema(y) .* 1.3 # for visualization
 
 # ╔═╡ ac44eaae-3a6c-4e8d-a01b-70a6cb9e9726
-@bind num_round Slider(4:100; default=10, show_value=true)
+@bind num_round Slider(4:100; default = 10, show_value = true)
 
 # ╔═╡ 45dad3a9-1585-4f7b-93d7-d50e41402845
-@bind max_depth Slider(3:10; default=6, show_value=true)
+@bind max_depth Slider(3:10; default = 6, show_value = true)
 
 # ╔═╡ 8369af96-d981-44c1-9dd4-1517c8a073e9
-@bind η Slider(range(0.1,1.0,10); default=0.1, show_value=true)
+@bind η Slider(range(0.1, 1.0, 10); default = 0.1, show_value = true)
 
 # ╔═╡ b243f450-fe65-46f6-8ff0-141d5e873afd
 # ╠═╡ show_logs = false
@@ -168,12 +168,12 @@ md"""
 """
 
 # ╔═╡ e4828c0a-e6ea-48e4-9904-ebd34d38ec23
-heatmap(range(0,1,99), range(0,1,99),
-	(x1,x2)->f_target([x1,x2]); aspect_ratio=1, clims)
+heatmap(range(0, 1, 99), range(0, 1, 99),
+    (x1, x2) -> f_target([x1, x2]); aspect_ratio = 1, clims)
 
 # ╔═╡ 2b3ec6c9-2785-4d4c-bfb2-a72e87b7eee7
-heatmap(range(0,1,99), range(0,1,99),
-	(x1,x2)->predict(bst, [x1 x2])[1]; aspect_ratio=1, clims)
+heatmap(range(0, 1, 99), range(0, 1, 99),
+    (x1, x2) -> predict(bst, [x1 x2])[1]; aspect_ratio = 1, clims)
 
 # ╔═╡ 53abca08-eb33-4f82-b245-c73675ac3d3a
 md"""
@@ -192,6 +192,10 @@ md"""
 
 - [Gradient Boosting Playground](http://arogozhnikov.github.io/2016/07/05/gradient_boosting_playground.html)
 - [Gradient Boosting Explained](https://arogozhnikov.github.io/2016/06/24/gradient_boosting_explained.html)
+
+## GB Re-weighting technique
+
+- [`hep_ml`](https://arogozhnikov.github.io/hep_ml/reweight.html) implementation based on ensemble of regression trees.
 
 """
 

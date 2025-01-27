@@ -7,7 +7,11 @@ using InteractiveUtils
 # This Pluto notebook uses @bind for interactivity. When running this notebook outside of Pluto, the following 'mock version' of @bind gives bound variables a default value (instead of an error).
 macro bind(def, element)
     quote
-        local iv = try Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value catch; b -> missing; end
+        local iv = try
+            Base.loaded_modules[Base.PkgId(Base.UUID("6e696c72-6542-2067-7265-42206c756150"), "AbstractPlutoDingetjes")].Bonds.initial_value
+        catch
+            b -> missing
+        end
         local el = $(esc(element))
         global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
         el
@@ -16,16 +20,16 @@ end
 
 # ╔═╡ 657f29e6-8f82-4454-b605-fe02be82a50c
 begin
-	using Plots
-	using Plots.PlotMeasures: mm
-	using Random
-	using StatsPlots
-	using PlutoUI
-	using DataFrames
-	using DataFramesMeta
-	using DecisionTree
-	using Statistics
-	Random.seed!(1234)
+    using Plots
+    using Plots.PlotMeasures: mm
+    using Random
+    using StatsPlots
+    using PlutoUI
+    using DataFrames
+    using DataFramesMeta
+    using DecisionTree
+    using Statistics
+    Random.seed!(1234)
 end
 
 # ╔═╡ c82bf9e8-bb22-11ef-024b-9377fc10e7b7
@@ -35,6 +39,13 @@ md"""
 Based on
 - [lecture 22 (YouTube)](https://www.youtube.com/watch?v=CKoqD3YSVps&ab_channel=StatisticalMethods) of Vojtech Ploskot & Daniel Scheirich
 - Julia [`DecisionTrees.jl` (YouTube)](https://www.youtube.com/watch?v=XTApO31m3Xs&ab_channel=doggodotjl) lecture
+
+
+## Interactive material
+
+- A visual introduction to machine learning, [r2d3](http://www.r2d3.us/visual-intro-to-machine-learning-part-1/)
+- Bias-Variance trade-off, [r2d3](http://www.r2d3.us/visual-intro-to-machine-learning-part-2/)
+
 """
 
 # ╔═╡ 68dfe533-3a69-407b-8fd1-c70b9cfc8126
@@ -44,14 +55,14 @@ theme(
     frame = :box,
     ylims = (0, :auto),
     xlims = (:auto, :auto),
-    lab = "", colorbar=false,
+    lab = "", colorbar = false,
     linealpha = 1,
 )
 
 # ╔═╡ c97f692c-97f3-40a8-bba3-edc4dc4c8727
 function classify_signal_background(x, y)
     # Sinusoidal boundary
-    if sin(5π * (x - 0.55))/5 + 0.3 + 0.4x < y < 0.7 + 0.4x
+    if sin(5π * (x - 0.55)) / 5 + 0.3 + 0.4x < y < 0.7 + 0.4x
         return :signal
     else
         return :background
@@ -63,21 +74,21 @@ const features = [:f1, :f2]
 
 # ╔═╡ 9957a604-ddd7-4e34-875b-674467bcc65e
 df = let
-	_df = DataFrame(rand(3000,2), features);
-	transform(_df, [:f1, :f2] => ByRow(classify_signal_background) => :y)
+    _df = DataFrame(rand(3000, 2), features)
+    transform(_df, [:f1, :f2] => ByRow(classify_signal_background) => :y)
 end;
 
 # ╔═╡ 8a5716dd-a783-4ccc-bc0e-268f50687f95
 let
-	plot(aspect_ratio=1)
-	# 
-	c = Plots.PlotThemes.theme_palette(:wong)
-	heatmap!(0:0.01:1, 0:0.01:1,
-		(x, y) -> classify_signal_background(x, y)==:background,
-		c=Plots.palette(c[[1,2]]), alpha=0.4)
-	# 
-	@df df[df.y .== :signal, :] scatter!(:f1, :f2, c=1)
-	@df df[df.y .== :background, :] scatter!(:f1, :f2, c=2)
+    plot(aspect_ratio = 1)
+    #
+    c = Plots.PlotThemes.theme_palette(:wong)
+    heatmap!(0:0.01:1, 0:0.01:1,
+        (x, y) -> classify_signal_background(x, y) == :background,
+        c = Plots.palette(c[[1, 2]]), alpha = 0.4)
+    #
+    @df df[df.y.==:signal, :] scatter!(:f1, :f2, c = 1)
+    @df df[df.y.==:background, :] scatter!(:f1, :f2, c = 2)
 end
 
 # ╔═╡ 619f2c15-e96b-4cce-85ea-ec0442744602
@@ -90,23 +101,23 @@ md"""
 
 # ╔═╡ 76a2d7cc-78f3-4055-96a5-88aa5552ac86
 function per_class_split(y, percent)
-	classes = unique(y)
-	n = length(y)
-	groups = map(classes) do class
-		class_indices = (1:n)[y.==class]
-		n_take = round(Int, percent * length(class_indices))
-		rand(class_indices, n_take)
-	end
-	vcat(groups...)
+    classes = unique(y)
+    n = length(y)
+    groups = map(classes) do class
+        class_indices = (1:n)[y.==class]
+        n_take = round(Int, percent * length(class_indices))
+        rand(class_indices, n_take)
+    end
+    vcat(groups...)
 end
 
 # ╔═╡ 88627c65-5a91-42de-bd32-88e38830ff4b
 # split features and classes
 df_split = let percent = 0.67
-	df.usage .= :test
-	train_index = per_class_split(df.y, percent);
-	df.usage[train_index] .= :train
-	df
+    df.usage .= :test
+    train_index = per_class_split(df.y, percent)
+    df.usage[train_index] .= :train
+    df
 end;
 
 # ╔═╡ 041e1099-06cb-4d01-b909-a16460e0228c
@@ -117,18 +128,18 @@ df_train = subset(df_split, :usage => ByRow(isequal(:test)));
 
 # ╔═╡ 8d514fb9-f6c1-41c5-b917-919a1ce6f440
 begin
-	train_index = per_class_split(df.y, 0.67);
-	test_index = setdiff(1:size(df,1), train_index);
-	# 
-	X_train = df[train_index, features] |> Matrix;
-	y_train = df[train_index, :y];
-	# 
-	X_test = df[train_index, features] |> Matrix;
-	y_test = df[train_index, :y];
+    train_index = per_class_split(df.y, 0.67)
+    test_index = setdiff(1:size(df, 1), train_index)
+    #
+    X_train = df[train_index, features] |> Matrix
+    y_train = df[train_index, :y]
+    #
+    X_test = df[train_index, features] |> Matrix
+    y_test = df[train_index, :y]
 end;
 
 # ╔═╡ 9b43ff36-7d96-492f-93fe-6abc9c2ed9c1
-@bind max_depth Slider(1:10, show_value=true, default=2)
+@bind max_depth Slider(1:10, show_value = true, default = 2)
 
 # ╔═╡ 5484e239-0ce4-4ca3-ac01-caf47ce3fd6e
 md"""
@@ -137,8 +148,8 @@ md"""
 
 # ╔═╡ 01638872-967e-40d0-80df-ff27408d6b8a
 model = let
-	_model = DecisionTreeClassifier(; max_depth)	
-	fit!(_model, X_train, y_train)
+    _model = DecisionTreeClassifier(; max_depth)
+    fit!(_model, X_train, y_train)
 end
 
 # ╔═╡ e3015d15-45e1-422d-8e5e-7987d27d2b68
@@ -146,25 +157,25 @@ end
 
 # ╔═╡ 5f53105b-167d-44bb-9b2f-ab820a72e966
 let _tree = model
-	# 
-	X_vis = rand(100_000,2)
-	y_vis = predict(_tree, X_vis)
-	_df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
-	# colored areas
-	bins=(range(0,1,300), range(0,1,300))
-	plot(aspect_ratio=1)
-	@df _df[_df.y .== :signal, :] histogram2d!(:f1, :f2; bins, c=1, α=0.4)
-	@df _df[_df.y .== :background, :] histogram2d!(:f1, :f2; bins, c=2, α=0.4)
-	# train sample
-	@df df_train[df_train.y .== :background, :] scatter!(:f1, :f2, c=2)
-	@df df_train[df_train.y .== :signal, :] scatter!(:f1, :f2, c=1)
+    #
+    X_vis = rand(100_000, 2)
+    y_vis = predict(_tree, X_vis)
+    _df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
+    # colored areas
+    bins = (range(0, 1, 300), range(0, 1, 300))
+    plot(aspect_ratio = 1)
+    @df _df[_df.y.==:signal, :] histogram2d!(:f1, :f2; bins, c = 1, α = 0.4)
+    @df _df[_df.y.==:background, :] histogram2d!(:f1, :f2; bins, c = 2, α = 0.4)
+    # train sample
+    @df df_train[df_train.y.==:background, :] scatter!(:f1, :f2, c = 2)
+    @df df_train[df_train.y.==:signal, :] scatter!(:f1, :f2, c = 1)
 end
 
 # ╔═╡ a51c143f-acf3-4778-81be-449d02a89ebc
 let
-	y_hat = predict(model, X_test);
-	accuracy = mean(y_hat .== y_test)
-	(; accuracy)
+    y_hat = predict(model, X_test)
+    accuracy = mean(y_hat .== y_test)
+    (; accuracy)
 end
 
 # ╔═╡ 10215607-acd7-4517-a10b-87a50f79a363
@@ -186,46 +197,46 @@ md"""
 
 # ╔═╡ 535cabf4-59ac-4694-b9d1-3a3a39e12e11
 forest = let
-	_model = RandomForestClassifier(;
-		n_trees=30, max_depth, partial_sampling=0.7,
-		n_subfeatures=2)
-	fit!(_model, X_train, y_train)
+    _model = RandomForestClassifier(;
+        n_trees = 30, max_depth, partial_sampling = 0.7,
+        n_subfeatures = 2)
+    fit!(_model, X_train, y_train)
 end
 
 # ╔═╡ 2a22d456-3cc7-49a1-9936-7f937d04ac3f
 let
-	y_hat = predict(forest, X_test);
-	accuracy = mean(y_hat .== y_test)
-	(; accuracy)
+    y_hat = predict(forest, X_test)
+    accuracy = mean(y_hat .== y_test)
+    (; accuracy)
 end
 
 # ╔═╡ 7d3e4d69-8f38-4ea9-a1fd-0f6c07bc6837
 let
-	X_vis = rand(100_000,2)
-	y_vis = predict(forest, X_vis)
-	_df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
-	# colored areas
-	bins=(range(0,1,300), range(0,1,300))
-	plot(aspect_ratio=1)
-	@df _df[_df.y .== :signal, :] histogram2d!(:f1, :f2; bins, c=1, α=0.4)
-	@df _df[_df.y .== :background, :] histogram2d!(:f1, :f2; bins, c=2, α=0.4)
-	# train sample
-	@df df_train[df_train.y .== :background, :] scatter!(:f1, :f2, c=2)
+    X_vis = rand(100_000, 2)
+    y_vis = predict(forest, X_vis)
+    _df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
+    # colored areas
+    bins = (range(0, 1, 300), range(0, 1, 300))
+    plot(aspect_ratio = 1)
+    @df _df[_df.y.==:signal, :] histogram2d!(:f1, :f2; bins, c = 1, α = 0.4)
+    @df _df[_df.y.==:background, :] histogram2d!(:f1, :f2; bins, c = 2, α = 0.4)
+    # train sample
+    @df df_train[df_train.y.==:background, :] scatter!(:f1, :f2, c = 2)
 end
 
 # ╔═╡ f7088ce1-1180-4be2-a1a0-2d7e3e9bd4c9
 begin
-	ps = map(forest.ensemble.trees) do _tree
-		X_vis = rand(10_000,2)
-		y_vis = apply_tree(_tree, X_vis)
-		_df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
-		# colored areas
-		bins=(range(0,1,50), range(0,1,50))
-		plot(aspect_ratio=1, xaxis=nothing, yaxis=nothing, margin=-1mm)
-		@df _df[_df.y .== :signal, :] histogram2d!(:f1, :f2; bins, c=1, α=0.4)
-		@df _df[_df.y .== :background, :] histogram2d!(:f1, :f2; bins, c=2, α=0.4)
-	end
-	plot(ps..., size=(600,500))
+    ps = map(forest.ensemble.trees) do _tree
+        X_vis = rand(10_000, 2)
+        y_vis = apply_tree(_tree, X_vis)
+        _df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
+        # colored areas
+        bins = (range(0, 1, 50), range(0, 1, 50))
+        plot(aspect_ratio = 1, xaxis = nothing, yaxis = nothing, margin = -1mm)
+        @df _df[_df.y.==:signal, :] histogram2d!(:f1, :f2; bins, c = 1, α = 0.4)
+        @df _df[_df.y.==:background, :] histogram2d!(:f1, :f2; bins, c = 2, α = 0.4)
+    end
+    plot(ps..., size = (600, 500))
 end
 
 # ╔═╡ 1048cba3-5896-4cdd-8cb6-4465d08cc1a4
@@ -235,45 +246,45 @@ md"""
 
 # ╔═╡ d81d8fa1-3fec-4760-97cb-cbe909313438
 bdt = let
-	_model = AdaBoostStumpClassifier(; n_iterations=30)
-	fit!(_model, X_train, y_train)
+    _model = AdaBoostStumpClassifier(; n_iterations = 30)
+    fit!(_model, X_train, y_train)
 end
 
 # ╔═╡ 2f655e15-944f-4ad1-9aa0-50d6383286f4
 let
-	y_hat = predict(bdt, X_test);
-	accuracy = mean(y_hat .== y_test)
-	(; accuracy)
+    y_hat = predict(bdt, X_test)
+    accuracy = mean(y_hat .== y_test)
+    (; accuracy)
 end
 
 # ╔═╡ 73693b57-f4e1-4270-998a-8d98c346d8e9
 let _tree = bdt
-	# 
-	X_vis = rand(100_000,2)
-	y_vis = predict(_tree, X_vis)
-	_df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
-	# colored areas
-	bins=(range(0,1,300), range(0,1,300))
-	plot(aspect_ratio=1)
-	@df _df[_df.y .== :signal, :] histogram2d!(:f1, :f2; bins, c=1, α=0.4)
-	@df _df[_df.y .== :background, :] histogram2d!(:f1, :f2; bins, c=2, α=0.4)
-	# train sample
-	@df df_train[df_train.y .== :background, :] scatter!(:f1, :f2, c=2)
+    #
+    X_vis = rand(100_000, 2)
+    y_vis = predict(_tree, X_vis)
+    _df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
+    # colored areas
+    bins = (range(0, 1, 300), range(0, 1, 300))
+    plot(aspect_ratio = 1)
+    @df _df[_df.y.==:signal, :] histogram2d!(:f1, :f2; bins, c = 1, α = 0.4)
+    @df _df[_df.y.==:background, :] histogram2d!(:f1, :f2; bins, c = 2, α = 0.4)
+    # train sample
+    @df df_train[df_train.y.==:background, :] scatter!(:f1, :f2, c = 2)
 end
 
 # ╔═╡ 73f558e3-b148-478c-b765-4030a8838dff
 let
-	ps = map(bdt.ensemble.trees) do _tree
-		X_vis = rand(10_000,2)
-		y_vis = apply_tree(_tree, X_vis)
-		_df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
-		# colored areas
-		bins=(range(0,1,50), range(0,1,50))
-		plot(aspect_ratio=1, xaxis=nothing, yaxis=nothing, margin=-1mm)
-		@df _df[_df.y .== :signal, :] histogram2d!(:f1, :f2; bins, c=1, α=0.4)
-		@df _df[_df.y .== :background, :] histogram2d!(:f1, :f2; bins, c=2, α=0.4)
-	end
-	plot(ps..., size=(600,500))
+    ps = map(bdt.ensemble.trees) do _tree
+        X_vis = rand(10_000, 2)
+        y_vis = apply_tree(_tree, X_vis)
+        _df = DataFrame([X_vis y_vis], [:f1, :f2, :y])
+        # colored areas
+        bins = (range(0, 1, 50), range(0, 1, 50))
+        plot(aspect_ratio = 1, xaxis = nothing, yaxis = nothing, margin = -1mm)
+        @df _df[_df.y.==:signal, :] histogram2d!(:f1, :f2; bins, c = 1, α = 0.4)
+        @df _df[_df.y.==:background, :] histogram2d!(:f1, :f2; bins, c = 2, α = 0.4)
+    end
+    plot(ps..., size = (600, 500))
 end
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
