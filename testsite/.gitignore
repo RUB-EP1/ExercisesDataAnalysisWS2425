@@ -1,1 +1,6 @@
+_site/
+*.html
+*.quarto_ipynb
 /.quarto/
+mediabag/
+site_libs/
