@@ -1,0 +1,18 @@
+[project]
+channels = ["conda-forge"]
+name = "ExercisesDataAnalysisWS2425"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[dependencies]
+juliaup = "*"
+quarto = "*"
+jupyter = "*"
+
+[tasks.doc]
+cmd = """
+quarto render testsite
+"""
+
+[target.unix.activation]
+scripts = ["unix-activation.sh"]
