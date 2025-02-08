@@ -1,0 +1,36 @@
+project:
+  type: website
+  
+website:
+  title: "WeSE2024-DAHEP"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+    tools:
+      - icon: github
+        href: https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425
+  sidebar:
+          style: "docked"
+          search: true
+          contents:
+              - text: "Lectures"
+                href: lectures/lectures.qmd
+                contents: 
+                        - text: "Lecture01"
+                        - href: /home/dhruvanshu/ExercisesDataAnalysisWS2425/lectures/QMD/Lecture01Trial.qmd
+              - text: "Tutorials"
+                href: tutorials.qmd
+              - text: "Exercises"
+                href: exercises.qmd
+format:
+  html:
+    theme:
+      - cosmo
+      - brand
+    css: styles.css
+    toc: true
+
+
+

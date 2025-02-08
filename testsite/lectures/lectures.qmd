@@ -1,0 +1,5 @@
+---
+title: "Lectures"
+---
+
+All the lecture notebooks from the course can be found here.

@@ -1,0 +1,18 @@
+---
+title: "Lecture01Trial"
+format:
+  html:
+    code-fold: true
+jupyter: julia-1.11
+---
+```{julia}
+begin
+    using Pkg
+    Pkg.activate(joinpath("/home/dhruvanshu/ExercisesDataAnalysisWS2425"))
+    Pkg.instantiate()
+    using DataAnalysisWS2425
+    using QuadGK
+    using Plots
+end
+```
+

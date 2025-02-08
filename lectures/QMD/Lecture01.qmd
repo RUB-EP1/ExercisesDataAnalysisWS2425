@@ -1,0 +1,198 @@
+---
+title: "Lecture01"
+format:
+  html:
+    code-fold: true
+jupyter: julia-1.11
+---
+```{julia}
+using Markdown
+using InteractiveUtils
+
+macro bind(def, element)
+    quote
+        local iv = try
+            Base.loaded_modules[Base.PkgId(
+                Base.UUID("6e696c72-6542-2067-7265-42206c756150"),
+                "AbstractPlutoDingetjes",
+            )].Bonds.initial_value
+        catch
+            b -> missing
+        end
+        local el = $(esc(element))
+        global $(esc(def)) = Core.applicable(Base.get, el) ? Base.get(el) : iv(el)
+        el
+    end
+end
+```
+```{julia}
+begin
+    using Pkg
+    Pkg.activate(joinpath("/home/dhruvanshu/ExercisesDataAnalysisWS2425"))
+    Pkg.instantiate()
+    using DataAnalysisWS2425
+    using QuadGK
+    using Plots
+    using Cuba
+    using FFTW
+    using PlutoUI
+end
+```
+```{julia}
+md"""
+# Lecture 1a: Probability density functions
+"""
+```
+```{julia}
+theme(
+    :wong2,
+    frame = :box,
+    lab = "",
+    grid = false,
+    xlim = (:auto, :auto),
+    ylim = (:auto, :auto),
+)
+
+```
+```{julia}
+const support = (1.0, 3.0);
+
+function _f(x)
+    a, b = support
+    density = -(x - a) * (x - b) * x
+    return a < x < b ? density : zero(x)
+end
+
+const _n = quadgk(_f, support...)[1]
+
+f(x) = _f(x) / _n
+
+@bind xc Slider(range(support..., 100); default = 1.5)
+
+```
+```{julia}
+md"""
+## Commutative function
+"""
+```
+```{julia}
+F(x) = quadgk(f, support[1], x)[1]
+
+begin
+    plot(lab = "probability distribution function")
+    plot!(f, support..., fill = 0, c = 2, α = 0.3)
+    #
+    plot!(f, support[1], xc, c = 3, fill = 0)
+    annotate!(((xc + support[1]) / 2, 0.1, text(round(F(xc); digits = 2), :center)))
+    #
+    plot!(f, support..., c = 1, lw = 2)
+end
+```
+```{julia}
+plot(F, support...)
+```
+```{julia}
+md"""
+## Moments
+"""
+```
+```{julia}
+moment(n::Int) = quadgk(x -> x^n * f(x), support...)[1]
+
+function central_moment(n::Int)
+    μ = moment(1)
+    quadgk(x -> (x - μ)^n * f(x), support...)[1]
+end
+```
+```{julia}
+md"""
+The zero moment is a normalization
+"""
+```
+```{julia}
+moment(0)
+```
+```{julia}
+@assert moment(0) ≈ 1 "Something is fishy with normalization"
+```
+```{julia}
+md"""
+The first moment is a mean
+"""
+```
+```{julia}
+moment(1)
+```
+```{julia}
+md"""
+The second moment is related to variance
+
+$V(x) = E[x^2]-(E[x])^2$
+
+The standard deviation $\sigma$ is defined as a $\sqrt{V[x]}$.
+"""
+```
+```{julia}
+σ = sqrt(moment(2) - moment(1)^2)
+```
+```{julia}
+@assert σ ≈ sqrt(central_moment(2)) "Something is fishy with sigma"
+```
+```{julia}
+md"""
+Third moment is related to [skewness](https://en.wikipedia.org/wiki/Skewness): tells how asymmetric the distribution is.
+"""
+```
+```{julia}
+central_moment(3) / central_moment(2)^(3 / 2)
+```
+```{julia}
+md"""
+The the fourth moment is related to [kurtosis](https://en.wikipedia.org/wiki/Kurtosis): tells how significant the tails
+"""
+```
+```{julia}
+central_moment(4) / central_moment(2)^2 - 3
+```
+```{julia}
+md"""
+## Central limit theorem
+
+$S_n = X_1 + X_2 + \dots X_n$
+
+where $X_i$ are independent variables of the same distribution.
+
+CLT: The standardized sum defined by
+
+$Z_n = \frac{S_n - n\mu}{\sigma\sqrt{n}}$
+
+converges to $N(0,1)$ in a limit of high $n$.
+"""
+```
+```{julia}
+function sn_density(f::Function, x_range, n::Int)
+    f_values = f.(x_range)
+    F_f = fft(f_values)
+    F_sn = F_f .^ n
+    density = ifft(F_sn) |> real
+    dx = x_range[2] - x_range[1]
+    density /= sum(density) * dx
+    return density
+end
+
+let xv = range(0, 15, 500)
+    plot()
+    μ = moment(1)
+    σ = central_moment(2)
+    #
+    for n ∈ 1:4
+        _xv = xv
+        _density = sn_density(f, xv, n)
+        plot!(xv, _density, ylim = (0, :auto), fill = 0, c = n, alpha = 0.3, lab = "n=$n")
+    end
+    plot!()
+end
+```
+```{julia}
+gauss(x, μ, σ) = 1 / sqrt(2π) / σ * exp(-(x - μ)^2 / (2σ^2))
+```

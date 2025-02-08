@@ -1,0 +1,6 @@
+---
+title: "Exercises"
+---
+
+All the exercise notebooks from the course can be found here.
+

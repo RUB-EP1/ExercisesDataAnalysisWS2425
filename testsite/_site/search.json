@@ -1,0 +1,56 @@
+[
+  {
+    "objectID": "exercises.html",
+    "href": "exercises.html",
+    "title": "Exercises",
+    "section": "",
+    "text": "All the exercise notebooks from the course can be found here.",
+    "crumbs": [
+      "Home",
+      "Exercises"
+    ]
+  },
+  {
+    "objectID": "lectures/lectures.html",
+    "href": "lectures/lectures.html",
+    "title": "Lectures",
+    "section": "",
+    "text": "All the lecture notebooks from the course can be found here.",
+    "crumbs": [
+      "Home",
+      "Lectures"
+    ]
+  },
+  {
+    "objectID": "tutorials.html",
+    "href": "tutorials.html",
+    "title": "Tutorials",
+    "section": "",
+    "text": "All the tutorial notebooks from the course can be found here.",
+    "crumbs": [
+      "Home",
+      "Tutorials"
+    ]
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "WeSe2024-DAHEP",
+    "section": "",
+    "text": "This is the interactive website associated with the course “Data Analysis in High Energy Physics”. The website hosts julia notebooks from the lectures taught in the class, biweekly tutorials for code polishing and extra revisions and exercises to test the concepts of the lecture.\nThe exercise repository can be found here"
+  },
+  {
+    "objectID": "lectures/Lecture01Trial.html",
+    "href": "lectures/Lecture01Trial.html",
+    "title": "Lecture01Trial",
+    "section": "",
+    "text": "Code\nbegin\n    using Pkg\n    Pkg.activate(joinpath(\"/home/dhruvanshu/ExercisesDataAnalysisWS2425\"))\n    Pkg.instantiate()\n    using DataAnalysisWS2425\n    using QuadGK\n    using Plots\nend\n\n\n  Activating project at `~/ExercisesDataAnalysisWS2425`\nPrecompiling project...\n┌ Warning: attempting to remove probably stale pidfile\n│   path = \"/home/dhruvanshu/.julia/compiled/v1.11/XGBoost_jll/AJezb_b8Ybb.ji.pidfile\"\n└ @ FileWatching.Pidfile ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/FileWatching/src/pidfile.jl:249\n┌ Warning: attempting to remove probably stale pidfile\n│   path = \"/home/dhruvanshu/.julia/compiled/v1.11/DataFramesExt/8XGBh_b8Ybb.ji.pidfile\"\n└ @ FileWatching.Pidfile ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/FileWatching/src/pidfile.jl:249\n    UnitfulExt Being precompiled by another process (pid: 4765, pidfile: /home/dhruvanshu/.julia/compiled/v1.11/UnitfulExt/4ishe_b8Ybb.ji.pidfile)\n    GeometryBasicsExt Being precompiled by another process (pid: 4765, pidfile: /home/dhruvanshu/.julia/compiled/v1.11/GeometryBasicsExt/1SgMH_b8Ybb.ji.pidfile)\n    FHistPlotsExt Being precompiled by another process (pid: 4765, pidfile: /home/dhruvanshu/.julia/compiled/v1.11/FHistPlotsExt/KNJG4_b8Ybb.ji.pidfile)\n┌ Warning: failed to remove pidfile on close\n│   path = \"/home/dhruvanshu/.julia/compiled/v1.11/DataFramesExt/8XGBh_b8Ybb.ji.pidfile\"\n│   removed = false\n└ @ FileWatching.Pidfile ~/.julia/juliaup/julia-1.11.3+0.x64.linux.gnu/share/julia/stdlib/v1.11/FileWatching/src/pidfile.jl:347\n   2082.7 ms  ✓ Latexify → DataFramesExt\n   3093.8 ms  ✓ XGBoost_jll\n   3601.6 ms  ✓ FHist → FHistPlotsExt\n   4091.9 ms  ✓ Plots → UnitfulExt\n   3847.2 ms  ✓ Plots → GeometryBasicsExt\n   2356.0 ms  ✓ XGBoost\n   3704.7 ms  ✓ DataAnalysisWS2425\n  7 dependencies successfully precompiled in 29 seconds. 283 already precompiled.\n[ Info: Precompiling DistributedExt [075b2bf6-2807-5c02-93c4-9c66b4782582] (cache misses: wrong dep version loaded (2))"
+  },
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "About this site"
+  }
+]
