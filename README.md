@@ -1,3 +1,5 @@
+# DataAnalysisWS2425
+
 Welcome to the exercises for the "Data Analysis in HEP" lecture! :wave:
 
 In these exercises you will work through the statistical aspects of a typical data analysis in high energy physics. You will be equipped with a unique data set that resembles real data taken with the [LHCb experiment](https://lhcb-outreach.web.cern.ch/).
@@ -25,6 +27,10 @@ Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-
 - Sheet-07
 
 ## Reference DataAnalysisWS2425
+
+> [!IMPORTANT]
+> The julia package that inherits functionality developed during this course is separated into a standalone package.
+> Use [`HighEnergyTools.jl`](https://github.com/RUB-EP1/HighEnergyTools.jl) for basic sampling, fitting and plotting.
 
 The project is a valid julia Julia module, that is being developed along with the course.
 It provides essential tools and examples for statistical data analysis and fitting, designed to support and complement the lecture materials.
