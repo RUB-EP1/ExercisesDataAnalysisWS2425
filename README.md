@@ -24,7 +24,7 @@ Solution of the problems and the code should be sent to <Dhruvanshu.Parmar@ruhr-
 - [Sheet-04](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-04.md), published on **26/11/2024**, due on **08/12/2024**, discussed at the [Tutorial-05](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-05.md)
 - [Sheet-05](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-05.md), published on **10/12/2024**, due on **17/12/2024**, discussed at the [Tutorial-06](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/tutorials/tutorial-06.md)
 - [Sheet-06](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-06.md), published on **17/12/2024**, due on **19/01/2025**
-- Sheet-07
+- [Sheet-07](https://github.com/RUB-EP1/ExercisesDataAnalysisWS2425/blob/main/exercises/sheet-07.md): additional, handing it is voluntary.
 
 ## Reference DataAnalysisWS2425
 
